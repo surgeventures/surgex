@@ -6,7 +6,7 @@ defmodule Surgex.Config do
   system env vars on environments like Heroku. This convention is further extended here to allow
   type casting and falling back to defaults in such tuples.
 
-  Configs are assumed to like in app-specific parent scope, which is by default set to `:surgex`,
+  Configs are assumed to live in app-specific parent scope, which is by default set to `:surgex`,
   but should be set to actual application name. Then, all Mix configs that will be fetched via
   `Surgex.Config` should be nested in that scope.
 

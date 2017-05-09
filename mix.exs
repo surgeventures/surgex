@@ -13,7 +13,7 @@ defmodule Surgex.Mixfile do
      description: "All Things Elixir @ Surge Ventures",
      source_url: "https://github.com/surgeventures/surgex",
      homepage_url: "https://github.com/surgeventures/surgex",
-     docs: [main: "README",
+     docs: [main: "readme",
             logo: "logo.png",
             extras: ["README.md"]]]
   end
