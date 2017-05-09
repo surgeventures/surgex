@@ -10,7 +10,7 @@ defmodule Surgex.Mixfile do
      deps: deps(),
      package: package(),
      name: "Surgex",
-     description: "All Things Elixir @ Surge Ventures",
+     description: "All Things Elixir @ Surge Ventures Inc, the creators of Shedul",
      source_url: "https://github.com/surgeventures/surgex",
      homepage_url: "https://github.com/surgeventures/surgex",
      docs: [main: "readme",
@@ -21,7 +21,10 @@ defmodule Surgex.Mixfile do
   defp package do
     [maintainers: ["Karol Słuszniak"],
      licenses: ["MIT"],
-     links: %{github: "https://github.com/surgeventures/surgex"},
+     links: %{
+       "GitHub" => "https://github.com/surgeventures/surgex",
+       "Shedul" => "https://www.shedul.com"
+     },
      files: ~w(lib LICENSE.md mix.exs README.md)]
   end
 

@@ -1,6 +1,6 @@
 # Surgex
 
-***All Things Elixir @ Surge Ventures***
+***All Things Elixir @ Surge Ventures Inc, the creators of [Shedul](https://www.shedul.com)***
 
 This is the official entry point and hub for all company-wide Elixir efforts at Surge Ventures.
 Here's what you can expect to find in the
