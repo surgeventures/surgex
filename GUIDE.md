@@ -2,7 +2,7 @@
 
 ## Code Style
 
-### S1. <a name="indentation"></a>[Indentation](#indentation)
+### <a name="indentation"></a>[Indentation](#indentation)
 
 *Indentation must be done with 2 spaces.*
 
@@ -50,7 +50,7 @@ defmodule User do
 end
 ```
 
-### S2. <a name="line-length"></a>[Line length](#line-length)
+### <a name="line-length"></a>[Line length](#line-length)
 
 *Lines must not be longer than 100 characters.*
 
@@ -95,7 +95,7 @@ defmodule MyProject.Accounts.User do
 end
 ```
 
-### S3. <a name="trailing-white-space"></a>[Trailing white-space](#trailing-white-space)
+### <a name="trailing-white-space"></a>[Trailing white-space](#trailing-white-space)
 
 *Files must not include trailing white-space at the end of any line.*
 
@@ -120,7 +120,7 @@ Hidden white-space (simulated by adding comment at the end of line):
 func()                                                                                                                                                                                                           # line end
 ```
 
-### S4. <a name="trailing-newline"></a>[Trailing newline](#trailing-newline)
+### <a name="trailing-newline"></a>[Trailing newline](#trailing-newline)
 
 *Files must end with single line break.*
 
@@ -157,7 +157,7 @@ func()⮐
 
 ```
 
-### S5. <a name="operator-spacing"></a>[Operator spacing](#operator-spacing)
+### <a name="operator-spacing"></a>[Operator spacing](#operator-spacing)
 
 *Single space must be put around operators.*
 
@@ -182,7 +182,7 @@ No spacing:
 (a+b)/c
 ```
 
-### S6. <a name="comma-spacing"></a>[Comma spacing](#comma-spacing)
+### <a name="comma-spacing"></a>[Comma spacing](#comma-spacing)
 
 *Single space must be put after commas.*
 
@@ -206,7 +206,7 @@ before inline `do`:
 fn(arg,%{first: first,second: second}),do: nil
 ```
 
-### S7. <a name="bracket-spacing"></a>[Bracket spacing](#bracket-spacing)
+### <a name="bracket-spacing"></a>[Bracket spacing](#bracket-spacing)
 
 *There must be no space put before `}`, `]` or `)` and after `{`, `[` or `(`.*
 
@@ -245,7 +245,7 @@ Inconsistent padding:
 def func( %{first: second}, [head | tail]), do: nil
 ```
 
-### S8. <a name="negation-spacing"></a>[Negation spacing](#negation-spacing)
+### <a name="negation-spacing"></a>[Negation spacing](#negation-spacing)
 
 *There must be no space put before `!`.*
 
@@ -270,7 +270,7 @@ Operator precedence mixed up:
 ! blocked && allowed
 ```
 
-### S9. <a name="semicolon-vs-line-break"></a>[Semicolon vs line break](#semicolon-vs-line-break)
+### <a name="semicolon-vs-line-break"></a>[Semicolon vs line break](#semicolon-vs-line-break)
 
 *Semicolon (`;`) should not be used to separate statements and expressions.*
 
@@ -295,7 +295,7 @@ other_func()
 func(); other_func()
 ```
 
-### S10. <a name="block-inner-spacing"></a>[Block inner spacing](#block-inner-spacing)
+### <a name="block-inner-spacing"></a>[Block inner spacing](#block-inner-spacing)
 
 *Indentation blocks must never start or end with blank lines.*
 
@@ -323,7 +323,7 @@ def parent do
 end
 ```
 
-### S11. <a name="block-outer-spacing"></a>[Block outer spacing](#block-outer-spacing)
+### <a name="block-outer-spacing"></a>[Block outer spacing](#block-outer-spacing)
 
 *Indentation blocks should be surrounded with single blank line if there's surrounding code in
 parent block.*
@@ -371,7 +371,7 @@ def parent do
 end
 ```
 
-### S12. <a name="block-alignment"></a>[Block alignment](#block-alignment)
+### <a name="block-alignment"></a>[Block alignment](#block-alignment)
 
 *Vertical blocks (like named functions and pattern matched function definitions) should be
 preferred over horizontal blocks (like anonymous functions and `if`/`case`/`cond`).*
@@ -407,23 +407,24 @@ defp map_array(array) do
 end
 ```
 
-### S13. <a name="inline-alignment"></a>[Inline alignment](#inline-alignment)
+### <a name="inline-block-usage"></a>[Inline block usage](inline-block-usage)
 
-*2 space indentation should be preferred over horizontal alignment.*
+Inline blocks (`do:`) should be preferred over block version for simple code that fits one line.
+
+### <a name="multi-line-assignment-alignment"></a>[Multi-line assignment alignment](#multi-line-assignment-alignment)
+
+*When assigning to a multi-line call, a new line should be inserted after the `=` and the assigned
+value's calculation should be indented by one level.*
 
 #### Reasoning
 
 Horizontal alignment is something especially tempting in Elixir programming as there are many
-operators and structures that look cool when it gets applied. Here are some examples
+operators and structures that look cool when it gets applied. In particular, pipe chains only look
+good when the pipe "comes out" from the initial value. In order to achieve that, vertical alignment
+is often (over)used.
 
-- pipe chains only look good when the pipe "comes out" from the initial value
-- keyword lists in Ecto's `from` macro look readable when aligned to the `:` after each keyword
-- tuples look compact when their content starts directly after the tuple opening
-
-In some cases it may indeed be OK to try doing that, but in general you're better off avoiding this
-syntax as it forces to invent a new indentation for each specific case and this indentation is
-usually not so much future-proof as adding even a single line may force a future committer to
-re-align the whole thing and ruin the diff.
+The issue is with future-proofness of such alignment. For instance, it'll get ruined without
+developer's attention in typical find-and-replace sessions.
 
 #### Examples
 
@@ -437,8 +438,7 @@ user =
   |> Repo.one()
 ```
 
-Cool yet not so cool pipe chain, since it will get ruined on such rare occasion as when `user`
-variable will have to get renamed:
+Cool yet not so future-proof pipe chain:
 
 ```elixir
 user = User
@@ -447,7 +447,7 @@ user = User
        |> Repo.one()
 ```
 
-As a bonus, here's how beautiful that will look after a typical find-and-replace session:
+Find-and-replace session result (beautiful, isn't it?):
 
 ```elixir
 authorized_user = User
@@ -456,8 +456,28 @@ authorized_user = User
        |> Repo.one()
 ```
 
-Preferred Ecto alignment with 2 spaces (and additional 2 spaces for contextual indentation of
-sub-keywords, like `on` for every `join`):
+### <a name="ecto-query-alignment"></a>[Ecto query alignment](#ecto-query-alignment)
+
+*When assigning to a multi-line call, a new line should be inserted after the `=` and the assigned
+value's calculation should be indented by one level.*
+
+#### Reasoning
+
+Horizontal alignment is something especially tempting in Elixir programming as there are many
+operators and structures that look cool when it gets applied. In particular, Ecto queries are often
+written and seem to look good when aligned to `:` after `from` macro keywords. In order to achieve
+that, vertical alignment is often (over)used.
+
+The issue is with future-proofness of such alignment. For instance, it'll get ruined when longer
+keyword will have to be added, such as `preload` or `select` in queries with only `join` or `where`.
+
+It's totally possible to adhere to the 2 space indentation rule and yet to write a good looking and
+readable Ecto query. In order to make things more readable, additional 2 spaces can be added for
+contextual indentation of sub-keywords, like `on` after `join`.
+
+#### Examples
+
+Preferred Ecto alignment:
 
 ```elixir
 from users in User,
@@ -468,8 +488,7 @@ from users in User,
   preload: [:credit_card],
 ```
 
-Cool yet not so cool Ecto alignment, since it will get ruined on such rare occasion as when
-`select` or `preload` will have to be added:
+Cool yet not so future-proof Ecto alignment:
 
 ```elixir
 from users in User,
@@ -478,47 +497,136 @@ from users in User,
   where: is_nil(users.deleted_at)
 ```
 
-### S15. <a name="pipe-chain-start"></a>[Pipe chain start](#pipe-chain-start)
+### <a name="pipe-chain-start"></a>[Pipe chain start](#pipe-chain-start)
 
 *Pipe chains must not be started with a function call, but with a plain value.*
 
-### S16. <a name="pipe-chain-usage"></a>[Pipe chain usage](#pipe-chain-usage)
+#### Reasoning
 
-*Pipe chains must be used for only for multiple function call and never for single function calls.
-For example, `fn(arg)` is preferred over `arg |> fn()`, but `arg |> first_fn() |> second_fn()` is
-preferred over `second_fn(first_fn(arg))`.*
+The whole point of pipe chain is to push some value through the chain, end to end. In order to do
+that, it's best to keep away from starting chains with function calls.
 
-### S17. <a name="large-number-padding"></a>[Large number padding](#large-number-padding)
+This also makes it easier to see if pipe operator should be used at all (since chain with 2 pipes
+will may get reduced to just 1 pipe when started with function call and that may falsely look like
+a case when pipe should not be used at all).
 
-*Large numbers must be padded with underscores. For example, `50_000` is preferred over `50000`.*
+#### Examples
+
+Preferred:
+
+```elixir
+arg
+|> func()
+|> other_func()
+```
+
+Not preferred (and just weird):
+
+```elixir
+func(arg)
+|> other_func()
+```
+
+### <a name="pipe-chain-usage"></a>[Pipe chain usage](#pipe-chain-usage)
+
+*Pipe chains must be used for only for multiple function call and never for single function calls.*
+
+#### Reasoning
+
+The whole point of pipe chain is that... well, it must be a *chain*. As such, single function call
+does not qualify.
+
+#### Examples
+
+Preferred for 2 and more function calls:
+
+```elixir
+arg
+|> func()
+|> other_func()
+```
+
+Preferred for 1 function call:
+
+```elixir
+yet_another_func(a, b)
+```
+
+Not preferred:
+
+```elixir
+other_func(func(arg))
+
+a |> yet_another_func(b)
+```
+
+### <a name="large-number-padding"></a>[Large number padding](#large-number-padding)
+
+*Large numbers must be padded with underscores.*
+
+#### Reasoning
+
+They're more readable that way.
+
+#### Examples
+
+Preferred:
+
+```elixir
+x = 50_000_000
+```
+
+"How many zeros is that" puzzle (hint: not as many as on previous example):
+
+```elixir
+x = 5000000
+```
+
+### <a name="function-call-parentheses"></a>[Function call parentheses](#function-call-parentheses)
 
 Functions should be called with parentheses. For example, `fn()` or `fn(arg)` is preferred over
 `fn` or `fn arg`.
 
+### <a name="macro-call-parentheses"></a>[Macro call parentheses](#macro-call-parentheses)
+
 Macros should be called without parentheses. For example, `if bool` or `from t in table` is
 preferred over `if(bool)` or `from(t in table)`.
 
+### <a name="moduledoc-spacing"></a>[Moduledoc spacing](#moduledoc-spacing)
+
 Single blank line must be inserted after `@moduledoc`.
+
+### <a name="doc-spacing"></a>[Doc spacing](#doc-spacing)
 
 There must be no blank lines between `@doc` and the function definition.
 
-Multiple aliases, imports or uses from single module must be grouped with `{}`.
+### <a name="module-alias-usage"></a>[Module alias usage](#module-alias-usage)
 
 Aliases should be preferred over using full module name when they don't override other used modules
 and when they're used more than once.
+
+### <a name="module-macro-grouping"></a>[Module macro grouping](#module-macro-grouping)
+
+Multiple aliases, imports or uses from single module must be grouped with `{}`.
+
+### <a name="module-macro-scope"></a>[Module macro scope](module-macro-scope)
 
 If a need for `alias`, `import` or `require` spans only across single function in a module, it
 should be preferred to declare it locally on top of that function instead of globally for whole
 module.
 
+### <a name="module-macro-order"></a>[Module macro order](module-macro-order)
+
 Calls to `use`, `require`, `import` and `alias` should be placed in that order.
+
+### <a name="module-macro-placement"></a>[Module macro placement](module-macro-placement)
 
 Calls to `use`, `require`, `import` and `alias` should be placed on top of module or function, or
 directly below `@moduledoc` in case of modules with documentation.
 
-Calls to `use`, `require`, `import` and `alias` should not be separated with blank lines.
+### <a name="module-macro-spacing"></a>[Module macro spacing](module-macro-spacing)
 
-Inline `do:` should be preferred over block version for simple code that fits one line.
+Calls to `use`, `require`, `import` and `alias` should not be separated with blank lines.
 
 ## Software Design
 
