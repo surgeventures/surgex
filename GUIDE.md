@@ -1,5 +1,42 @@
 # Programming Guide
 
+<!-- MarkdownTOC -->
+
+- [Code Style](#code-style)
+  - [Indentation](#indentation)
+  - [Line length](#line-length)
+  - [Trailing white-space](#trailing-white-space)
+  - [Trailing newline](#trailing-newline)
+  - [Operator spacing](#operator-spacing)
+  - [Comma spacing](#comma-spacing)
+  - [Bracket spacing](#bracket-spacing)
+  - [Negation spacing](#negation-spacing)
+  - [Semicolon vs line break](#semicolon-vs-line-break)
+  - [Block inner spacing](#block-inner-spacing)
+  - [Block outer spacing](#block-outer-spacing)
+  - [Block alignment](#block-alignment)
+  - [Inline block usage](#inline-block-usage)
+  - [Multi-line assignment](#multi-line-assignment)
+  - [Ecto query alignment](#ecto-query-alignment)
+  - [Pipe chain usage](#pipe-chain-usage)
+  - [Pipe chain start](#pipe-chain-start)
+  - [Large number padding](#large-number-padding)
+  - [Function call parentheses](#function-call-parentheses)
+  - [Macro call parentheses](#macro-call-parentheses)
+  - [Moduledoc spacing](#moduledoc-spacing)
+  - [Doc spacing](#doc-spacing)
+  - [Alias usage](#alias-usage)
+  - [Reuse directive grouping](#reuse-directive-grouping)
+  - [Reuse directive scope](#reuse-directive-scope)
+  - [Reuse directive placement](#reuse-directive-placement)
+  - [Reuse directive order](#reuse-directive-order)
+  - [Reuse directive spacing](#reuse-directive-spacing)
+- [Software Design](#software-design)
+- [Project Structure](#project-structure)
+
+<!-- /MarkdownTOC -->
+
+
 ## Code Style
 
 ### <a name="indentation"></a>[Indentation](#indentation)
@@ -8,12 +45,12 @@
 
 #### Reasoning
 
-This is kind of a [delicate subject](https://youtu.be/SsoOG6ZeyUI), but seemingly both Elixir and
-Ruby communities mostly prefer spaces, so it's best to stay aligned.
+This is [kind of a delicate subject](https://youtu.be/SsoOG6ZeyUI), but seemingly both Elixir and
+Ruby communities usually go for spaces, so it's best to stay aligned.
 
-When it comes to linting, the use of specific number of spaces works well with the line length
-rule, while tabs can be expanded to arbitrary number of soft spaces in editor, possibly ruining all
-the hard work put into staying in line with the column limit.
+When it comes to linting, the use of specific number of spaces works well with the
+[line length](#line-length) rule, while tabs can be expanded to arbitrary number of soft spaces in
+editor, possibly ruining all the hard work put into staying in line with the column limit.
 
 As to the number of spaces, 2 seems to be optimal to allow unconstrained module, function and block
 indentation without sacrificing too many columns.
@@ -61,7 +98,7 @@ indenting blocks. Considering modern screen resolutions, 100 columns should work
 with something more modern than
 [this video card](https://en.wikipedia.org/wiki/Color_Graphics_Adapter).
 
-100 column limit also works well with GitHub.
+Also, 100 column limit plays well with GitHub, CodeClimate, HexDocs and others.
 
 #### Examples
 
@@ -127,10 +164,10 @@ func()                                                                          
 #### Reasoning
 
 Many editors and version control systems consider files without final line break invalid. In git,
-such last line gets highlighted with red color. Like with trailing white-space, it's a bad habit to
-leave such artifacts and ruin diffs for developers who save files correctly.
+such last line gets highlighted with an alarming red. Like with trailing white-space, it's a bad
+habit to leave such artifacts and ruin diffs for developers who save files correctly.
 
-Reversely, leaving too many line breaks may also ruin version control diffs.
+Reversely, leaving too many line breaks is just sloppy.
 
 Most editors can be tuned to automatically add single trailing line break on save.
 
@@ -176,7 +213,7 @@ Preferred:
 (a + b) / c
 ```
 
-No spacing:
+Hard to read:
 
 ```elixir
 (a+b)/c
@@ -188,7 +225,7 @@ No spacing:
 
 #### Reasoning
 
-It's a convention that passes through many languages. It looks good and so there's no reason to
+It's a convention that passes through many languages - it looks good and so there's no reason to
 make an exception for Elixir on this one.
 
 #### Examples
@@ -208,22 +245,23 @@ fn(arg,%{first: first,second: second}),do: nil
 
 ### <a name="bracket-spacing"></a>[Bracket spacing](#bracket-spacing)
 
-*There must be no space put before `}`, `]` or `)` and after `{`, `[` or `(`.*
+*There must be no space put before `}`, `]` or `)` and after `{`, `[` or `(` brackets.*
 
 #### Reasoning
 
 It's often tempting to add inner padding for tuples, maps, lists or function arguments to give
 those constructs more space to breathe, but these structures are distinct enough to be readable
-without it. Actually they may be more readable without the padding, because this rule plays well
-with other spacing rules (like comma spacing or operator spacing), making expressions that combine
-brackets and operators have a distinct, nicely parse-able "rhythm".
+without it. They may actually be more readable without the padding, because this rule plays well
+with other spacing rules (like [comma spacing](#comma-spacing) or
+[operator spacing](#operator-spacing)), making expressions that combine brackets and operators have
+a distinct, nicely parse-able "rhythm".
 
 Also, when allowed to pad brackets, developers tend to add such padding inconsistently - even
-between opening and ending in single line - so it's better to settle upon not doing such padding at
-all.
+between opening and ending in single line. This gets even worse once a different developer modifies
+such code and has a different approach towards bracket spacing.
 
-Lastly, it keeps pattern matchings more compact and readable, which invites developers to use this
-wonderful Elixir feature to the fullest.
+Lastly, it keeps pattern matchings more compact and readable, which invites developers to utilize
+this wonderful Elixir feature to the fullest.
 
 #### Examples
 
@@ -233,13 +271,13 @@ Preferred:
 def func(%{first: second}, [head | tail]), do: nil
 ```
 
-Everything padded and unreadable, since code has no "rhythm":
+Everything padded and unreadable (no "rhythm"):
 
 ```elixir
 def func( %{ first: second }, [ head | tail ] ), do: nil
 ```
 
-Inconsistent padding:
+Inconsistencies:
 
 ```elixir
 def func( %{first: second}, [head | tail]), do: nil
@@ -247,14 +285,14 @@ def func( %{first: second}, [head | tail]), do: nil
 
 ### <a name="negation-spacing"></a>[Negation spacing](#negation-spacing)
 
-*There must be no space put before `!`.*
+*There must be no space put before the `!` operator.*
 
 #### Reasoning
 
 Like with brackets, it may be tempting to pad negation to make it more visible, but in general
-single argument operators tend to be easier to parse when they live close to their argument. Why?
-Because they usually have precedence over two argument operators and padding them away from their
-argument makes this precedence less apparent.
+unary operators tend to be easier to parse when they live close to their argument. Why? Because
+they usually have precedence over binary operators and padding them away from their argument makes
+this precedence less apparent.
 
 #### Examples
 
@@ -278,7 +316,10 @@ Operator precedence mixed up:
 
 This is the most classical case when it comes to preference of vertical over horizontal alignment.
 Let's just keep `;` operator for `iex` sessions and focus on code readability over doing code
-minification manually - EVM won't explode from that additional line break.
+minification manually - neither EVM nor GitHub will explode over that additional line break.
+
+(Actually, ", " costs one more byte than an Unix line break but if that would be our biggest
+concern then I suppose we wouldn't [prefer spaces over tabs](#indentation), so...)
 
 #### Examples
 
@@ -335,10 +376,11 @@ developers, but the common aim usually is to break the heaviest parts into separ
 This rule tries to highlight one most obvious candidate for such "block" which is... an actual
 block.
 
-Since blocks are indented on the inside, there's no point in padding them there, but the outer
-parts of the block (the line where `do` appears and the line where `end` appears) often include a
-key to a reasoning about the whole block and are often the most important parts of the whole parent
-scope, so it may be benefiting to make that part distinct.
+Since blocks are indented on the inside,
+[there's no point in padding them there](#block-inner-spacing), but the outer parts of the block
+(the line where `do` appears and the line where `end` appears) often include a key to a reasoning
+about the whole block and are often the most important parts of the whole parent scope, so it may
+be beneficial to make that part distinct.
 
 In case of Elixir it's even more important, since block openings often include non-trivial
 destructuring, pattern matching, wrapping things in tuples etc.
@@ -378,7 +420,23 @@ preferred over horizontal blocks (like anonymous functions and `if`/`case`/`cond
 
 #### Examples
 
-Preferred:
+Too much crazy indentation to fit everything in one function:
+
+```elixir
+defp map_array(array) do
+  array
+  |> Enum.uniq
+  |> Enum.map(fn array_item ->
+       if is_binary(array_item) do
+         array_item <> " (changed)"
+       else
+         array_item + 1
+       end
+     end)
+end
+```
+
+Preferred refactor of the above:
 
 ```elixir
 defp map_array(array) do
@@ -391,44 +449,57 @@ defp map_array_item(array_item) when is_binary(array_item), do: array_item <> " 
 defp map_array_item(array_item), do: array_item + 1
 ```
 
-Too much crazy indentation to fit everything in one function:
-
-```elixir
-defp map_array(array) do
-  array
-  |> Enum.uniq
-  |> Enum.map(fn array_item ->
-       if is_string(array_item) do
-         array_item <> " (changed)"
-       else
-         array_item + 1
-       end
-     end)
-end
-```
-
 ### <a name="inline-block-usage"></a>[Inline block usage](inline-block-usage)
 
 Inline blocks (`do:`) should be preferred over block version for simple code that fits one line.
 
-### <a name="multi-line-assignment-alignment"></a>[Multi-line assignment alignment](#multi-line-assignment-alignment)
+#### Reasoning
 
-*When assigning to a multi-line call, a new line should be inserted after the `=` and the assigned
+In case of simple and small functions, conditions etc, the inline variant of block allows to keep
+code more compact and fit biggest piece of the story on the screen without losing readability.
+
+#### Examples
+
+Preferred:
+
+```elixir
+def add_two(number), do: number + 2
+```
+
+Wasted vertical space:
+
+```elixir
+def add_two(number) do
+  number + 2
+end
+```
+
+Too long (or to complex) to be inlined:
+
+```elixir
+def add_two_and_multiply_by_the_meaning_of_life_and_more(number),
+  do: (number + 2) * 42 * get_more_for_this_truly_crazy_computation(number)
+```
+
+### <a name="multi-line-assignment"></a>[Multi-line assignment](#multi-line-assignment)
+
+*When assigning a multi-line call, a new line should be inserted after the `=` and the assigned
 value's calculation should be indented by one level.*
 
 #### Reasoning
 
 Horizontal alignment is something especially tempting in Elixir programming as there are many
 operators and structures that look cool when it gets applied. In particular, pipe chains only look
-good when the pipe "comes out" from the initial value. In order to achieve that, vertical alignment
-is often (over)used.
+good when the pipe "comes out" from the initial value. In order to achieve that in assignment,
+vertical alignment is often overused.
 
-The issue is with future-proofness of such alignment. For instance, it'll get ruined without
-developer's attention in typical find-and-replace sessions.
+The issue is with future-proofness of such alignment. For instance, it may easily get ruined
+without developer's attention in typical find-and-replace sessions that touch the name on the left
+side of `=` sign.
 
 #### Examples
 
-Preferred multi-line assignment of pipe chain:
+Preferred:
 
 ```elixir
 user =
@@ -438,7 +509,7 @@ user =
   |> Repo.one()
 ```
 
-Cool yet not so future-proof pipe chain:
+Cool yet not so future-proof:
 
 ```elixir
 user = User
@@ -447,7 +518,7 @@ user = User
        |> Repo.one()
 ```
 
-Find-and-replace session result (beautiful, isn't it?):
+Find-and-replace session result on the above:
 
 ```elixir
 authorized_user = User
@@ -458,18 +529,20 @@ authorized_user = User
 
 ### <a name="ecto-query-alignment"></a>[Ecto query alignment](#ecto-query-alignment)
 
-*When assigning to a multi-line call, a new line should be inserted after the `=` and the assigned
-value's calculation should be indented by one level.*
+*When writing multi-line Ecto queries using the `from` macro, a 2 space indentation should be
+applied. An additional 2 space indentation may be added for contextual indentation of sub-keywords,
+like `on` after `join`.*
 
 #### Reasoning
 
 Horizontal alignment is something especially tempting in Elixir programming as there are many
 operators and structures that look cool when it gets applied. In particular, Ecto queries are often
-written and seem to look good when aligned to `:` after `from` macro keywords. In order to achieve
-that, vertical alignment is often (over)used.
+written (and they do look good) when aligned to `:` after `from` macro keywords. In order to
+achieve that, vertical alignment is often overused.
 
 The issue is with future-proofness of such alignment. For instance, it'll get ruined when longer
-keyword will have to be added, such as `preload` or `select` in queries with only `join` or `where`.
+keyword will have to be added, such as `preload` or `select` in queries with only `join` or
+`where`.
 
 It's totally possible to adhere to the 2 space indentation rule and yet to write a good looking and
 readable Ecto query. In order to make things more readable, additional 2 spaces can be added for
@@ -477,7 +550,7 @@ contextual indentation of sub-keywords, like `on` after `join`.
 
 #### Examples
 
-Preferred Ecto alignment:
+Preferred:
 
 ```elixir
 from users in User,
@@ -488,43 +561,13 @@ from users in User,
   preload: [:credit_card],
 ```
 
-Cool yet not so future-proof Ecto alignment:
+Cool yet not so future-proof:
 
 ```elixir
 from users in User,
    join: credit_cards in assoc(users, :credit_card),
      on: is_nil(credit_cards.deleted_at),
   where: is_nil(users.deleted_at)
-```
-
-### <a name="pipe-chain-start"></a>[Pipe chain start](#pipe-chain-start)
-
-*Pipe chains must not be started with a function call, but with a plain value.*
-
-#### Reasoning
-
-The whole point of pipe chain is to push some value through the chain, end to end. In order to do
-that, it's best to keep away from starting chains with function calls.
-
-This also makes it easier to see if pipe operator should be used at all (since chain with 2 pipes
-will may get reduced to just 1 pipe when started with function call and that may falsely look like
-a case when pipe should not be used at all).
-
-#### Examples
-
-Preferred:
-
-```elixir
-arg
-|> func()
-|> other_func()
-```
-
-Not preferred (and just weird):
-
-```elixir
-func(arg)
-|> other_func()
 ```
 
 ### <a name="pipe-chain-usage"></a>[Pipe chain usage](#pipe-chain-usage)
@@ -534,7 +577,8 @@ func(arg)
 #### Reasoning
 
 The whole point of pipe chain is that... well, it must be a *chain*. As such, single function call
-does not qualify.
+does not qualify. Reversely, nesting multiple calls instead of piping them seriously limits the
+readability of the code.
 
 #### Examples
 
@@ -560,13 +604,44 @@ other_func(func(arg))
 a |> yet_another_func(b)
 ```
 
+### <a name="pipe-chain-start"></a>[Pipe chain start](#pipe-chain-start)
+
+*Pipe chains must not be started with a function call, but with a plain value.*
+
+#### Reasoning
+
+The whole point of pipe chain is to push some value through the chain, end to end. In order to do
+that consistently, it's best to keep away from starting chains with function calls.
+
+This also makes it easier to see [if pipe operator should be used at all](#pipe-chain-usage) -
+since chain with 2 pipes may get reduced to just 1 pipe when inproperly started with function call,
+it may falsely look like a case when pipe should not be used at all.
+
+#### Examples
+
+Preferred:
+
+```elixir
+arg
+|> func()
+|> other_func()
+```
+
+Chain that lost its reason to live:
+
+```elixir
+func(arg)
+|> other_func()
+```
+
 ### <a name="large-number-padding"></a>[Large number padding](#large-number-padding)
 
 *Large numbers must be padded with underscores.*
 
 #### Reasoning
 
-They're more readable that way.
+They're just more readable that way. It's one of those cases when a minimal effort can lead to
+eternal gratitude from other committers.
 
 #### Examples
 
@@ -576,7 +651,7 @@ Preferred:
 x = 50_000_000
 ```
 
-"How many zeros is that" puzzle (hint: not as many as on previous example):
+"How many zeros is that" puzzle (hint: not as many as in previous example):
 
 ```elixir
 x = 5000000
@@ -584,49 +659,414 @@ x = 5000000
 
 ### <a name="function-call-parentheses"></a>[Function call parentheses](#function-call-parentheses)
 
-Functions should be called with parentheses. For example, `fn()` or `fn(arg)` is preferred over
-`fn` or `fn arg`.
+*Functions should be called with parentheses.*
+
+#### Reasoning
+
+There's a convention in Elixir universe to make function calls distinct from macro calls by
+consistently covering them with parentheses. Function calls often take part in multiple operations
+in a single line or inside pipes and as such, it's just safer to mark the precedence via
+parentheses.
+
+#### Examples
+
+Preferred:
+
+```elixir
+first() && second(arg)
+```
+
+Unreadable and with compiler warning coming up:
+
+```elixir
+first && second arg
+```
 
 ### <a name="macro-call-parentheses"></a>[Macro call parentheses](#macro-call-parentheses)
 
-Macros should be called without parentheses. For example, `if bool` or `from t in table` is
-preferred over `if(bool)` or `from(t in table)`.
+*Macros should be called without parentheses.*
+
+#### Reasoning
+
+There's a convention in Elixir universe to make function calls distinct from macro calls by
+consistently covering them with parentheses. Compared to [functions](#function-call-parentheses),
+macros are often used as a DSL, with one macro invocation per line. As such, they can be safely
+written (and just look better) without parentheses.
+
+#### Examples
+
+Preferred:
+
+```elixir
+if bool, do: nil
+
+from t in table, select: t.id
+```
+
+Macro call that looks like a function call:
+
+```elixir
+from(t in table, select: t.id)
+```
 
 ### <a name="moduledoc-spacing"></a>[Moduledoc spacing](#moduledoc-spacing)
 
-Single blank line must be inserted after `@moduledoc`.
+*Single blank line must be inserted after `@moduledoc`.*
+
+#### Reasoning
+
+`@moduledoc` is a module-wide introduction to the module. It makes sense to give it padding and
+separate it from what's coming next. The reverse looks especially bad when followed by a function
+that has no `@doc` clause yet.
+
+#### Examples
+
+Preferred:
+
+```elixir
+defmodule SuperMod do
+  @moduledoc """
+  This module is seriously amazing.
+  """
+end
+```
+
+`@moduledoc` that pretends to be a `@doc`:
+
+```elixir
+defmodule SuperMod do
+  @moduledoc """
+  This module is seriously amazing.
+  """
+  def call, do: nil
+end
+```
 
 ### <a name="doc-spacing"></a>[Doc spacing](#doc-spacing)
 
-There must be no blank lines between `@doc` and the function definition.
+*There must be no blank lines between `@doc` and the function definition.*
 
-### <a name="module-alias-usage"></a>[Module alias usage](#module-alias-usage)
+#### Reasoning
 
-Aliases should be preferred over using full module name when they don't override other used modules
-and when they're used more than once.
+Compared to [moduledoc spacing](#moduledoc-spacing), the `@doc` clause belongs to the function
+definition directly beneath it, so the lack of blank line between the two is there to make this
+linkage obvious. If the blank line is there, there's a growing risk of `@doc` clause becoming
+completely separated from its owner in the heat of future battles.
 
-### <a name="module-macro-grouping"></a>[Module macro grouping](#module-macro-grouping)
+#### Examples
 
-Multiple aliases, imports or uses from single module must be grouped with `{}`.
+Preferred:
 
-### <a name="module-macro-scope"></a>[Module macro scope](module-macro-scope)
+```elixir
+@doc """
+This is by far the most complex function in the universe.
+"""
+def func, do: nil
+```
 
-If a need for `alias`, `import` or `require` spans only across single function in a module, it
-should be preferred to declare it locally on top of that function instead of globally for whole
-module.
+Weak linkage:
 
-### <a name="module-macro-order"></a>[Module macro order](module-macro-order)
+```elixir
+@doc """
+This is by far the most complex function in the universe.
+"""
 
-Calls to `use`, `require`, `import` and `alias` should be placed in that order.
+def func, do: nil
+```
 
-### <a name="module-macro-placement"></a>[Module macro placement](module-macro-placement)
+Broken linkage:
 
-Calls to `use`, `require`, `import` and `alias` should be placed on top of module or function, or
-directly below `@moduledoc` in case of modules with documentation.
+```elixir
+@doc """
+This is by far the most complex function in the universe.
+"""
 
-### <a name="module-macro-spacing"></a>[Module macro spacing](module-macro-spacing)
+def non_complex_func, do: something_less_complex_than_returning_nil()
 
-Calls to `use`, `require`, `import` and `alias` should not be separated with blank lines.
+def func, do: nil
+```
+
+### <a name="alias-usage"></a>[Alias usage](#alias-usage)
+
+*Aliases established via `alias` directive should be preferred over using full module name when
+they don't override other used modules.*
+
+#### Reasoning
+
+Aliasing modules makes code more compact and easier to read.
+
+#### Examples
+
+Preferred:
+
+```elixir
+alias Toolbox.Creator
+
+def create(params)
+  params
+  |> Creator.build()
+  |> Creator.call()
+  |> Toolbox.IO.write() # Toolbox.IO not aliased to keep stdlib's IO accessible
+end
+```
+
+Not so DRY:
+
+```elixir
+def create(params)
+  params
+  |> Toolbox.Creator.build()
+  |> Toolbox.Creator.call()
+  |> Toolbox.IO.write() # Toolbox.IO not aliased to keep stdlib's IO accessible
+end
+```
+
+### <a name="reuse-directive-grouping"></a>[Reuse directive grouping](#reuse-directive-grouping)
+
+*Multiple calls to `alias`, `import`, `require` or `use` against a single module must be grouped
+with `{}` parentheses, each sub-module name in a separate line, sorted alphabetically.*
+
+#### Reasoning
+
+The fresh new grouping ability for `alias`, `import` and `use` allows to make multiple imports
+from single module shorter, more declarative and easier to comprehend. It's just a challenge to use
+this convention consistently, hence this rule.
+
+Keeping sub-module names in separate lines (even when they could fit a single line) is an
+investment for the future - to have clean diffs when more modules will get added. It's also easier
+to keep them in alphabetical order when they're in separate lines from day one.
+
+#### Examples
+
+Preferred:
+
+```elixir
+alias Toolbox.{
+  Creator,
+  Deletor,
+  Other,
+}
+alias SomeOther.Mod
+```
+
+Short but not so future-proof:
+
+```elixir
+alias Toolbox.{Creator, Deletor, Other}
+```
+
+Classical but inconsistent and not so future-proof:
+
+```elixir
+alias Toolbox.Creator
+alias Toolbox.Deletor
+alias SomeOther.Mod
+alias Toolbox.Other
+```
+
+### <a name="reuse-directive-scope"></a>[Reuse directive scope](#reuse-directive-scope)
+
+*If a need for `alias`, `import` or `require` spans only across single function in a module (or
+across a small subset of functions in otherwise large module), it should be preferred to declare it
+locally on top of that function instead of globally for whole module.*
+
+#### Reasoning
+
+Keeping these declarations local makes them even more descriptive as to what scope is really
+affected. They're also more visible, being closer to the place they're used at. The chance for
+conflicts is also reduced when they're local.
+
+#### Examples
+
+Preferred (`alias` on `Users.User` is used in both `create` and `delete` functions so it's made
+global, but `import` on `Ecto.Query` is only used in `delete` function so it's declared only
+there):
+
+```elixir
+defmodule Users do
+  alias Users.User
+
+  def create(params)
+    %User{}
+    |> User.changeset(params)
+    |> Repo.insert()
+  end
+
+  def delete(user_id) do
+    import Ecto.Query
+
+    Repo.delete_all(from users in User, where: users.id == ^user_id)
+  end
+end
+```
+
+Not so DRY (still, this could be OK if there would be more functions in `Users` module that
+wouldn't use the `User` sub-module):
+
+```elixir
+defmodule Users do
+  def create(params)
+    alias Users.User
+
+    %User{}
+    |> User.changeset(params)
+    |> Repo.insert()
+  end
+
+  def delete(user_id) do
+    import Ecto.Query
+    alias Users.User
+
+    Repo.delete_all(from users in User, where: users.id == ^user_id)
+  end
+end
+```
+
+Everything a bit too public:
+
+```elixir
+defmodule Users do
+  import Ecto.Query
+  alias Users.User
+
+  def create(params)
+    %User{}
+    |> User.changeset(params)
+    |> Repo.insert()
+  end
+
+  def delete(user_id) do
+    Repo.delete_all(from users in User, where: users.id == ^user_id)
+  end
+end
+```
+
+### <a name="reuse-directive-placement"></a>[Reuse directive placement](#reuse-directive-placement)
+
+*Calls to `alias`, `import`, `require` or `use` should be placed on top of module or function, or
+directly below `@moduledoc` in case of modules with documentation.*
+
+#### Reasoning
+
+Just like with [the order rule](#reuse-directive-order), this is to make finding these directives
+faster when reading the code. For that reason, it's more beneficial to have such important key for
+interpreting code in obvious place than attempting to have them right above the point where they're
+needed (which usually ends up messed up anyway when code gets changed over time).
+
+#### Examples
+
+Preferred:
+
+```elixir
+defmodule Users do
+  alias Users.User
+
+  def name(user) do
+    user["name"] || user.name
+  end
+
+  def delete(user_id) do
+    import Ecto.Query
+
+    user_id = String.to_integer(user_id)
+    Repo.delete_all(from users in User, where: users.id == ^user_id)
+  end
+end
+```
+
+Cool yet not so future-proof "lazy" placement:
+
+```elixir
+defmodule Users do
+  def name(user) do
+    user["name"] || user.name
+  end
+
+  alias Users.User
+
+  def delete(user_id) do
+    user_id = String.to_integer(user_id)
+
+    import Ecto.Query
+
+    Repo.delete_all(from users in User, where: users.id == ^user_id)
+  end
+end
+```
+
+### <a name="reuse-directive-order"></a>[Reuse directive order](#reuse-directive-order)
+
+*Calls to `use`, `require`, `import` and `alias` should be placed in that order.*
+
+#### Reasoning
+
+First of all, having any directive ordering convention definitely beats not having one, since they
+are a key to parsing code and so it adds up to better code reading experience when you know exactly
+where to look for an alias or import.
+
+This specific order is an attempt to introduce more significant directives before more trivial
+ones. It so happens that in case of reuse directives, the reverse alphabetical order does exactly
+that, starting with `use` (which can do virtually anything with a target module) and ending with
+`alias` (which is only a cosmetic change and doesn't affect the module's behavior).
+
+#### Examples
+
+Preferred:
+
+```elixir
+use Helpers.Thing
+import Helpers.Other
+alias Helpers.Tool
+```
+
+Out of order:
+
+```elixir
+alias Helpers.Tool
+import Helpers.Other
+use Helpers.Thing
+```
+
+### <a name="reuse-directive-spacing"></a>[Reuse directive spacing](#reuse-directive-spacing)
+
+*Calls to `alias`, `import`, `require` or `use` should not be separated with blank lines.*
+
+#### Reasoning
+
+It may be tempting to separate all aliases from imports with blank line or to separate multi-line
+grouped aliases from other aliases, but as long as they're properly
+[placed](#reuse-directive-placement) and [ordered](#reuse-directive-order), they're readable enough
+without such extra efforts. Also, as their number grows, it's more beneficial to keep them
+vertically compact than needlessly padded.
+
+#### Examples
+
+Preferred:
+
+```elixir
+use Helpers.Thing
+import Helpers.Other
+alias Helpers.Subhelpers.{
+  First,
+  Second
+}
+alias Helpers.Tool
+```
+
+Too much padding (with actual code starting 3 screens below):
+
+```elixir
+use Helpers.Thing
+
+import Helpers.Other
+
+alias Helpers.Subhelpers.{
+  First,
+  Second
+}
+
+alias Helpers.Tool
+```
 
 ## Software Design
 
