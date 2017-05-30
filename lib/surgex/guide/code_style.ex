@@ -29,8 +29,8 @@ defmodule Surgex.Guide.CodeStyle do
   line length rule, while tabs can be expanded to arbitrary number of soft spaces in
   editor, possibly ruining all the hard work put into staying in line with the column limit.
 
-  As to the number of spaces, 2 seems to be optimal to allow unconstrained module, function and block
-  indentation without sacrificing too many columns.
+  As to the number of spaces, 2 seems to be optimal to allow unconstrained module, function and
+  block indentation without sacrificing too many columns.
 
   ## Examples
 
@@ -214,8 +214,8 @@ defmodule Surgex.Guide.CodeStyle do
   combine brackets and operators have a distinct, nicely parse-able "rhythm".
 
   Also, when allowed to pad brackets, developers tend to add such padding inconsistently - even
-  between opening and ending in single line. This gets even worse once a different developer modifies
-  such code and has a different approach towards bracket spacing.
+  between opening and ending in single line. This gets even worse once a different developer
+  modifies such code and has a different approach towards bracket spacing.
 
   Lastly, it keeps pattern matchings more compact and readable, which invites developers to utilize
   this wonderful Elixir feature to the fullest.
@@ -243,8 +243,8 @@ defmodule Surgex.Guide.CodeStyle do
 
   Like with brackets, it may be tempting to pad negation to make it more visible, but in general
   unary operators tend to be easier to parse when they live close to their argument. Why? Because
-  they usually have precedence over binary operators and padding them away from their argument makes
-  this precedence less apparent.
+  they usually have precedence over binary operators and padding them away from their argument
+  makes this precedence less apparent.
 
   ## Examples
 
@@ -264,9 +264,10 @@ defmodule Surgex.Guide.CodeStyle do
 
   ## Reasoning
 
-  This is the most classical case when it comes to preference of vertical over horizontal alignment.
-  Let's just keep `;` operator for `iex` sessions and focus on code readability over doing code
-  minification manually - neither EVM nor GitHub will explode over that additional line break.
+  This is the most classical case when it comes to preference of vertical over horizontal
+  alignment. Let's just keep `;` operator for `iex` sessions and focus on code readability over
+  doing code minification manually - neither EVM nor GitHub will explode over that additional line
+  break.
 
   > Actually, ", " costs one more byte than an Unix line break but if that would be our biggest
   > concern then I suppose we wouldn't prefer spaces over tabs for indentation...
@@ -332,8 +333,8 @@ defmodule Surgex.Guide.CodeStyle do
   ## Examples
 
   Preferred (there's blank line before the `Enum.map` block since there's code
-  (`array = [1, 2, 3]`) in parent block, but there's no blank line after that block since there's no
-  more code after it):
+  (`array = [1, 2, 3]`) in parent block, but there's no blank line after that block since there's
+  no more code after it):
 
       def parent do
         array = [1, 2, 3]
@@ -435,8 +436,8 @@ defmodule Surgex.Guide.CodeStyle do
   assignment, vertical alignment is often overused.
 
   The issue is with future-proofness of such alignment. For instance, it may easily get ruined
-  without developer's attention in typical find-and-replace sessions that touch the name on the left
-  side of `=` sign.
+  without developer's attention in typical find-and-replace sessions that touch the name on the
+  left side of `=` sign.
 
   Hence this rule, which is about inserting a new line after the `=` and indenting the right side
   calculation by one level.
@@ -473,17 +474,17 @@ defmodule Surgex.Guide.CodeStyle do
   ## Reasoning
 
   Horizontal alignment is something especially tempting in Elixir programming as there are many
-  operators and structures that look cool when it gets applied. In particular, Ecto queries are often
-  written (and they do look good) when aligned to `:` after `from` macro keywords. In order to
-  achieve that, vertical alignment is often overused.
+  operators and structures that look cool when it gets applied. In particular, Ecto queries are
+  often written (and they do look good) when aligned to `:` after `from` macro keywords. In order
+  to achieve that, vertical alignment is often overused.
 
   The issue is with future-proofness of such alignment. For instance, it'll get ruined when longer
   keyword will have to be added, such as `preload` or `select` in queries with only `join` or
   `where`.
 
-  It's totally possible to adhere to the 2 space indentation rule and yet to write a good looking and
-  readable Ecto query. In order to make things more readable, additional 2 spaces can be added for
-  contextual indentation of sub-keywords, like `on` after `join`.
+  It's totally possible to adhere to the 2 space indentation rule and yet to write a good looking
+  and readable Ecto query. In order to make things more readable, additional 2 spaces can be added
+  for contextual indentation of sub-keywords, like `on` after `join`.
 
   ## Examples
 
@@ -511,9 +512,9 @@ defmodule Surgex.Guide.CodeStyle do
 
   ## Reasoning
 
-  The whole point of pipe chain is that... well, it must be a *chain*. As such, single function call
-  does not qualify. Reversely, nesting multiple calls instead of piping them seriously limits the
-  readability of the code.
+  The whole point of pipe chain is that... well, it must be a *chain*. As such, single function
+  call does not qualify. Reversely, nesting multiple calls instead of piping them seriously limits
+  the readability of the code.
 
   ## Examples
 
@@ -545,8 +546,8 @@ defmodule Surgex.Guide.CodeStyle do
   that consistently, it's best to keep away from starting chains with function calls.
 
   This also makes it easier to see if pipe operator should be used at all -
-  since chain with 2 pipes may get reduced to just 1 pipe when inproperly started with function call,
-  it may falsely look like a case when pipe should not be used at all.
+  since chain with 2 pipes may get reduced to just 1 pipe when inproperly started with function
+  call, it may falsely look like a case when pipe should not be used at all.
 
   ## Examples
 
@@ -591,9 +592,9 @@ defmodule Surgex.Guide.CodeStyle do
   ## Reasoning
 
   There's a convention in Elixir universe to make function calls distinct from macro calls by
-  consistently covering them with parentheses. Function calls often take part in multiple operations
-  in a single line or inside pipes and as such, it's just safer to mark the precedence via
-  parentheses.
+  consistently covering them with parentheses. Function calls often take part in multiple
+  operations in a single line or inside pipes and as such, it's just safer to mark the precedence
+  via parentheses.
 
   ## Examples
 
@@ -614,9 +615,9 @@ defmodule Surgex.Guide.CodeStyle do
   ## Reasoning
 
   There's a convention in Elixir universe to make function calls distinct from macro calls by
-  consistently covering them with parentheses. Compared to functions,
-  macros are often used as a DSL, with one macro invocation per line. As such, they can be safely
-  written (and just look better) without parentheses.
+  consistently covering them with parentheses. Compared to functions, macros are often used as a
+  DSL, with one macro invocation per line. As such, they can be safely written (and just look
+  better) without parentheses.
 
   ## Examples
 
@@ -875,9 +876,9 @@ Broken linkage:
   directly below `@moduledoc` in case of modules with documentation.
 
   Just like with the order rule, this is to make finding these directives
-  faster when reading the code. For that reason, it's more beneficial to have such important key for
-  interpreting code in obvious place than attempting to have them right above the point where they're
-  needed (which usually ends up messed up anyway when code gets changed over time).
+  faster when reading the code. For that reason, it's more beneficial to have such important key
+  for interpreting code in obvious place than attempting to have them right above the point where
+  they're needed (which usually ends up messed up anyway when code gets changed over time).
 
   ## Examples
 
@@ -924,9 +925,9 @@ Broken linkage:
 
   ## Reasoning
 
-  First of all, having any directive ordering convention definitely beats not having one, since they
-  are a key to parsing code and so it adds up to better code reading experience when you know exactly
-  where to look for an alias or import.
+  First of all, having any directive ordering convention definitely beats not having one, since
+  they are a key to parsing code and so it adds up to better code reading experience when you know
+  exactly where to look for an alias or import.
 
   This specific order is an attempt to introduce more significant directives before more trivial
   ones. It so happens that in case of reuse directives, the reverse alphabetical order does exactly
