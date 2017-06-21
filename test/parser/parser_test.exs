@@ -1,28 +1,27 @@
 defmodule Surgex.ParserTest do
   use ExUnit.Case
   alias Surgex.Parser
-  alias Surgex.Parser.{
-    IntegerParser,
-    RequiredParser,
-    StringParser,
-  }
+  alias Surgex.Parser.RequiredParser
 
   @parsers [
-    id: [&IntegerParser.call/1, &RequiredParser.call/1],
-    first_name: [&StringParser.call/1, &RequiredParser.call/1],
-    last_name: &StringParser.call/1
+    id: [:integer, :required],
+    first_name: [:string, &RequiredParser.call/1],
+    last_name: :string,
+    include: [{:include, [:comments]}, :required]
   ]
 
   @valid_params %{
     "id" => "123",
     "first-name" => "Jack",
-    "last-name" => ""
+    "last-name" => "",
+    "include" => "comments"
   }
 
   @invalid_params %{
     "id" => "abc",
     "first-name" => "",
-    "other-param" => "x"
+    "other-param" => "x",
+    "include" => "invalid"
   }
 
   describe "parse/2" do
@@ -30,6 +29,7 @@ defmodule Surgex.ParserTest do
       parser_output = Parser.parse @valid_params, @parsers
 
       assert parser_output == {:ok, [
+        include: [:comments],
         first_name: "Jack",
         id: 123,
       ]}
@@ -39,6 +39,7 @@ defmodule Surgex.ParserTest do
       parser_output = Parser.parse @invalid_params, @parsers
 
       assert parser_output == {:error, :invalid_parameters, [
+        invalid_relationship_path: "include",
         required: "first-name",
         invalid_integer: "id",
         unknown: "other-param",
@@ -50,13 +51,14 @@ defmodule Surgex.ParserTest do
     test "valid params" do
       parser_output = Parser.flat_parse @valid_params, @parsers
 
-      assert parser_output == {:ok, 123, "Jack", nil}
+      assert parser_output == {:ok, 123, "Jack", nil, [:comments]}
     end
 
     test "invalid params" do
       parser_output = Parser.flat_parse @invalid_params, @parsers
 
       assert parser_output == {:error, :invalid_parameters, [
+        invalid_relationship_path: "include",
         required: "first-name",
         invalid_integer: "id",
         unknown: "other-param",

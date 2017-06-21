@@ -153,22 +153,17 @@ defmodule Surgex.Parser do
   end
 
   defp pop_and_parse_keys_each({key, parser}, current_payload, stringify) do
-    final_parser = case parser do
-      func when is_function(parser) -> func
-      list when is_list(list) -> &parse_in_sequence(&1, list)
-    end
-
-    pop_and_parse_key(current_payload, {key, stringify}, final_parser, key)
+    pop_and_parse_key(current_payload, {key, stringify}, parser, key)
   end
 
-  defp pop_and_parse_key({map, output, errors}, {input_key, stringify}, parser_func, output_key) do
+  defp pop_and_parse_key({map, output, errors}, {input_key, stringify}, parser, output_key) do
     {{input_value, remaining_map}, error_key} = if stringify do
       pop_maybe_dasherized(map, Atom.to_string(input_key))
     else
       {Map.pop(map, input_key), Atom.to_string(input_key)}
     end
 
-    case parser_func.(input_value) do
+    case call_parser(parser, input_value) do
       {:ok, parser_output} ->
         final_output = Keyword.put_new(output, output_key, parser_output)
         {remaining_map, final_output, errors}
@@ -185,11 +180,29 @@ defmodule Surgex.Parser do
   end
 
   defp parse_in_sequence(input, [first_parser | other_parsers]) do
-    Enum.reduce(other_parsers, first_parser.(input), &parse_in_sequence_each/2)
+    Enum.reduce(other_parsers, call_parser(first_parser, input), &parse_in_sequence_each/2)
   end
 
   defp parse_in_sequence_each(_next_parser, {:error, reason}), do: {:error, reason}
-  defp parse_in_sequence_each(next_parser, {:ok, prev_output}), do: next_parser.(prev_output)
+  defp parse_in_sequence_each(next_parser, {:ok, prev_output}) do
+    call_parser(next_parser, prev_output)
+  end
+
+  defp call_parser(parsers, input) when is_list(parsers), do: parse_in_sequence(input, parsers)
+  defp call_parser(parser, input) when is_function(parser), do: parser.(input)
+  defp call_parser(parser, input) when is_atom(parser), do: call_parser({parser}, input)
+  defp call_parser(parser_tuple, input) when is_tuple(parser_tuple) do
+    [parser_name | parser_args] = Tuple.to_list(parser_tuple)
+
+    parser_camelized =
+      parser_name
+      |> Atom.to_string
+      |> Macro.camelize
+
+    parser_module = String.to_existing_atom("Elixir.Surgex.Parser.#{parser_camelized}Parser")
+
+    apply(parser_module, :call, [input | parser_args])
+  end
 
   defp pop_maybe_dasherized(map, key) do
     if Map.has_key?(map, key) do
