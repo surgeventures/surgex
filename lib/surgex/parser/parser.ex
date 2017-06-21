@@ -1,6 +1,55 @@
 defmodule Surgex.Parser do
   @moduledoc """
   Parses, casts and catches errors in the web request input, such as params or JSON API body.
+
+  In order to use it, you should import the `Surgex.Parser` module, possibly in the `controller`
+  macro in the `web.ex` file belonging to your Phoenix project, which will make functions like
+  `parse` available in all controllers.
+
+  Then, you should start implementing functions for parsing params or documents for specific
+  controller actions. Those functions will serve as documentation crucial for understanding specific
+  action's input, so it's best to keep them close to the relevant action. For example:
+
+      def index(conn, params) do
+        with {:ok, opts} <- parse_index_params(params) do
+          render(conn, locations: Marketplace.search_locations(opts))
+        else
+          {:error, :invalid_parameters, params} -> {:error, :invalid_parameters, params}
+        end
+      end
+
+      defp parse_index_params(params) do
+        parse params,
+          query: [:string, :required],
+          center: :geolocation,
+          box: :box,
+          category_id: :id,
+          subcategory_ids: :id_list,
+          sort: {:sort, ~w{price_min published_at distance}a},
+          page: :page
+      end
+
+  The second argument to `parse/2` and `flat_parse/2` is a param spec in which keys are resulting
+  option names and values are parser functions, atoms, tuples or lists used to process specific
+  parameter. Here's how each work:
+
+  - **parser functions** are functions that take the input value as first argument and can take
+    arbitrary amount of additional arguments as parser options; in order to pass such parser it's
+    best to use the `&` operator in format `&parser/1` or in case of parser options
+    `&parser(&1, opts...)`
+
+  - **parser atoms** point to built-in parsers by looking up a
+    `Surgex.Parser.<camelized-name>Parser` module and invoking the `call` function within it,
+    where the `call` function is just a parser function described above; for example `:integer` is
+    an equivalent to `&Surgex.Parser.IntegerParser.call/1`
+
+  - **parser tuples** allow to pass additional options to built-in parsers; the tuple starts with
+    the parser atom described above, followed by parser arguments matching the number of additional
+    arguments consumed by the parser; for example `{:sort, ~w{price_min published_at}a}`
+
+  - **parser lists** allow to pass a list of parser functions, atoms or tuples, all of which will be
+    parsed in a sequence in which the output from previous parser is piped to the next one and in
+    which the first failure stops the whole pipe; for example `[:integer, :required]`
   """
 
   use Jabbax.Document
