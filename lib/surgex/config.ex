@@ -88,6 +88,38 @@ defmodule Surgex.Config do
   defp parse_fetch({:ok, value}), do: value
   defp parse_fetch(:error), do: nil
 
+  @doc """
+  Parses a config value which may or may not be a system tuple.
+
+  ## Examples
+
+      iex> Surgex.Config.parse("value")
+      "value"
+      iex> Surgex.Config.parse({:system, "NON_EXISTING_ENV_VAR"})
+      nil
+      iex> Surgex.Config.parse({:system, "NON_EXISTING_ENV_VAR", "default value"})
+      "default value"
+
+  """
+  def parse({:system, env}), do: System.get_env(env)
+  def parse({:system, env, type}) when type in @types do
+    env
+    |> System.get_env
+    |> to_type(type)
+  end
+  def parse({:system, env, default}) do
+    env
+    |> System.get_env
+    |> or_default(default)
+  end
+  def parse({:system, env, type, default}) when type in @types do
+    env
+    |> System.get_env
+    |> to_type(type)
+    |> or_default(default)
+  end
+  def parse(value), do: value
+
   defp to_type("1", :boolean), do: true
   defp to_type("0", :boolean), do: false
   defp to_type(_, :boolean), do: nil
