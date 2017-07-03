@@ -534,54 +534,35 @@ defmodule Surgex.Guide.SoftwareDesign do
   def nesting_depth, do: nil
 
   @doc """
-  Flow control directives should be picked sparingly and appropriately to their purpose.
+  Flow control directives should be leveraged to yield compact and readable code.
 
   ## Reasoning
 
   Each of flow control directives (`if`, `cond`, `case`, `with`) has its own purpose, but sometimes
-  more than one of them can be used to achieve the same goal. In such cases, the least powerful one
-  should be picked, unless it yields a much bigger amount of code.
+  more than one of them can be used to achieve the same goal. In such cases, the one that yields the
+  most compact and readable code should be picked.
 
   ## Examples
 
-  Preferred use of `if` instead of `case` for boolean operations:
+  Preferred:
 
-      if user.phone_confirmed, do: call_user(user), else: mail_user(user)
+    with {:ok, user} <- load_user(id),
+         {:ok, avatar} <- load_user_avatar(user)
+    do
+      {:ok, user, avatar}
+    end
 
-  Redundant `case` equivalent of the above (the main purpose of `case` is to match an exact pattern
-  so it should be preferred over `if` in boolean-like situations only when it's really important
-  to differentiate `false` from `nil` since these are the only values considered by `if` as falsy):
+  Redundant `case` equivalent of the above:
 
-      case user.phone_confirmed do
-        true -> call_user(user)
-        _ -> mail_user(user)
-      end
-
-  > Note that `if` in Elixir code is kind of a code smell anyway and it may be worth considering to
-    use plain function pattern matching to implement similar code paths.
-
-  Preferred use of `case` instead of `with`:
-
-      case Regex.scan(~r/@/, user.email) do
-        ["@"] ->
-          :ok
-        [] ->
-          raise("not enough @'s")
-        _ ->
-          raise("too many @'s")
-      end
-
-  Redundant `with` equivalent of the above (the main purpose of `with` is to match a series of
-  patterns that all must match for the happy path to complete):
-
-      with ["@"] <- Regex.scan(~r/@/, user.email) do
-        :ok
-      else
-        [] ->
-          raise("not enough @'s")
-        _ ->
-          raise("too many @'s")
-      end
+    case load_user(id) do
+      {:ok, user} ->
+        case load_user_avatar(user) do
+          {:ok, avatar} ->
+              {:ok, user, avatar}
+          error -> error
+        end
+      error -> error
+    end
 
   """
   def flow_directive_usage, do: nil
