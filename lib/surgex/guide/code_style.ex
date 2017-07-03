@@ -1,20 +1,6 @@
 defmodule Surgex.Guide.CodeStyle do
   @moduledoc """
-  Basic Elixir code style and formatting guidelines.
-
-  The rules in this guide aim to provide a consistent, convention-driven coding experience and an
-  easily readable, long-term maintainable code as a result. Styling the code in a readable and
-  parse-able way is the foundation of code quality assurance and requires establishing strong daily
-  habits shared between all developers participating in a given project.
-
-  At the same time, when expecting such a significant effort from the whole group of people, it's
-  only fair to give a proper explanation for each requirement. That's why all rules have a
-  "Reasoning" section that explains the concept behind them. It should make this guide open for
-  discussions and improvements.
-
-  Above all rules, use your common sense to solve every coding situation in a way that's consistent,
-  readable and maintainable. Follow your instincts and keep making this guide better in places where
-  it lacks.
+  Basic code style and formatting guidelines.
   """
 
   @doc """
@@ -237,7 +223,7 @@ defmodule Surgex.Guide.CodeStyle do
   def bracket_spacing, do: nil
 
   @doc """
-  There must be no space put before the `!` operator.
+  There must be no space put after the `!` operator.
 
   ## Reasoning
 
@@ -360,9 +346,9 @@ defmodule Surgex.Guide.CodeStyle do
   ## Reasoning
 
   There's often more than one way to achieve the same and the difference is in fitting things
-  horizontally through indentation vs vertically through function composition. This rules is about
-  preference of the latter over the former in order to have more smaller functions, which makes for
-  a code easier to understand and extend.
+  horizontally through indentation vs vertically through function composition. This rule is about
+  preference of the latter over the former in order to avoid crazy indentation, have more smaller
+  functions, which makes for a code easier to understand and extend.
 
   ## Examples
 
@@ -631,7 +617,7 @@ defmodule Surgex.Guide.CodeStyle do
   """
   def macro_call_parentheses, do: nil
 
-  @doc ~s{
+@doc ~S{
 Single blank line must be inserted after `@moduledoc`.
 
 ## Reasoning
@@ -983,4 +969,195 @@ Broken linkage:
 
   """
   def reuse_directive_spacing, do: nil
+
+  @doc """
+  RESTful actions should be placed in `I S N C E U D` order in controllers and their tests.
+
+  ## Reasoning
+
+  It's important to establish a consistent order to make it easier to find actions and their tests,
+  considering that both controller and (especially) controller test files tend to be big at times.
+
+  This particular order (`index`, `show`, `new`, `create`, `edit`, `update`, `delete`) comes from
+  the long-standing convention established by both Phoenix and, earlier, Ruby on Rails generators,
+  so it should be familiar, predictable and non-surprising to existing developers.
+
+  ## Examples
+
+  Preferred:
+
+      defmodule MyProject.Web.UserController do
+        use MyProject.Web, :controller
+
+        def index(_conn, _params), do: raise("Not implemented")
+
+        def show(_conn, _params), do: raise("Not implemented")
+
+        def new(_conn, _params), do: raise("Not implemented")
+
+        def create(_conn, _params), do: raise("Not implemented")
+
+        def edit(_conn, _params), do: raise("Not implemented")
+
+        def update(_conn, _params), do: raise("Not implemented")
+
+        def delete(_conn, _params), do: raise("Not implemented")
+      end
+
+  Different (CRUD-like) order against the convention:
+
+      defmodule MyProject.Web.UserController do
+        use MyProject.Web, :controller
+
+        def index(_conn, _params), do: raise("Not implemented")
+
+        def new(_conn, _params), do: raise("Not implemented")
+
+        def create(_conn, _params), do: raise("Not implemented")
+
+        def show(_conn, _params), do: raise("Not implemented")
+
+        def edit(_conn, _params), do: raise("Not implemented")
+
+        def update(_conn, _params), do: raise("Not implemented")
+
+        def delete(_conn, _params), do: raise("Not implemented")
+      end
+
+  > The issue with CRUD order is that `index` action falls between fitting and being kind of "above"
+    the *Read* section and `new`/`edit` actions fall between *Read* and *Create*/*Update* sections,
+    respectively.
+
+  """
+  def restful_action_order, do: nil
+
+@doc ~S{
+Documentation in `@doc` and `@moduledoc` should start with an one-line summary sentence.
+
+## Reasoning
+
+This first line is treated specially by ExDoc in that it's taken as a module/function summary for
+API summary listings. The period at its end is removed so that it looks good both as a summary
+(without the period) and as part of a whole documentation (with a period).
+
+The single-line limit (with up to 100 characters as per line limit rule) is there to avoid mixing
+up short and very long summaries on a single listing.
+
+It's also important to fit as precise description as possible in this single line, without
+unnecessarily repeating what's already expressed in the module or function name itself.
+
+## Examples
+
+Preferred:
+
+    defmodule MyProject.Accounts do
+      @moduledoc """
+      User account authorization and management system.
+      """
+    end
+
+Too vague:
+
+    defmodule MyProject.Accounts do
+      @moduledoc """
+      Accounts system.
+      """
+    end
+
+Missing trailing period:
+
+    defmodule MyProject.Accounts do
+      @moduledoc """
+      Accounts system
+      """
+    end
+
+
+Missing trailing blank line:
+
+    defmodule MyProject.Accounts do
+      @moduledoc """
+      User account authorization and management system.
+      All functions take the `MyProject.Accounts.Input` structure as input argument.
+      """
+    end
+
+}
+  def doc_summary_format, do: nil
+
+@doc ~S{
+Documentation in `@doc` and `@moduledoc` should be written in ExDoc-friendly Markdown.
+
+## Reasoning
+
+First of all, here's what is considered an ExDoc-friendly Markdown:
+
+- Paragraphs written with full sentences, separated by a blank line
+
+- Headings starting from 2nd level heading (`## Biggest heading`)
+
+- Bullet lists starting with a dash and subsequent lines indented by 2 spaces
+
+- Bullet/ordered list items separated by a blank line
+
+- Elixir code indented by 4 spaces to mark the code block
+
+## Examples
+
+Preferred:
+
+    defmodule MyProject.Accounts do
+      @moduledoc """
+      User account authorization and management system.
+
+      This module does truly amazing stuff. It's purpose is to take anything you pass its way and
+      make an user out of that. It can also tell you if specific user can do specific things without
+      messing the system too much.
+
+      Here's what you can expect from this module:
+
+      - Nicely written lists with a lot of precious information that
+        get indented properly in every subsequent line
+
+      - And that are well padded as well
+
+      And here's an Elixir code example:
+
+          defmodule MyProject.Accounts.User do
+            @defstruct [:name, :email]
+          end
+
+      It's all beautiful, isn't it?
+      """
+    end
+
+Messed up line breaks, messed up list item indentation and non ExDoc-ish code block:
+
+    defmodule MyProject.Accounts do
+      @moduledoc """
+      User account authorization and management system.
+
+      This module does truly amazing stuff. It's purpose is to take anything you pass its way and
+      make an user out of that. It can also tell you if specific user can do specific things without
+      messing the system too much.
+      Here's what you can expect from this module:
+
+      - Nicely written lists with a lot of precious information that
+      get indented properly in every subsequent line
+      - And that are well padded as well
+
+      And here's an Elixir code example:
+
+      ```
+      defmodule MyProject.Accounts.User do
+        @defstruct [:name, :email]
+      end
+      ```
+
+      It's not so beautiful, is it?
+      """
+    end
+
+}
+  def doc_content_format, do: nil
 end
