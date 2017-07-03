@@ -617,77 +617,77 @@ defmodule Surgex.Guide.CodeStyle do
   """
   def macro_call_parentheses, do: nil
 
-@doc ~S{
-Single blank line must be inserted after `@moduledoc`.
+  @doc """
+  Single blank line must be inserted after `@moduledoc`.
 
-## Reasoning
+  ## Reasoning
 
-`@moduledoc` is a module-wide introduction to the module. It makes sense to give it padding and
-separate it from what's coming next. The reverse looks especially bad when followed by a function
-that has no `@doc` clause yet.
+  `@moduledoc` is a module-wide introduction to the module. It makes sense to give it padding and
+  separate it from what's coming next. The reverse looks especially bad when followed by a function
+  that has no `@doc` clause yet.
 
-## Examples
+  ## Examples
 
-Preferred:
+  Preferred:
 
-    defmodule SuperMod do
-      @moduledoc """
-      This module is seriously amazing.
-      """
+      defmodule SuperMod do
+        @moduledoc \"""
+        This module is seriously amazing.
+        \"""
 
-      def call, do: nil
-    end
+        def call, do: nil
+      end
 
-`@moduledoc` that pretends to be a `@doc`:
+  `@moduledoc` that pretends to be a `@doc`:
 
-    defmodule SuperMod do
-      @moduledoc """
-      This module is seriously amazing.
-      """
-      def call, do: nil
-    end
+      defmodule SuperMod do
+        @moduledoc \"""
+        This module is seriously amazing.
+        \"""
+        def call, do: nil
+      end
 
-}
+  """
   def moduledoc_spacing, do: nil
 
-  @doc ~s{
-There must be no blank lines between `@doc` and the function definition.
+  @doc """
+  There must be no blank lines between `@doc` and the function definition.
 
-## Reasoning
+  ## Reasoning
 
-Compared to moduledoc spacing, the `@doc` clause belongs to the function
-definition directly beneath it, so the lack of blank line between the two is there to make this
-linkage obvious. If the blank line is there, there's a growing risk of `@doc` clause becoming
-completely separated from its owner in the heat of future battles.
+  Compared to moduledoc spacing, the `@doc` clause belongs to the function
+  definition directly beneath it, so the lack of blank line between the two is there to make this
+  linkage obvious. If the blank line is there, there's a growing risk of `@doc` clause becoming
+  completely separated from its owner in the heat of future battles.
 
-## Examples
+  ## Examples
 
-Preferred:
+  Preferred:
 
-    @doc """
-    This is by far the most complex function in the universe.
-    """
-    def func, do: nil
+      @doc \"""
+      This is by far the most complex function in the universe.
+      \"""
+      def func, do: nil
 
-Weak linkage:
+  Weak linkage:
 
-    @doc """
-    This is by far the most complex function in the universe.
-    """
+      @doc \"""
+      This is by far the most complex function in the universe.
+      \"""
 
-    def func, do: nil
+      def func, do: nil
 
-Broken linkage:
+  Broken linkage:
 
-    @doc """
-    This is by far the most complex function in the universe.
-    """
+      @doc \"""
+      This is by far the most complex function in the universe.
+      \"""
 
-    def non_complex_func, do: something_less_complex_than_returning_nil()
+      def non_complex_func, do: something_less_complex_than_returning_nil()
 
-    def func, do: nil
+      def func, do: nil
 
-}
+  """
   def doc_spacing, do: nil
 
   @doc """
@@ -1031,133 +1031,207 @@ Broken linkage:
   """
   def restful_action_order, do: nil
 
-@doc ~S{
-Documentation in `@doc` and `@moduledoc` should start with an one-line summary sentence.
+  @doc """
+  Documentation in `@doc` and `@moduledoc` should start with an one-line summary sentence.
 
-## Reasoning
+  ## Reasoning
 
-This first line is treated specially by ExDoc in that it's taken as a module/function summary for
-API summary listings. The period at its end is removed so that it looks good both as a summary
-(without the period) and as part of a whole documentation (with a period).
+  This first line is treated specially by ExDoc in that it's taken as a module/function summary for
+  API summary listings. The period at its end is removed so that it looks good both as a summary
+  (without the period) and as part of a whole documentation (with a period).
 
-The single-line limit (with up to 100 characters as per line limit rule) is there to avoid mixing
-up short and very long summaries on a single listing.
+  The single-line limit (with up to 100 characters as per line limit rule) is there to avoid mixing
+  up short and very long summaries on a single listing.
 
-It's also important to fit as precise description as possible in this single line, without
-unnecessarily repeating what's already expressed in the module or function name itself.
+  It's also important to fit as precise description as possible in this single line, without
+  unnecessarily repeating what's already expressed in the module or function name itself.
 
-## Examples
+  ## Examples
 
-Preferred:
+  Preferred:
 
-    defmodule MyProject.Accounts do
-      @moduledoc """
-      User account authorization and management system.
-      """
-    end
+      defmodule MyProject.Accounts do
+        @moduledoc \"""
+        User account authorization and management system.
+        \"""
+      end
 
-Too vague:
+  Too vague:
 
-    defmodule MyProject.Accounts do
-      @moduledoc """
-      Accounts system.
-      """
-    end
+      defmodule MyProject.Accounts do
+        @moduledoc \"""
+        Accounts system.
+        \"""
+      end
 
-Missing trailing period:
+  Missing trailing period:
 
-    defmodule MyProject.Accounts do
-      @moduledoc """
-      Accounts system
-      """
-    end
+      defmodule MyProject.Accounts do
+        @moduledoc \"""
+        Accounts system
+        \"""
+      end
 
 
-Missing trailing blank line:
+  Missing trailing blank line:
 
-    defmodule MyProject.Accounts do
-      @moduledoc """
-      User account authorization and management system.
-      All functions take the `MyProject.Accounts.Input` structure as input argument.
-      """
-    end
+      defmodule MyProject.Accounts do
+        @moduledoc \"""
+        User account authorization and management system.
+        All functions take the `MyProject.Accounts.Input` structure as input argument.
+        \"""
+      end
 
-}
+  """
   def doc_summary_format, do: nil
 
-@doc ~S{
-Documentation in `@doc` and `@moduledoc` should be written in ExDoc-friendly Markdown.
+  @doc """
+  Documentation in `@doc` and `@moduledoc` should be written in ExDoc-friendly Markdown.
 
-## Reasoning
+  ## Reasoning
 
-First of all, here's what is considered an ExDoc-friendly Markdown:
+  First of all, here's what is considered an ExDoc-friendly Markdown:
 
-- Paragraphs written with full sentences, separated by a blank line
+  - Paragraphs written with full sentences, separated by a blank line
 
-- Headings starting from 2nd level heading (`## Biggest heading`)
+  - Headings starting from 2nd level heading (`## Biggest heading`)
 
-- Bullet lists starting with a dash and subsequent lines indented by 2 spaces
+  - Bullet lists starting with a dash and subsequent lines indented by 2 spaces
 
-- Bullet/ordered list items separated by a blank line
+  - Bullet/ordered list items separated by a blank line
 
-- Elixir code indented by 4 spaces to mark the code block
+  - Elixir code indented by 4 spaces to mark the code block
 
-## Examples
+  ## Examples
 
-Preferred:
+  Preferred:
 
-    defmodule MyProject.Accounts do
-      @moduledoc """
-      User account authorization and management system.
+      defmodule MyProject.Accounts do
+        @moduledoc \"""
+        User account authorization and management system.
 
-      This module does truly amazing stuff. It's purpose is to take anything you pass its way and
-      make an user out of that. It can also tell you if specific user can do specific things without
-      messing the system too much.
+        This module does truly amazing stuff. It's purpose is to take anything you pass its way and
+        make an user out of that. It can also tell you if specific user can do specific things without
+        messing the system too much.
 
-      Here's what you can expect from this module:
+        Here's what you can expect from this module:
 
-      - Nicely written lists with a lot of precious information that
-        get indented properly in every subsequent line
+        - Nicely written lists with a lot of precious information that
+          get indented properly in every subsequent line
 
-      - And that are well padded as well
+        - And that are well padded as well
 
-      And here's an Elixir code example:
+        And here's an Elixir code example:
 
-          defmodule MyProject.Accounts.User do
-            @defstruct [:name, :email]
-          end
+            defmodule MyProject.Accounts.User do
+              @defstruct [:name, :email]
+            end
 
-      It's all beautiful, isn't it?
-      """
-    end
-
-Messed up line breaks, messed up list item indentation and non ExDoc-ish code block:
-
-    defmodule MyProject.Accounts do
-      @moduledoc """
-      User account authorization and management system.
-
-      This module does truly amazing stuff. It's purpose is to take anything you pass its way and
-      make an user out of that. It can also tell you if specific user can do specific things without
-      messing the system too much.
-      Here's what you can expect from this module:
-
-      - Nicely written lists with a lot of precious information that
-      get indented properly in every subsequent line
-      - And that are well padded as well
-
-      And here's an Elixir code example:
-
-      ```
-      defmodule MyProject.Accounts.User do
-        @defstruct [:name, :email]
+        It's all beautiful, isn't it?
+        \"""
       end
-      ```
 
-      It's not so beautiful, is it?
-      """
-    end
+  Messed up line breaks, messed up list item indentation and non ExDoc-ish code block:
 
-}
+      defmodule MyProject.Accounts do
+        @moduledoc \"""
+        User account authorization and management system.
+
+        This module does truly amazing stuff. It's purpose is to take anything you pass its way and
+        make an user out of that. It can also tell you if specific user can do specific things without
+        messing the system too much.
+        Here's what you can expect from this module:
+
+        - Nicely written lists with a lot of precious information that
+        get indented properly in every subsequent line
+        - And that are well padded as well
+
+        And here's an Elixir code example:
+
+        ```
+        defmodule MyProject.Accounts.User do
+          @defstruct [:name, :email]
+        end
+        ```
+
+        It's not so beautiful, is it?
+        \"""
+      end
+
+  """
   def doc_content_format, do: nil
+
+  @doc """
+  Config calls should be placed in alphabetical order, with modules over atoms.
+
+  ## Reasoning
+
+  Provides obvious and predictable placement of specific config calls.
+
+  ## Examples
+
+  Preferred:
+
+      config :another_package, key: value
+      config :my_project, MyProject.A, key: "value"
+      config :my_project, MyProject.B, key: "value"
+      config :my_project, :a, key: "value"
+      config :my_project, :b, key: "value"
+      config :package, key: "value"
+
+  Modules wrongly mixed with atoms and internal props wrongly before external ones:
+
+      config :my_project, MyProject.A, key: "value"
+      config :my_project, :a, key: "value"
+      config :my_project, MyProject.B, key: "value"
+      config :my_project, :b, key: "value"
+      config :another_package, key: value
+      config :package, key: "value"
+
+  """
+  def config_order, do: nil
+
+  @doc ~S"""
+  Exceptions should define semantic struct fields and a custom `message/1` function.
+
+  ## Reasoning
+
+  It's possible to define an exception with custom arguments and message by overriding the
+  `exception/1` function and defining a standard `defexception [:message]` struct, but that yields
+  to non-semantic exceptions that don't express their arguments in their structure. It also makes
+  it harder (or at least inconsistent) to define multi-argument exceptions, which is simply a
+  consequence of not having a struct defined for an actual struct.
+
+  Therefore, it's better to define exceptions with a custom set of struct fields instead of a
+  `message` field and to define a `message/1` function that takes those fields and creates an error
+  message out of them.
+
+  ## Examples
+
+  Preferred:
+
+      defmodule MyError do
+        defexception [:a, :b]
+
+        def message(%__MODULE__{a: a, b: b}) do
+          "a: #{a}, b: #{b}"
+        end
+      end
+
+      raise MyError, a: 1, b: 2
+
+  Non-semantic error struct with unnamed fields in multi-argument call:
+
+      defmodule MyError do
+        defexception [:message]
+
+        def exception({a, b}) do
+          %__MODULE__{message: "a: #{a}, b: #{b}"}
+        end
+      end
+
+      raise MyError, {1, 2}
+
+  """
+  def exception_structure, do: nil
 end

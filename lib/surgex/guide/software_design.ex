@@ -154,74 +154,74 @@ defmodule Surgex.Guide.SoftwareDesign do
   """
   def external_error_mapping, do: nil
 
-@doc ~S{
-Non-false moduledoc should be filled only for global, context-external app modules.
+  @doc """
+  Non-false moduledoc should be filled only for global, context-external app modules.
 
-## Reasoning
+  ## Reasoning
 
-Filling moduledoc results in adding the module to module list in the documentation. Therefore, it
-makes little sense to use it only to leave a comment about internal mechanics of specific module
-or its meaning in the context of a closed application domain. For such cases, regular comments
-should be used. This will yield a clean documentation with eagle-eye overview of the system and
-its parts that can be directly used from global or external perspective.
+  Filling moduledoc results in adding the module to module list in the documentation. Therefore, it
+  makes little sense to use it only to leave a comment about internal mechanics of specific module
+  or its meaning in the context of a closed application domain. For such cases, regular comments
+  should be used. This will yield a clean documentation with eagle-eye overview of the system and
+  its parts that can be directly used from global or external perspective.
 
-## Example
+  ## Example
 
-Preferred:
+  Preferred:
 
-    defmodule MyProject.Accounts do
-      @moduledoc """
-      Account management system.
-      """
+      defmodule MyProject.Accounts do
+        @moduledoc \"""
+        Account management system.
+        \"""
 
-      @doc """
-      Registers an user account.
-      """
-      def register(attrs) do
-        MyProject.Accounts.RegistrationService.call(attrs)
+        @doc \"""
+        Registers an user account.
+        \"""
+        def register(attrs) do
+          MyProject.Accounts.RegistrationService.call(attrs)
+        end
       end
-    end
 
-    defmodule MyProject.Accounts.RegistrationService do
-      @moduledoc false
+      defmodule MyProject.Accounts.RegistrationService do
+        @moduledoc false
 
-      # Fails on occasion due to Postgres connection issue.
-      # Works best on Fridays.
+        # Fails on occasion due to Postgres connection issue.
+        # Works best on Fridays.
 
-      def call(attrs) do
-        # ...
+        def call(attrs) do
+          # ...
+        end
       end
-    end
 
-Unnecessary external-ization and comment duplication:
+  Unnecessary external-ization and comment duplication:
 
-    defmodule MyProject.Accounts do
-      @moduledoc """
-      Account management system.
-      """
+      defmodule MyProject.Accounts do
+        @moduledoc \"""
+        Account management system.
+        \"""
 
-      @doc """
-      Registers an user account.
-      """
-      def register(attrs) do
-        MyProject.Accounts.RegistrationService.call(attrs)
+        @doc \"""
+        Registers an user account.
+        \"""
+        def register(attrs) do
+          MyProject.Accounts.RegistrationService.call(attrs)
+        end
       end
-    end
 
-    defmodule MyProject.Accounts.RegistrationService do
-      @moduledoc """
-      Registers an user account.
+      defmodule MyProject.Accounts.RegistrationService do
+        @moduledoc \"""
+        Registers an user account.
 
-      Fails on occasion due to Postgres connection issue.
-      Works best on Fridays.
-      """
+        Fails on occasion due to Postgres connection issue.
+        Works best on Fridays.
+        \"""
 
-      def call(attrs) do
-        # ...
+        def call(attrs) do
+          # ...
+        end
       end
-    end
 
-}
+  """
   def moduledoc_usage, do: nil
 
   @doc """
@@ -275,4 +275,45 @@ Unnecessary external-ization and comment duplication:
 
   """
   def import_usage, do: nil
+
+  @doc """
+  Tests should only `use` support test case modules that they need.
+
+  ## Reasoning
+
+  If specific test only unit tests a module without using a web request, it shouldn't use `ConnCase`
+  and if it doesn't create records, it shouldn't use `DataCase`. For many tests, `ExUnit.Case` will
+  be enough of a support.
+
+  This yields more semantic test headers and avoids needlessly importing and abusing of more complex
+  support files.
+
+  ## Examples
+
+  Preferred:
+
+      defmodule MyProject.Web.MyControllerTest do
+        use MyProject.Web.ConnCase
+      end
+
+      defmodule MyProject.MyServiceTest do
+        use MyProject.DataCase
+      end
+
+      defmodule NeitherControllerNorDatabaseTest do
+        use ExUnit.Case
+      end
+
+  Test support file abuse:
+
+      defmodule MyProject.MyServiceTest do
+        use MyProject.Web.ConnCase
+      end
+
+      defmodule NeitherControllerNorDatabaseTest do
+        use MyProject.DataCase
+      end
+
+  """
+  def test_case_usage, do: nil
 end
