@@ -1,57 +1,13 @@
 # Programming Guide
 
-## Code Style
-
-Moved to `Surgex.Guide.CodeStyle`, just like the remainder soon will.
-
 ## Software Design
-
-Sequential variable names must respect the underscore casing. For example, `fn(a_1, a_2)` is
-preferred over `fn(a1, a2)`. More meaningful names should be picked when possible.
-
-Predicate function names should end with `?` and they must return a boolean value.
-
-Predicate function names must not start with `is` prefix.
-
-Multiple definitions for same function must be grouped together by not separating them with a
-blank line. Otherwise, functions must be separated with a single blank line.
-
-Functions should be grouped by their relationship rather than by "public then private". For
-example, if `def a` calls `defp b` then it should be preferred to place `defp b` close to `def a`
-(perhaps directly below it) instead of moving `defp b` below all other `def`s. Functions that are
-called by multiple other functions may be placed after the last invocation.
-
-Functions should not include more than one level of block nesting, like `with`/`case`/`cond`/`if`
-inside other `with`/`case`/`cond`/`if`. In such case it should be preferred to extract the nested
-logic to separate function.
-
-Constructs like `with`, `case`, `cond` or `if` should be picked appropriately to their purpose,
-with the simplest possible construct picked over more complex one (assuming the list above starts
-with most complex ones). For example, it should be preferred to use `if` over `case` to check if
-something is falsy.
-
-The `unless` construct must never be used with `else` block. In such cases, it must be rewritten as
-`if`.
-
-The `unless` construct must never be used with negation. In such cases, it must be rewritten as
-`if`.
-
-Functions from `Enum` module should be preferred over `for` construct or other custom constructs to
-accomplish basic tasks on enumerables.
-
-In `with` constructs, the `else` block should be added only if rejected value is changed. The only
-exception is in controller actions, where it may be used to express all possible output values
-that may come from business logic and influence action flow. In such case, the `_` operator should
-be avoided in patterns matched in `else` in order not to neglect this objective.
 
 Exception names must have the `Error` suffix. Reversely, modules that don't call `defexception`
 must not have the `Error` suffix.
 
-Module and function names should be picked not to conflict with Elixir's standard library.
-
-Calls to `import` custom modules should be avoided.
-
 Pattern matching should be preferred over `.` or `[]` operators for destructuring.
+
+Deep nest digging macros should be preferred over manual deep structure re-assembly.
 
 Keyword lists should be preferred over maps for internal passing of options.
 
@@ -59,6 +15,11 @@ Tuples should be preferred over lists for internal passing of short, predefined 
 
 Functions that may result in success or failure and that must pass additional data upon success or
 failure should return `{:ok, ...}` and `{:error, ...}` tuples.
+
+Functions that don't fail with `{:error, ...}` should not return `{:ok, ...}` as well.
+
+Raising an exception should be preferred over returning error tuple for cases which don't have to be
+handled.
 
 Modules that express single action should be named with a verb prefix and have a `def call` entry.
 
@@ -71,14 +32,6 @@ Operators `and` and `or` should be preferred over `&&` and `||` when arguments a
 to be booleans.
 
 Guard-enabled functions and operators should be preferred over different means to achieve the same.
-
-Things like module lists in multi-line aliases, routes or deps in `mix.exs` should be kept in
-alphabetical order.
-
-Tuples, lists and maps may have a trailing comma after the last item.
-
-Controller actions and their tests should be kept in usual REST action order: `index`, `show`,
-`new`, `create`, `edit`, `update` and `delete`.
 
 Nested controllers should be preferred over custom controller actions.
 
@@ -100,10 +53,10 @@ Functions that need to return the reason for fetch failure should be named with 
 Functions that raise when item is missing should be named with `!` suffix.
 
 Sigils `~w{a b c}` and `~w{a b c}a` should be preferred over `[]` for defining string and atom
-lists.
+lists (code style).
 
-When using `_` for unused variables, it may be named for description purposes. For example, `_user`
-is preferred over just `_`.
+When using `_` for unused variables, it should still be named for description purposes.
+For example, `_user` is preferred over just `_`.
 
 ## Project Structure
 
