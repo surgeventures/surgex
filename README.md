@@ -1,5 +1,9 @@
 # Surgex
 
+[![Build status](https://img.shields.io/codeship/b9a1e790-42d4-0135-8d64-4209f04046aa.svg)
+[![Package version](https://img.shields.io/hexpm/v/surgex.svg?style=flat-square)]()
+[![License](https://img.shields.io/hexpm/l/surgex.svg?style=flat-square)]()
+
 ***All Things Elixir @ Surge Ventures Inc, the creators of [Shedul](https://www.shedul.com)***
 
 This is the official entry point and hub for all company-wide Elixir efforts at Surge Ventures.
