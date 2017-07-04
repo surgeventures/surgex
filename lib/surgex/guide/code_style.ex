@@ -1234,4 +1234,27 @@ defmodule Surgex.Guide.CodeStyle do
 
   """
   def exception_structure, do: nil
+
+  @doc """
+  Hardcoded word (both string and atom) lists should be written using the `~w` sigil.
+
+  ## Reasoning
+
+  They're simply more compact and easier to read this way. They're also easier to extend. For long
+  lists, line breaks can be applied without problems.
+
+  ## Examples
+
+  Preferred:
+
+      ~w(one two three)
+      ~w(one two three)a
+
+  Harder to read:
+
+      ["one", "two", "three"]
+      [:one, :two, :three]
+
+  """
+  def list_format, do: nil
 end
