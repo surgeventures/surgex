@@ -10,5 +10,4 @@ defmodule Surgex.Parser.ContainParser do
       false -> {:error, :invalid_value}
     end
   end
-  def call(_input, _allowed_values), do: {:error, :invalid_value}
 end

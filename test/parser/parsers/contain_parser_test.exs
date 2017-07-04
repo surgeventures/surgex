@@ -10,10 +10,6 @@ defmodule Surgex.Parser.ContainParserTest do
     assert ContainParser.call("value", []) == {:error, :invalid_value}
   end
 
-  test "allowed values not a list" do
-    assert ContainParser.call("value", "not a list") == {:error, :invalid_value}
-  end
-
   test "valid input is on the list of allowed values" do
     assert ContainParser.call("value", ["value"]) == {:ok, "value"}
   end
