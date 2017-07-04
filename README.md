@@ -13,7 +13,7 @@ Here's what you can expect to find in the
 ## Elixir knowledge base
 
 Official style guide for Elixir and Phoenix projects at Surge Ventures, written in ExDoc format as
-a set of functions in the `Surgex.Guide` module.
+a set of functions in the `Surgex.Guide` module ([visit at HexDocs](https://hexdocs.pm/surgex/Surgex.Guide.html)).
 
 ## Surgex bundle
 
