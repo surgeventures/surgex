@@ -3,12 +3,14 @@ defmodule Surgex.Mixfile do
 
   def project do
     [app: :surgex,
-     version: "0.5.0",
+     version: "0.5.1",
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps(),
      package: package(),
+     test_coverage: [tool: ExCoveralls],
+     preferred_cli_env: [coveralls: :test],
      name: "Surgex",
      description: "All Things Elixir @ Surge Ventures Inc, the creators of Shedul",
      source_url: "https://github.com/surgeventures/surgex",
@@ -34,6 +36,7 @@ defmodule Surgex.Mixfile do
 
   defp deps do
     [{:ex_doc, "~> 0.14", only: :dev, runtime: false},
+     {:excoveralls, "~> 0.7", only: :test},
      {:jabbax, ">= 0.1.0", optional: true}]
   end
 end
