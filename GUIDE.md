@@ -52,9 +52,6 @@ Functions that return `nil` when fetched item is missing should be named with `g
 Functions that need to return the reason for fetch failure should be named with `fetch` prefix.
 Functions that raise when item is missing should be named with `!` suffix.
 
-Sigils `~w{a b c}` and `~w{a b c}a` should be preferred over `[]` for defining string and atom
-lists (code style).
-
 When using `_` for unused variables, it should still be named for description purposes.
 For example, `_user` is preferred over just `_`.
 
