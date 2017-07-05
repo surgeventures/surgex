@@ -186,7 +186,7 @@ defmodule Surgex.ParserTest do
     test "valid doc" do
       parser_output = Parser.flat_parse @valid_doc, @doc_parsers
 
-      assert parser_output == {:ok, 123, "Jack", 456}
+      assert parser_output == {:ok, 123, "Jack", nil, 456}
     end
 
     test "malformed doc" do
