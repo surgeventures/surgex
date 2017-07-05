@@ -66,26 +66,7 @@ defmodule Surgex.Config do
     |> parse_fetch
   end
 
-  @types ~w{boolean integer}a
-
-  defp parse_fetch({:ok, {:system, env}}), do: System.get_env(env)
-  defp parse_fetch({:ok, {:system, env, type}}) when type in @types do
-    env
-    |> System.get_env
-    |> to_type(type)
-  end
-  defp parse_fetch({:ok, {:system, env, default}}) do
-    env
-    |> System.get_env
-    |> or_default(default)
-  end
-  defp parse_fetch({:ok, {:system, env, type, default}}) when type in @types do
-    env
-    |> System.get_env
-    |> to_type(type)
-    |> or_default(default)
-  end
-  defp parse_fetch({:ok, value}), do: value
+  defp parse_fetch({:ok, value}), do: parse(value)
   defp parse_fetch(:error), do: nil
 
   @doc """
@@ -101,36 +82,36 @@ defmodule Surgex.Config do
       "default value"
 
   """
-  def parse({:system, env}), do: System.get_env(env)
-  def parse({:system, env, type}) when type in @types do
+  def parse({:system, env}), do: get_env(env)
+  def parse({:system, env, opts}) do
+    type = Keyword.get(opts, :type)
+    default = Keyword.get(opts, :default)
+
     env
-    |> System.get_env
-    |> to_type(type)
-  end
-  def parse({:system, env, default}) do
-    env
-    |> System.get_env
-    |> or_default(default)
-  end
-  def parse({:system, env, type, default}) when type in @types do
-    env
-    |> System.get_env
-    |> to_type(type)
-    |> or_default(default)
+    |> get_env
+    |> apply_type(type)
+    |> apply_default(default)
   end
   def parse(value), do: value
 
-  defp to_type("1", :boolean), do: true
-  defp to_type("0", :boolean), do: false
-  defp to_type(_, :boolean), do: nil
-  defp to_type(value, :integer) when is_binary(value) do
+  defp get_env(env) when is_binary(env), do: System.get_env(env)
+  defp get_env(envs) when is_list(envs) do
+    Enum.find_value(envs, &get_env/1)
+  end
+
+  defp apply_type(value, nil), do: value
+  defp apply_type("1", :boolean), do: true
+  defp apply_type("0", :boolean), do: false
+  defp apply_type(_, :boolean), do: nil
+  defp apply_type(value, :integer) when is_binary(value) do
     case Integer.parse(value) do
       {integer, ""} -> integer
       _ -> nil
     end
   end
-  defp to_type(_, :integer), do: nil
+  defp apply_type(_, :integer), do: nil
 
-  defp or_default(nil, default), do: default
-  defp or_default(value, _default), do: value
+  defp apply_default(value, nil), do: value
+  defp apply_default(nil, default), do: default
+  defp apply_default(value, _default), do: value
 end
