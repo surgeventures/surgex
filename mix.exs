@@ -10,7 +10,9 @@ defmodule Surgex.Mixfile do
      deps: deps(),
      package: package(),
      test_coverage: [tool: ExCoveralls],
-     preferred_cli_env: [coveralls: :test],
+     preferred_cli_env: [
+       coveralls: :test,
+       "coveralls.detail": :test],
      name: "Surgex",
      description: "All Things Elixir @ Surge Ventures Inc, the creators of Shedul",
      source_url: "https://github.com/surgeventures/surgex",
@@ -31,7 +33,8 @@ defmodule Surgex.Mixfile do
   end
 
   def application do
-    [extra_applications: [:logger]]
+    [mod: {Surgex.Application, []},
+     extra_applications: [:logger]]
   end
 
   defp deps do
