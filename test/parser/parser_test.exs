@@ -1,9 +1,10 @@
 defmodule Surgex.ParserTest do
   use ExUnit.Case
+  use Jabbax.Document
   alias Surgex.Parser
   alias Surgex.Parser.RequiredParser
 
-  @parsers [
+  @param_parsers [
     id: [:integer, :required],
     first_name: [:string, &RequiredParser.call/1],
     last_name: :string,
@@ -24,9 +25,55 @@ defmodule Surgex.ParserTest do
     "include" => "invalid"
   }
 
+  @doc_parsers [
+    id: [:integer, :required],
+    attributes: %{
+      first_name: [:string, &RequiredParser.call/1],
+      last_name: :string
+    },
+    relationships: %{
+      avatar: :resource_id
+    }
+  ]
+
+  @valid_doc %Document{
+    data: %Resource{
+      id: "123",
+      attributes: %{
+        "first-name" => "Jack",
+        "last-name" => ""
+      },
+      relationships: %{
+        "avatar" => %ResourceId{
+          id: "456"
+        }
+      }
+    }
+  }
+
+  @invalid_doc %Document{
+    data: %Resource{
+      id: "abc",
+      attributes: %{
+        "first-name" => "",
+        "other-param" => "x"
+      },
+      relationships: %{
+        "avatar" => %ResourceId{
+          id: "def"
+        },
+        "other-rel" => %ResourceId{
+          id: "456"
+        },
+      }
+    }
+  }
+
+  @malformed_doc %Document{}
+
   describe "parse/2" do
     test "valid params" do
-      parser_output = Parser.parse @valid_params, @parsers
+      parser_output = Parser.parse @valid_params, @param_parsers
 
       assert parser_output == {:ok, [
         include: [:comments],
@@ -36,26 +83,97 @@ defmodule Surgex.ParserTest do
     end
 
     test "invalid params" do
-      parser_output = Parser.parse @invalid_params, @parsers
+      parser_output = Parser.parse @invalid_params, @param_parsers
 
       assert parser_output == {:error, :invalid_parameters, [
         invalid_relationship_path: "include",
         required: "first-name",
         invalid_integer: "id",
         unknown: "other-param",
+      ]}
+    end
+
+    test "valid doc" do
+      parser_output = Parser.parse @valid_doc, @doc_parsers
+
+      assert parser_output == {:ok, [
+        avatar: 456,
+        first_name: "Jack",
+        id: 123,
+      ]}
+    end
+
+    test "invalid doc" do
+      parser_output = Parser.parse @invalid_doc, @doc_parsers
+
+      assert parser_output == {:error, :invalid_pointers, [
+        invalid_integer: "/data/id",
+        required: "/data/attributes/first-name",
+        unknown: "/data/attributes/other-param",
+        invalid_integer: "/data/relationships/avatar/id",
+        unknown: "/data/relationships/other-rel"
+      ]}
+    end
+
+    test "malformed doc" do
+      parser_output = Parser.parse @malformed_doc, @doc_parsers
+
+      assert parser_output == {:error, :invalid_pointers, [required: "/data"]}
+    end
+
+    test "valid doc with nested resource array" do
+      doc = put_in @valid_doc.data.relationships["image-array"], [
+        %Resource{id: "1"},
+        %Resource{id: "2"},
+      ]
+
+      nested_parser = fn resource ->
+        Parser.parse resource, id: [:id, :required]
+      end
+
+      parsers = put_in @doc_parsers[:relationships][:image_array],
+        [{:resource_array, nested_parser}, :required]
+
+      parser_output = Parser.parse doc, parsers
+
+      assert parser_output == {:ok, [
+        image_array: [[id: 1], [id: 2]],
+        avatar: 456,
+        first_name: "Jack",
+        id: 123
+      ]}
+    end
+
+    test "invalid doc with nested resource array" do
+      doc = put_in @valid_doc.data.relationships["image-array"], [
+        %Resource{id: "abc"},
+        %Resource{id: "2"},
+      ]
+
+      nested_parser = fn resource ->
+        Parser.parse resource, id: [:id, :required]
+      end
+
+      parsers = put_in @doc_parsers[:relationships][:image_array],
+        [{:resource_array, nested_parser}, :required]
+
+      parser_output = Parser.parse doc, parsers
+
+      assert parser_output == {:error, :invalid_pointers, [
+        invalid_integer: "/data/relationships/image-array/0/id"
       ]}
     end
   end
 
   describe "flat_parse/2" do
     test "valid params" do
-      parser_output = Parser.flat_parse @valid_params, @parsers
+      parser_output = Parser.flat_parse @valid_params, @param_parsers
 
       assert parser_output == {:ok, 123, "Jack", nil, [:comments]}
     end
 
     test "invalid params" do
-      parser_output = Parser.flat_parse @invalid_params, @parsers
+      parser_output = Parser.flat_parse @invalid_params, @param_parsers
 
       assert parser_output == {:error, :invalid_parameters, [
         invalid_relationship_path: "include",
@@ -63,6 +181,18 @@ defmodule Surgex.ParserTest do
         invalid_integer: "id",
         unknown: "other-param",
       ]}
+    end
+
+    test "valid doc" do
+      parser_output = Parser.flat_parse @valid_doc, @doc_parsers
+
+      assert parser_output == {:ok, 123, "Jack", 456}
+    end
+
+    test "malformed doc" do
+      parser_output = Parser.flat_parse @malformed_doc, @doc_parsers
+
+      assert parser_output == {:error, :invalid_pointers, [required: "/data"]}
     end
   end
 

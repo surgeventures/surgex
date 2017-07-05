@@ -12,7 +12,8 @@ defmodule Surgex.Mixfile do
      test_coverage: [tool: ExCoveralls],
      preferred_cli_env: [
        coveralls: :test,
-       "coveralls.detail": :test],
+       "coveralls.detail": :test,
+       "coveralls.html": :test],
      name: "Surgex",
      description: "All Things Elixir @ Surge Ventures Inc, the creators of Shedul",
      source_url: "https://github.com/surgeventures/surgex",
