@@ -20,7 +20,7 @@ defmodule Surgex.Mixfile do
      homepage_url: "https://github.com/surgeventures/surgex",
      docs: [main: "readme",
             logo: "logo.png",
-            extras: ["README.md", "GUIDE.md"]]]
+            extras: ["README.md"]]]
   end
 
   defp package do
@@ -30,7 +30,7 @@ defmodule Surgex.Mixfile do
        "GitHub" => "https://github.com/surgeventures/surgex",
        "Shedul" => "https://www.shedul.com"
      },
-     files: ~w(mix.exs lib LICENSE.md README.md GUIDE.md)]
+     files: ~w(mix.exs lib LICENSE.md README.md)]
   end
 
   def application do
