@@ -1088,9 +1088,7 @@ defmodule Surgex.Guide.CodeStyle do
   @doc """
   Documentation in `@doc` and `@moduledoc` should be written in ExDoc-friendly Markdown.
 
-  ## Reasoning
-
-  First of all, here's what is considered an ExDoc-friendly Markdown:
+  Here's what is considered an ExDoc-friendly Markdown:
 
   - Paragraphs written with full sentences, separated by a blank line
 
@@ -1101,6 +1099,11 @@ defmodule Surgex.Guide.CodeStyle do
   - Bullet/ordered list items separated by a blank line
 
   - Elixir code indented by 4 spaces to mark the code block
+
+  ## Reasoning
+
+  This syntax is encouraged in popular Elixir libraries, it's confirmed to generate nicely readable
+  output and it's just as readable in the code which embeds it as well.
 
   ## Examples
 
@@ -1257,4 +1260,35 @@ defmodule Surgex.Guide.CodeStyle do
 
   """
   def list_format, do: nil
+
+  @doc """
+  Exception modules (and only them) should be named with the `Error` suffix.
+
+  ## Reasoning
+
+  Exceptions are a distinct kind of application entities, so it's good to emphasize that in their
+  naming. Two most popular suffixes are `Exception` and `Error`. The latter was choosen for brevity.
+
+  ## Examples
+
+  Preferred:
+
+      defmodule InvalidCredentialsError do
+        defexception [:one, :other]
+      end
+
+  Invalid suffix:
+
+      defmodule InvalidCredentialsException do
+        defexception [:one, :other]
+      end
+
+  Usage of `Error` suffix for non-exception modules:
+
+      defmodule Actions.HandleRegistrationError do
+        # ...
+      end
+
+  """
+  def exception_naming, do: nil
 end

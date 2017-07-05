@@ -598,4 +598,167 @@ defmodule Surgex.Guide.SoftwareDesign do
 
   """
   def unless_usage, do: nil
+
+  @doc """
+  Pattern matching should be preferred over line-by-line destructuring of maps and structs.
+
+  ## Reasoning
+
+  Pattern matching can be used to vastly simplify destructuring of complicated structures, so it
+  should be used whenever possible, instead of taking out field by field via a struct getter (`.`)
+  or an access operator (`[]`).
+
+  It's supported in function clauses, so extensive use of the feature will also encourage writing
+  more pattern-matched functions, which should in turn yield a code easier to parse for Elixir
+  developers. Function headers with long matches can be easily broken into multiple lines and
+  indented in a clean way, so the length of a match should not be the factor for making a decision
+  about using or not using it.
+
+  Even outside of function clauses, pattern matching is a blazing fast VM-supported feature that,
+  combined with guards unwrapped at compilation time, should yield the best possible code
+  performance.
+
+  It's also worth mentioning that pattern matching can be also done inside of the `assert` macro
+  in `ExUnit` in order to write selective, nicely diffed assertions on maps and structs.
+
+  Pattern matching should not be preferred over functions from `Keyword` module for destructuring
+  option lists, even if they can hold only one possible option at a time.
+
+  ## Examples
+
+  Preferred in function clauses:
+
+      def create_user_from_json_api_document(%{
+        "data" => %{
+          "id" => id,
+          "attributes" => %{
+            "name" => name,
+            "email" => email,
+            "phone" => phone
+          }
+        }
+      }, mailing_enabled) do
+        user = insert_user(id, name, email, phone)
+        if mailing_enabled, do: send_welcome_email(user)
+      end
+
+  Preferred in tests:
+
+      assert %User{
+        name: "John",
+        phone: "+48 600 700 800"
+      } == CreateUserAction(name: "John", email: email_sequence(), phone: "+48 600 700 800")
+
+  Cluttered:
+
+      id = doc["data"]["id"]
+      name = doc["data"]["attributes"]["name"]
+      email = doc["data"]["attributes"]["email"]
+      phone = doc["data"]["attributes"]["phone"]
+
+  """
+  def pattern_matching_usage, do: nil
+
+  @doc """
+  Kernel macros for working with nested structures should be preferred over manual assembly.
+
+  This is about macros from the `*_in` family in the `Elixir.Kernel` module, like `pop_in`,
+  `put_in` or `update_in`.
+
+  ## Reasoning
+
+  Using these macros can vastly reduce the amount of code amd ensure that the complexity of digging
+  and modifying nested structures is handled in the fastest way possible, as guaranteed by relying
+  on a standard library. Implementing these flows manually leads to repetitive code and an open door
+  for extra bugs.
+
+  ## Examples
+
+  Preferred:
+
+      opts = [
+        user: [
+          name: "John",
+          email: "user#xample.com"
+        ]
+      ]
+
+      opts_with_phone = put_in opts[:user][:phone], "+48 600 700 800"
+
+  Unneeded complexity:
+
+      opts = [
+        user: [
+          name: "John",
+          email: "user#xample.com"
+        ]
+      ]
+
+      user_with_phone = Keyword.put(opts[:user], :phone, "+48 600 700 800")
+      opts_with_phone = Keyword.put(opts, :user, user_with_phone)
+
+  """
+  def nested_struct_macro_usage, do: nil
+
+  @doc """
+  Keyword lists and tuples should be preferred over maps and lists for passing options.
+
+  ## Reasoning
+
+  Keyword lists and tuples are a standard, conventional means for passing internal information
+  between Elixir modules.
+
+  Keyword lists enforce a usage of atoms for keys and allow to pass single key more than once and in
+  specific order when that's desired (and provide a `merge` function for when that's not desired).
+  The price for last two feats is that they are not pattern-matchable (and should never be pattern
+  matched) in cases when order and duplication is not important - functions from the
+  `Elixir.Keyword` module should be used in those cases. Ot the other hand, pattern matching may
+  come handy when parsing options with significant order of keys.
+
+  Tuples declare a syntax for short, efficient, predefined lists and are useful in simpler and
+  convention-driven cases, in which key naming is not needed. For instance, there's an established
+  convention to return `{:ok, result}`/`{:error, reason}` tuples from actions that can succeed or
+  fail without throwing.
+
+  ## Examples
+
+  Preferred:
+
+      defp create_user(attrs, opts \\\\ []) do
+        # required option
+        auth_scope = Keyword.fetch!(opts, :send_welcome_email, false)
+
+        # options with defaults
+        send_welcome_email = Keyword.get(opts, :send_welcome_email, false)
+        mark_as_confirmed = Keyword.get(opts, :mark_as_confirmed, true)
+
+        case Repo.insert(%User{}, attrs) do
+          {:ok, user} ->
+            final_user =
+              user
+              |> send_email(send_welcome_email)
+              |> confirm(mark_as_confirmed)
+            {:ok, final_user}
+
+          {:error, changeset} ->
+            {:error, map_changeset_errors_to_error_reason(changeset.errors)}
+        end
+      end
+
+  Invalid usage of maps over keyword lists:
+
+      defp create_user(attrs, opts = %{}) do
+        # ...
+      end
+
+  Invalid usage of lists over tuples:
+
+      defp create_user(attrs) do
+        # ...
+
+        [:ok, user]
+      end
+
+  """
+  def option_format, do: nil
 end
