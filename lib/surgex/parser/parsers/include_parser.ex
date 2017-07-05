@@ -15,9 +15,6 @@ defmodule Surgex.Parser.IncludeParser do
       {:error, :invalid_relationship_path}
     end
   end
-  def call(_input, spec) do
-    raise(ArgumentError, "Path specification not supported: #{inspect spec}")
-  end
 
   def flatten({:ok, opts}, key) do
     case Keyword.pop(opts, key) do
