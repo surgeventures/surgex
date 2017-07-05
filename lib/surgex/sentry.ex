@@ -12,27 +12,24 @@ defmodule Surgex.Sentry do
 
   ## Examples
 
-  In order to use this extension, invoke `Surgex.Sentry.init/0` on application start:
+  In order to execute this extension on application start, set an appropriate config key:
 
-      defmodule MyProject.Application do
-        use Application
-
-        def start(_type, _args) do
-          if Mix.env == :prod, do: Surgex.Sentry.init()
-
-          # ...remainder of the app start code...
-        end
-      end
+      config :surgex,
+        enable_sentry_patch: true
 
   """
   def init do
+    if Application.get_env(:surgex, :sentry_patch_enabled, false), do: do_init()
+  end
+
+  defp do_init do
     require Logger
 
-    env = System.get_env("SENTRY_ENVIRONMENT")
-    release = System.get_env("SOURCE_VERSION") || System.get_env("HEROKU_SLUG_COMMIT")
+    env = get_env()
+    release = get_release()
 
     Logger.info fn ->
-      "Patching Sentry config (environment: #{inspect(env)}, release: #{inspect(release)})"
+      "Patching Sentry config (environment: #{inspect env}, release: #{inspect release})"
     end
 
     Mix.Config.persist(sentry: [
@@ -40,6 +37,24 @@ defmodule Surgex.Sentry do
       environment_name: env,
       included_environments: [env]
     ])
+  end
+
+  defp get_env do
+    case Application.get_env(:surgex, :sentry_environment, :mix_env) do
+      :mix_env ->
+        Mix.env()
+      value ->
+        Surgex.Config.parse(value)
+    end
+  end
+
+  defp get_release do
+    case Application.get_env(:surgex, :sentry_release, :mix_version) do
+      :mix_version ->
+        Mix.Project.config[:version]
+      value ->
+        Surgex.Config.parse(value)
+    end
   end
 
   @scrubbed_param_keys Application.get_env(:surgex, :sentry_scrubbed_param_keys, ~w{password})
