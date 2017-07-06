@@ -1,8 +1,9 @@
 defmodule Surgex.ChangesetTest do
   use ExUnit.Case
+  alias Surgex.Changeset
 
   test "changeset with all possible errors" do
-    assert Surgex.Changeset.build_errors_document(%{
+    assert Changeset.build_errors_document(%{
       errors: [
         taken_field: {"has already been taken", nil},
         required_field: {nil, [validation: :required]},

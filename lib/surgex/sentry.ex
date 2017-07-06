@@ -3,6 +3,9 @@ defmodule Surgex.Sentry do
   Extensions to the official Sentry package.
   """
 
+  alias Mix.Project
+  alias Surgex.Config
+
   @doc """
   Patches Sentry environment name and release version from env vars.
 
@@ -51,9 +54,9 @@ defmodule Surgex.Sentry do
   defp get_release do
     case Application.get_env(:surgex, :sentry_release, :mix_version) do
       :mix_version ->
-        Mix.Project.config[:version]
+        Project.config[:version]
       value ->
-        Surgex.Config.parse(value)
+        Config.parse(value)
     end
   end
 

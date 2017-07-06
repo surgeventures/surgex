@@ -1,30 +1,32 @@
 defmodule Surgex.SentryTest do
   use ExUnit.Case
   import ExUnit.CaptureLog
+  alias Mix.{Config, Project}
+  alias Surgex.Sentry
 
   describe "init/0" do
     test "patch enabled" do
-      Mix.Config.persist(surgex: [
+      Config.persist(surgex: [
         sentry_patch_enabled: true
       ])
 
       log_for_default_config = capture_log(fn ->
-        Surgex.Sentry.init()
+        Sentry.init()
       end)
 
-      version = Mix.Project.config[:version]
+      version = Project.config[:version]
 
       assert log_for_default_config =~
         ~s{Patching Sentry config (environment: :test, release: "#{version}")}
 
-      Mix.Config.persist(surgex: [
+      Config.persist(surgex: [
         sentry_patch_enabled: true,
         sentry_environment: "abc",
         sentry_release: "def",
       ])
 
       log_for_manual_config = capture_log(fn ->
-        Surgex.Sentry.init()
+        Sentry.init()
       end)
 
       assert log_for_manual_config =~
@@ -34,7 +36,7 @@ defmodule Surgex.SentryTest do
 
   describe "scrub_params/1" do
     test "params with secrets" do
-      assert Surgex.Sentry.scrub_params(%{
+      assert Sentry.scrub_params(%{
         params: %{
           "username" => "a",
           "password" => "secret",
