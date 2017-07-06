@@ -8,13 +8,13 @@ defmodule Surgex.SentryTest do
         sentry_patch_enabled: true
       ])
 
-      log = capture_log(fn ->
+      log_for_default_config = capture_log(fn ->
         Surgex.Sentry.init()
       end)
 
       version = Mix.Project.config[:version]
 
-      assert log =~
+      assert log_for_default_config =~
         ~s{Patching Sentry config (environment: :test, release: "#{version}")}
 
       Mix.Config.persist(surgex: [
@@ -23,11 +23,11 @@ defmodule Surgex.SentryTest do
         sentry_release: "def",
       ])
 
-      log = capture_log(fn ->
+      log_for_manual_config = capture_log(fn ->
         Surgex.Sentry.init()
       end)
 
-      assert log =~
+      assert log_for_manual_config =~
         ~s{Patching Sentry config (environment: "abc", release: "def")}
     end
   end

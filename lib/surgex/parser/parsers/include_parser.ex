@@ -6,6 +6,7 @@ defmodule Surgex.Parser.IncludeParser do
   Produces a list of includes constrained to the provided relationship paths.
   """
 
+  @doc false
   def call(nil, _spec), do: {:ok, []}
   def call("", _spec), do: {:ok, []}
   def call(input, [allowed_path]) when is_binary(input) do
@@ -16,6 +17,15 @@ defmodule Surgex.Parser.IncludeParser do
     end
   end
 
+  @doc """
+  Flattens the result of the parser (inclusion list) into multiple keys.
+
+  ## Examples
+
+      iex> IncludeParser.flatten({:ok, include: [:user]}, :include)
+      {:ok, include_user: true}
+
+  """
   def flatten({:ok, opts}, key) do
     case Keyword.pop(opts, key) do
       {nil, _} ->

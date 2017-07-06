@@ -8,4 +8,3 @@ config :surgex, :config_test,
   system_key_with_integer_type: {:system, "INTEGER_ENV_VAR", type: :integer}
 
 config :surgex, flat_config_key: "flat value"
-

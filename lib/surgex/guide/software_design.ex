@@ -51,10 +51,14 @@ defmodule Surgex.Guide.SoftwareDesign do
   def with_else_usage, do: nil
 
   @doc """
-  A redundant `else` block should not provided for the `with` directive.
+  Redundant `else` block should not be provided for the `with` directive.
 
   ## Reasoning
 
+  In cases when all the code called in `with` resides in the same file and when none of `else`
+  clauses would override the negative path's output, it's more semantic and descriptive to simply
+  drop the `else` entirely. It's worth noting that `else` blocks in `with` bring an additional
+  maintenance cost so it should be excused by either of conditions mentioned above.
 
   ## Examples
 

@@ -7,6 +7,7 @@ defmodule Surgex.Parser.SortParser do
   `column` is a safely atomized and underscored column name.
   """
 
+  @doc false
   def call(nil, _allowed_columns), do: {:ok, nil}
   def call(input, allowed_columns) when is_binary(input) do
     case input do
@@ -41,6 +42,15 @@ defmodule Surgex.Parser.SortParser do
     ArgumentError -> nil
   end
 
+  @doc """
+  Flattens the result of the parser (sort tuple) into `*_by` and `*_direction` keys.
+
+  ## Examples
+
+      iex> SortParser.flatten({:ok, sort: {:asc, :col}}, :sort)
+      {:ok, sort_by: :col, sort_direction: :asc}
+
+  """
   def flatten({:ok, opts}, key) do
     case Keyword.pop(opts, key) do
       {nil, _} ->

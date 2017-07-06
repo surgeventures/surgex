@@ -1072,7 +1072,6 @@ defmodule Surgex.Guide.CodeStyle do
         \"""
       end
 
-
   Missing trailing blank line:
 
       defmodule MyProject.Accounts do

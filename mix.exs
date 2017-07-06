@@ -9,8 +9,10 @@ defmodule Surgex.Mixfile do
      start_permanent: Mix.env == :prod,
      deps: deps(),
      package: package(),
+     aliases: aliases(),
      test_coverage: [tool: ExCoveralls],
      preferred_cli_env: [
+       check: :test,
        coveralls: :test,
        "coveralls.detail": :test,
        "coveralls.html": :test],
@@ -38,9 +40,26 @@ defmodule Surgex.Mixfile do
      extra_applications: [:logger]]
   end
 
+  defp aliases do
+    [
+      "check": check_alias(),
+    ]
+  end
+
   defp deps do
-    [{:ex_doc, "~> 0.14", only: :dev, runtime: false},
+    [{:credo, "~> 0.8.1", only: [:dev, :test]},
+     {:ex_doc, "~> 0.14", only: :dev, runtime: false},
      {:excoveralls, "~> 0.7", only: :test},
+     {:inch_ex, "~> 0.5", only: [:dev, :test]},
      {:jabbax, ">= 0.1.0", optional: true}]
+  end
+
+  defp check_alias do
+    [
+      "deps.get",
+      "clean",
+      "compile --warnings-as-errors",
+      "test",
+    ]
   end
 end
