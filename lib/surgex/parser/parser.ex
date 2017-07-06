@@ -75,6 +75,7 @@ defmodule Surgex.Parser do
     |> parse_params(parsers)
     |> drop_empty_opts
   end
+  def parse(nil, _parsers), do: {:error, :empty_input}
 
   @doc """
   Parses controller action input into a flat structure.
@@ -103,6 +104,7 @@ defmodule Surgex.Parser do
       List.to_tuple([:ok | output])
     end
   end
+  def flat_parse(nil, _parsers), do: {:error, :empty_input}
 
   @doc """
   Makes sure there are no unknown params passed to controller action.

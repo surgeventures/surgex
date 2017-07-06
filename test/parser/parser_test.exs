@@ -163,6 +163,12 @@ defmodule Surgex.ParserTest do
         invalid_integer: "/data/relationships/image-array/0/id"
       ]}
     end
+
+    test "nil input" do
+      parser_output = Parser.parse nil, []
+
+      assert parser_output == {:error, :empty_input}
+    end
   end
 
   describe "flat_parse/2" do
@@ -193,6 +199,12 @@ defmodule Surgex.ParserTest do
       parser_output = Parser.flat_parse @malformed_doc, @doc_parsers
 
       assert parser_output == {:error, :invalid_pointers, [required: "/data"]}
+    end
+
+    test "nil input" do
+      parser_output = Parser.flat_parse nil, []
+
+      assert parser_output == {:error, :empty_input}
     end
   end
 
