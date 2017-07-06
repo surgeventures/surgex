@@ -55,10 +55,11 @@ defmodule Surgex.Guide.SoftwareDesign do
 
   ## Reasoning
 
-  In cases when all the code called in `with` resides in the same file and when none of `else`
-  clauses would override the negative path's output, it's more semantic and descriptive to simply
-  drop the `else` entirely. It's worth noting that `else` blocks in `with` bring an additional
-  maintenance cost so it should be excused by either of conditions mentioned above.
+  In cases when all the code called in `with` resides in the same file (or in a standard library)
+  and when none of `else` clauses would override the negative path's output, it's more semantic and
+  descriptive to simply drop the `else` entirely. It's worth noting that `else` blocks in `with`
+  bring an additional maintenance cost so it should be excused by either of conditions mentioned
+  above.
 
   ## Examples
 
@@ -66,27 +67,39 @@ defmodule Surgex.Guide.SoftwareDesign do
 
       defmodule RegistrationService do
         def call(attrs) do
-          with {:ok, user} <- CreateUserFromAttributesService.call(attrs),
-               :ok <- SendUserWelcomeEmailService.call(user)
+          with {:ok, user} <- insert_user(attrs),
+               :ok <- send_welcome_email(user)
           do
             {:ok, user}
-          else
-            {:error, changeset = %Ecto.Changeset{}} -> {:error, changeset}
-            {:error, :not_available} -> {:error, :not_available}
           end
         end
+
+        defp insert_user(attrs), do: # ...
+
+        defp send_welcome_email(user), do: # ...
       end
 
-  Unclear cross-module flow:
+  Redundant and hard to maintain `else`:
 
       defmodule RegistrationService do
         def call(attrs) do
-          with {:ok, user} <- CreateUserFromAttributesService.call(attrs),
-               :ok <- SendUserWelcomeEmailService.call(user)
+          with {:ok, user} <- insert_user(attrs),
+               :ok <- send_welcome_email(user)
           do
             {:ok, user}
+          else
+            {:error, :insertion_error_a} -> {:error, :insertion_error_a}
+            {:error, :insertion_error_b} -> {:error, :insertion_error_b}
+            {:error, :insertion_error_c} -> {:error, :insertion_error_c}
+            {:error, :mailing_service_error_a} -> {:error, :mailing_service_error_a}
+            {:error, :mailing_service_error_b} -> {:error, :mailing_service_error_b}
+            {:error, :mailing_service_error_c} -> {:error, :mailing_service_error_c}
           end
         end
+
+        defp insert_user(attrs), do: # ...
+
+        defp send_welcome_email(user), do: # ...
       end
 
   """
