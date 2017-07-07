@@ -149,7 +149,7 @@ defmodule Surgex.Guide.SoftwareDesign do
   def with_else_order, do: nil
 
   @doc """
-  Errors from extrnal contexts should be mapped to have a meaning in the current context.
+  Errors from external contexts should be mapped to have a meaning in the current context.
 
   ## Reasoning
 
@@ -207,7 +207,7 @@ defmodule Surgex.Guide.SoftwareDesign do
       end
 
   """
-  def external_error_mapping, do: nil
+  def error_mapping, do: nil
 
   @doc """
   Non-false moduledoc should be filled only for global, context-external app modules.
@@ -778,4 +778,84 @@ defmodule Surgex.Guide.SoftwareDesign do
 
   """
   def option_format, do: nil
+
+  @doc ~S"""
+  Errors should be thrown as close to the spot of failure and unhandled unless required.
+
+  ## Reasoning
+
+  Throwing an exception (or using a throwing equivalent of a standard library function) allows to
+  avoid spending an additional time on inventing failure paths in the code and handling them higher
+  in the call stack.
+
+  It may be tempting to go with an error return value, such as the `{:error, ...}` tuple, in order
+  to let the code higher in the call stack to decide what to do in a specific situation, but that
+  only makes sense when it makes sense, ie. there exists a valid case higher in the call stack that
+  would want to do something other than throwing or returning a meaningless, generic error.
+
+  Otherwise, when a hard system-wide failure ends up not being an exception, it may look like a step
+  towards reusability, but it's really anti-semantic and the specific code unit (function or module)
+  stops telling the whole story, ie. multiple files must be read in order to come up with a simple
+  conclusion that we really end up with an exception anyway.
+
+  This may be extra important during a debugging session, since the closer an exception happens to
+  the spot of failure, the easier it is for developer to understand the real reason behind it. For
+  the same reason, it's always better to use a throwing equivalent of a standard library function
+  (with the `!` suffix) in places which don't handle the negative scenario anyway further down the
+  pipe.
+
+  ## Examples
+
+  Preferred:
+
+      def do_something_external(params) do
+        required = Keyword.fetch!(params, :required)
+        optional = Keyword.get(params, :optional)
+        integer =
+          params
+          |> Keyword.fetch!(:integer)
+          |> String.to_integer
+
+        case external_api_call(required, optional, integer) do
+          %{status: 200, body: body} ->
+            body["result"]
+          %{status: error_status, body: error_body} ->
+            raise("External API error #{error_status}: #{inspect error_body}")
+        end
+      end
+
+  Bad code (read the explanation below):
+
+      def do_something_external(params) do
+        required = Keyword.get(params, :required)
+        optional = Keyword.get(params, :optional)
+        {integer, _} =
+          params
+          |> Keyword.fetch!(:integer)
+          |> Integer.parse
+
+        case external_api_call(required, optional, integer) do
+          %{status: 200, body: body} ->
+            {:ok, body["result"]}
+          _ ->
+            {:error, :external_api_failed}
+        end
+      end
+
+  There are following problems in the code above:
+
+  - not throwing on forgotten `:required_option` as early as possible will yield problems further
+    down the pipe that will be hard to debug since debugging session will have to track the issue
+    back to the original spot that we could've thrown at since the beginning
+
+  - not using optimal standard library means for throwing a descriptive error for failed string to
+    integer conversion (`String.to_integer`) will yield a less descriptive match error (and the
+    match-all on a 2nd elem of tuple from `Integer.parse` may produce bugs)
+
+  - returning `{:error, :external_api_failed}` on failure from external API will force the caller of
+    `do_something_external` to handle this case, so it makes sense only if we can actually do
+    something that makes sense (other than raising, silencing the issue or making it ambiguous)
+
+  """
+  def error_handling, do: nil
 end
