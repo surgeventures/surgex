@@ -18,7 +18,7 @@ defmodule Surgex.Sentry do
   In order to execute this extension on application start, set an appropriate config key:
 
       config :surgex,
-        enable_sentry_patch: true
+        sentry_patch_enabled: true
 
   """
   def init do
