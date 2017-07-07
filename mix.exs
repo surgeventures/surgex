@@ -3,7 +3,7 @@ defmodule Surgex.Mixfile do
 
   def project do
     [app: :surgex,
-     version: "1.0.0",
+     version: "1.1.0",
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -48,7 +48,9 @@ defmodule Surgex.Mixfile do
 
   defp deps do
     [{:credo, "~> 0.8.1", only: [:dev, :test]},
+     {:ecto, "~> 2.1.4", optional: true},
      {:ex_doc, "~> 0.14", only: :dev, runtime: false},
+     {:ex_phone_number, "~> 0.1.1", optional: true},
      {:excoveralls, "~> 0.7", only: :test},
      {:inch_ex, "~> 0.5", only: [:dev, :test]},
      {:jabbax, ">= 0.1.0", optional: true}]
