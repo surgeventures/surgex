@@ -210,11 +210,7 @@ defmodule Surgex.Parser do
   end
 
   defp pop_and_parse_key({map, output, errors}, {input_key, stringify}, parser, output_key) do
-    {{input_value, remaining_map}, error_key} = if stringify do
-      pop_maybe_dasherized(map, Atom.to_string(input_key))
-    else
-      {Map.pop(map, input_key), Atom.to_string(input_key)}
-    end
+    {{input_value, remaining_map}, error_key} = pop(map, input_key, stringify)
 
     case call_parser(parser, input_value) do
       {:ok, parser_output, opts} ->
@@ -264,11 +260,17 @@ defmodule Surgex.Parser do
     apply(parser_module, :call, [input | parser_args])
   end
 
-  defp pop_maybe_dasherized(map, key) do
-    if Map.has_key?(map, key) do
-      {Map.pop(map, key), key}
+  defp pop(map, key, stringify)
+  defp pop(map, key, false) do
+    {Map.pop(map, key), Atom.to_string(key)}
+  end
+  defp pop(map, key, true) do
+    key_string = Atom.to_string(key)
+
+    if Map.has_key?(map, key_string) do
+      {Map.pop(map, key_string), key_string}
     else
-      dasherized_key = String.replace(key, "_", "-")
+      dasherized_key = String.replace(key_string, "_", "-")
       {Map.pop(map, dasherized_key), dasherized_key}
     end
   end
