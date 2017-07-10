@@ -59,23 +59,23 @@ defmodule Surgex.Parser do
 
   Returns a keyword list with parsed options.
   """
-  def parse(input, parsers)
-  def parse(resource = %Resource{}, parsers) do
+  def parse(input, parsers, opts \\ [])
+  def parse(resource = %Resource{}, parsers, opts) do
     resource
     |> parse_resource(parsers)
-    |> close_output(drop_nil: true)
+    |> apply_output_opts(opts)
   end
-  def parse(doc = %Document{}, parsers) do
+  def parse(doc = %Document{}, parsers, opts) do
     doc
     |> parse_doc(parsers)
-    |> close_output(drop_nil: true)
+    |> apply_output_opts(opts)
   end
-  def parse(params = %{}, parsers) do
+  def parse(params = %{}, parsers, opts) do
     params
     |> parse_params(parsers)
-    |> close_output(drop_nil: true)
+    |> apply_output_opts(opts)
   end
-  def parse(nil, _parsers), do: {:error, :empty_input}
+  def parse(nil, _parsers, _opts), do: {:error, :empty_input}
 
   @doc """
   Parses controller action input into a flat structure.
@@ -88,7 +88,7 @@ defmodule Surgex.Parser do
     with {:ok, list} <- parse_doc(doc, parsers) do
       output =
         list
-        |> postprocess_output()
+        |> postprocess_output(drop_nil: false)
         |> Keyword.values
         |> Enum.reverse
 
@@ -99,7 +99,7 @@ defmodule Surgex.Parser do
     with {:ok, list} <- parse_params(params, parsers) do
       output =
         list
-        |> postprocess_output()
+        |> postprocess_output(drop_nil: false)
         |> Keyword.values
         |> Enum.reverse
 
@@ -213,9 +213,6 @@ defmodule Surgex.Parser do
     {{input_value, remaining_map}, error_key} = pop(map, input_key, stringify)
 
     case call_parser(parser, input_value) do
-      {:ok, parser_output, opts} ->
-        final_output = Keyword.put_new(output, output_key, {parser_output, opts})
-        {remaining_map, final_output, errors}
       {:ok, parser_output} ->
         final_output = Keyword.put_new(output, output_key, parser_output)
         {remaining_map, final_output, errors}
@@ -240,13 +237,9 @@ defmodule Surgex.Parser do
     call_parser(next_parser, prev_output)
   end
 
-  @opts ~w(keep_nil)a
-
   defp call_parser(parsers, input) when is_list(parsers), do: parse_in_sequence(input, parsers)
   defp call_parser(parser, input) when is_function(parser), do: parser.(input)
   defp call_parser(parser, input) when is_atom(parser), do: call_parser({parser}, input)
-  defp call_parser({opt, true}, {:ok, data, opts}) when opt in @opts, do: {:ok, data, [opt | opts]}
-  defp call_parser({opt, true}, input) when opt in @opts, do: {:ok, input, [opt]}
   defp call_parser(parser_tuple, input) when is_tuple(parser_tuple) do
     [parser_name | parser_args] = Tuple.to_list(parser_tuple)
 
@@ -290,16 +283,14 @@ defmodule Surgex.Parser do
   defp close_resource({output, []}), do: {:ok, output}
   defp close_resource({_output, errors}), do: {:error, :invalid_pointers, errors}
 
-  defp close_output(output_tuple, opts) do
+  defp apply_output_opts(output_tuple, opts) do
     with {:ok, output} <- output_tuple do
       {:ok, postprocess_output(output, opts)}
     end
   end
 
-  defp postprocess_output(output, opts \\ []) do
-    output
-    |> filter_nil_output(Keyword.get(opts, :drop_nil, false))
-    |> drop_flags_from_output()
+  defp postprocess_output(output, opts) do
+    filter_nil_output(output, Keyword.get(opts, :drop_nil, true))
   end
 
   defp filter_nil_output(opts, false), do: opts
@@ -307,16 +298,7 @@ defmodule Surgex.Parser do
     Enum.filter(opts, fn
       {_key, nil} -> false
       {_key, []} -> false
-      {_key, {nil, flags}} -> :keep_nil in flags
-      {_key, {[], flags}} -> :keep_nil in flags
       {_key, _value} -> true
-    end)
-  end
-
-  defp drop_flags_from_output(opts) do
-    Enum.map(opts, fn
-      {key, {value, _flags}} -> {key, value}
-      {key, value} -> {key, value}
     end)
   end
 end
