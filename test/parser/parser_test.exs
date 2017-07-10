@@ -8,6 +8,7 @@ defmodule Surgex.ParserTest do
     id: [:integer, :required],
     first_name: [:string, &RequiredParser.call/1],
     last_name: :string,
+    kept_param: [:string, keep_nil: true],
     include: [{:include, [:comments]}, :required]
   ]
 
@@ -15,6 +16,7 @@ defmodule Surgex.ParserTest do
     "id" => "123",
     "first-name" => "Jack",
     "last-name" => "",
+    "kept-param" => "",
     "include" => "comments"
   }
 
@@ -77,6 +79,7 @@ defmodule Surgex.ParserTest do
 
       assert parser_output == {:ok, [
         include: [:comments],
+        kept_param: nil,
         first_name: "Jack",
         id: 123,
       ]}
@@ -175,7 +178,7 @@ defmodule Surgex.ParserTest do
     test "valid params" do
       parser_output = Parser.flat_parse @valid_params, @param_parsers
 
-      assert parser_output == {:ok, 123, "Jack", nil, [:comments]}
+      assert parser_output == {:ok, 123, "Jack", nil, nil, [:comments]}
     end
 
     test "invalid params" do
