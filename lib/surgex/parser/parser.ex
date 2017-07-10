@@ -59,23 +59,20 @@ defmodule Surgex.Parser do
 
   Returns a keyword list with parsed options.
   """
-  def parse(input, parsers, opts \\ [])
-  def parse(resource = %Resource{}, parsers, opts) do
+  def parse(input, parsers)
+  def parse(resource = %Resource{}, parsers) do
     resource
     |> parse_resource(parsers)
-    |> apply_output_opts(opts)
   end
-  def parse(doc = %Document{}, parsers, opts) do
+  def parse(doc = %Document{}, parsers) do
     doc
     |> parse_doc(parsers)
-    |> apply_output_opts(opts)
   end
-  def parse(params = %{}, parsers, opts) do
+  def parse(params = %{}, parsers) do
     params
     |> parse_params(parsers)
-    |> apply_output_opts(opts)
   end
-  def parse(nil, _parsers, _opts), do: {:error, :empty_input}
+  def parse(nil, _parsers), do: {:error, :empty_input}
 
   @doc """
   Parses controller action input into a flat structure.
@@ -85,10 +82,9 @@ defmodule Surgex.Parser do
   """
   def flat_parse(input, parsers)
   def flat_parse(doc = %Document{}, parsers) do
-    with {:ok, list} <- parse_doc(doc, parsers) do
+    with {:ok, list} <- parse_doc(doc, parsers, include_missing: true) do
       output =
         list
-        |> postprocess_output(drop_nil: false)
         |> Keyword.values
         |> Enum.reverse
 
@@ -96,10 +92,9 @@ defmodule Surgex.Parser do
     end
   end
   def flat_parse(params = %{}, parsers) do
-    with {:ok, list} <- parse_params(params, parsers) do
+    with {:ok, list} <- parse_params(params, parsers, include_missing: true) do
       output =
         list
-        |> postprocess_output(drop_nil: false)
         |> Keyword.values
         |> Enum.reverse
 
@@ -137,27 +132,29 @@ defmodule Surgex.Parser do
     end
   end
 
-  defp parse_params(params, parsers) do
+  defp parse_params(params, parsers, opts \\ []) do
     {params, [], []}
-    |> pop_and_parse_keys(parsers)
+    |> pop_and_parse_keys(parsers, opts)
     |> pop_unknown()
     |> close_params()
   end
 
-  defp parse_doc(%{data: resource = %{}}, parsers) do
+  defp parse_doc(doc, parsers, opts \\ [])
+  defp parse_doc(%{data: resource = %{}}, parsers, opts) do
     resource
-    |> parse_resource(parsers)
+    |> parse_resource(parsers, opts)
     |> prefix_error_pointers("/data/")
   end
-  defp parse_doc(_doc, _parsers) do
+  defp parse_doc(_doc, _parsers, _opts) do
     {:error, :invalid_pointers, [required: "/data"]}
   end
 
-  defp parse_resource(resource, parsers) do
-    {root_output, root_errors} = parse_resource_root(resource, parsers)
-    {attribute_output, attribute_errors} = parse_resource_nested(resource, parsers, :attributes)
+  defp parse_resource(resource, parsers, opts \\ []) do
+    {root_output, root_errors} = parse_resource_root(resource, parsers, opts)
+    {attribute_output, attribute_errors} =
+      parse_resource_nested(resource, parsers, :attributes, opts)
     {relationship_output, relationship_errors} =
-      parse_resource_nested(resource, parsers, :relationships)
+      parse_resource_nested(resource, parsers, :relationships, opts)
 
     output = relationship_output ++ attribute_output ++ root_output
     errors = root_errors ++ attribute_errors ++ relationship_errors
@@ -165,22 +162,22 @@ defmodule Surgex.Parser do
     close_resource({output, errors})
   end
 
-  defp parse_resource_root(resource, all_parsers) do
+  defp parse_resource_root(resource, all_parsers, opts) do
     parsers = Keyword.drop(all_parsers, [:attributes, :relationships])
     input = Map.from_struct(resource)
 
-    {_, output, errors} = pop_and_parse_keys({input, [], []}, parsers, stringify: false)
+    {_, output, errors} = pop_and_parse_keys({input, [], []}, parsers, [stringify: false] ++ opts)
 
     {output, errors}
   end
 
-  defp parse_resource_nested(resource, all_parsers, key) do
+  defp parse_resource_nested(resource, all_parsers, key, opts) do
     parsers = Keyword.get(all_parsers, key, [])
     attributes = Map.get(resource, key, %{})
 
     {output, errors} =
       {attributes, [], []}
-      |> pop_and_parse_keys(parsers)
+      |> pop_and_parse_keys(parsers, opts)
       |> pop_unknown()
 
     prefixed_errors = prefix_error_pointers(errors, "#{key}/")
@@ -199,31 +196,41 @@ defmodule Surgex.Parser do
 
   defp prefix_error_pointer({reason, key}, prefix), do: {reason, "#{prefix}#{key}"}
 
-  defp pop_and_parse_keys(payload, key_parsers, opts \\ []) do
+  defp pop_and_parse_keys(payload, key_parsers, opts) do
+    Enum.reduce(key_parsers, payload, &pop_and_parse_keys_each(&1, &2, opts))
+  end
+
+  defp pop_and_parse_keys_each({key, parser}, current_payload, opts) do
+    pop_and_parse_key(current_payload, {key, opts}, parser, key)
+  end
+
+  defp pop_and_parse_key({map, output, errors}, {input_key, opts}, parser, output_key) do
     stringify = Keyword.get(opts, :stringify, true)
+    include_missing = Keyword.get(opts, :include_missing, false)
 
-    Enum.reduce(key_parsers, payload, &pop_and_parse_keys_each(&1, &2, stringify))
-  end
-
-  defp pop_and_parse_keys_each({key, parser}, current_payload, stringify) do
-    pop_and_parse_key(current_payload, {key, stringify}, parser, key)
-  end
-
-  defp pop_and_parse_key({map, output, errors}, {input_key, stringify}, parser, output_key) do
-    {{input_value, remaining_map}, error_key} = pop(map, input_key, stringify)
+    {{input_value, remaining_map}, used_key} = pop(map, input_key, stringify)
+    had_key = Map.has_key?(map, used_key)
+    drop_nil = not include_missing and not had_key
 
     case call_parser(parser, input_value) do
+      {:ok, nil} ->
+        if drop_nil do
+          {remaining_map, output, errors}
+        else
+          final_output = Keyword.put_new(output, output_key, nil)
+          {remaining_map, final_output, errors}
+        end
       {:ok, parser_output} ->
         final_output = Keyword.put_new(output, output_key, parser_output)
         {remaining_map, final_output, errors}
       {:error, new_errors} when is_list(new_errors) ->
         prefixed_new_errors = Enum.map(new_errors, fn {reason, pointer} ->
-          {reason, "#{error_key}/#{pointer}"}
+          {reason, "#{used_key}/#{pointer}"}
         end)
         final_errors = Keyword.merge(errors, prefixed_new_errors)
         {remaining_map, output, final_errors}
       {:error, reason} ->
-        final_errors = Keyword.put_new(errors, reason, error_key)
+        final_errors = Keyword.put_new(errors, reason, used_key)
         {remaining_map, output, final_errors}
     end
   end
@@ -255,7 +262,7 @@ defmodule Surgex.Parser do
 
   defp pop(map, key, stringify)
   defp pop(map, key, false) do
-    {Map.pop(map, key), Atom.to_string(key)}
+    {Map.pop(map, key), key}
   end
   defp pop(map, key, true) do
     key_string = Atom.to_string(key)
@@ -282,23 +289,4 @@ defmodule Surgex.Parser do
 
   defp close_resource({output, []}), do: {:ok, output}
   defp close_resource({_output, errors}), do: {:error, :invalid_pointers, errors}
-
-  defp apply_output_opts(output_tuple, opts) do
-    with {:ok, output} <- output_tuple do
-      {:ok, postprocess_output(output, opts)}
-    end
-  end
-
-  defp postprocess_output(output, opts) do
-    filter_nil_output(output, Keyword.get(opts, :drop_nil, true))
-  end
-
-  defp filter_nil_output(opts, false), do: opts
-  defp filter_nil_output(opts, true) do
-    Enum.filter(opts, fn
-      {_key, nil} -> false
-      {_key, []} -> false
-      {_key, _value} -> true
-    end)
-  end
 end

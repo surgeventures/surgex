@@ -8,7 +8,8 @@ defmodule Surgex.ParserTest do
     id: [:integer, :required],
     first_name: [:string, &RequiredParser.call/1],
     last_name: :string,
-    include: [{:include, [:comments]}, :required]
+    phone: :string,
+    include: [{:include, [:comments]}, :required],
   ]
 
   @valid_params %{
@@ -77,16 +78,6 @@ defmodule Surgex.ParserTest do
 
       assert parser_output == {:ok, [
         include: [:comments],
-        first_name: "Jack",
-        id: 123,
-      ]}
-    end
-
-    test "valid params, drop_nil: false" do
-      parser_output = Parser.parse @valid_params, @param_parsers, drop_nil: false
-
-      assert parser_output == {:ok, [
-        include: [:comments],
         last_name: nil,
         first_name: "Jack",
         id: 123,
@@ -109,6 +100,7 @@ defmodule Surgex.ParserTest do
 
       assert parser_output == {:ok, [
         avatar: 456,
+        last_name: nil,
         first_name: "Jack",
         id: 123,
       ]}
@@ -150,6 +142,7 @@ defmodule Surgex.ParserTest do
       assert parser_output == {:ok, [
         image_array: [[id: 1], [id: 2]],
         avatar: 456,
+        last_name: nil,
         first_name: "Jack",
         id: 123
       ]}
@@ -186,7 +179,7 @@ defmodule Surgex.ParserTest do
     test "valid params" do
       parser_output = Parser.flat_parse @valid_params, @param_parsers
 
-      assert parser_output == {:ok, 123, "Jack", nil, [:comments]}
+      assert parser_output == {:ok, 123, "Jack", nil, nil, [:comments]}
     end
 
     test "invalid params" do
