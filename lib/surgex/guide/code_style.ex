@@ -1290,4 +1290,45 @@ defmodule Surgex.Guide.CodeStyle do
 
   """
   def exception_naming, do: nil
+
+  @doc """
+  Basic happy case in a test file or scope should be placed on top of other cases.
+
+  ## Reasoning
+
+  When using tests to understand how specific unit of code works, it's very handy to have the basic
+  happy case placed on top of other cases.
+
+  ## Examples
+
+  Preferred:
+
+      defmodule MyProject.Web.MyControllerTest do
+        describe "index/2" do
+          test "works for valid params" do
+            # ...
+          end
+
+          test "fails for invalid params" do
+            # ...
+          end
+        end
+      end
+
+  Out of order:
+
+      defmodule MyProject.Web.MyControllerTest do
+        describe "index/2" do
+          test "fails for invalid params" do
+            # ...
+          end
+
+          test "works for valid params" do
+            # ...
+          end
+        end
+      end
+
+  """
+  def test_happy_case_placement, do: nil
 end
