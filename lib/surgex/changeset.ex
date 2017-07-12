@@ -26,5 +26,6 @@ defmodule Surgex.Changeset do
   defp get_error_code("has already been taken", nil), do: "taken"
   defp get_error_code(_, :required), do: "required"
   defp get_error_code(_, nil), do: "invalid"
+  defp get_error_code(_, :cast), do: "invalid"
   defp get_error_code(_, suffix), do: "invalid_#{suffix}"
 end
