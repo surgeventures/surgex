@@ -1,6 +1,6 @@
 defmodule Surgex.ForeignDataWrapper do
   @moduledoc """
-  Establishes and configures a PostgreSQL Foreign Data Wrapper linkage between two repos.
+  Configures a PostgreSQL Foreign Data Wrapper linkage between two repos.
 
   Specifically, it executes the following steps:
 
@@ -14,6 +14,7 @@ defmodule Surgex.ForeignDataWrapper do
   """
 
   require Logger
+  alias Ecto.Adapters.SQL
 
   @doc """
   Links source repo to a given foreign repo.
@@ -86,7 +87,7 @@ defmodule Surgex.ForeignDataWrapper do
   end
 
   defp execute(repo, sql) do
-    Ecto.Adapters.SQL.query!(repo, sql)
+    SQL.query!(repo, sql)
     repo
   end
 end

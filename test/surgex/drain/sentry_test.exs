@@ -2,7 +2,7 @@ defmodule Surgex.SentryTest do
   use ExUnit.Case
   import ExUnit.CaptureLog
   alias Mix.{Config, Project}
-  alias Surgex.Sentry
+  alias Surgex.Drain.Sentry
 
   describe "init/0" do
     test "patch enabled" do

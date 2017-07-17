@@ -1,4 +1,4 @@
-defmodule Surgex.Changeset do
+defmodule Surgex.Drain.Changeset do
   @moduledoc """
   Tools for working with Ecto changesets.
   """

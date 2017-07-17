@@ -1,6 +1,6 @@
 defmodule Surgex.PhoneNumberTest do
   use ExUnit.Case
-  alias Surgex.PhoneNumber
+  alias Surgex.Type.PhoneNumber
 
   @phone_number_string_formatted "+48 600 700 800"
   @phone_number_string_formatted_alt "+048 600-700-800"

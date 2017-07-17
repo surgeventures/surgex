@@ -1,9 +1,10 @@
 defmodule Surgex.FollowerSync do
   @moduledoc """
-  Allows to wait for a PostgreSQL slave synchronization with a remote master.
+  Waits for a PostgreSQL slave synchronization with a remote master.
   """
 
   require Logger
+  alias Surgex.FollowerSync
 
   defmacro __using__(_) do
     quote do
@@ -11,7 +12,7 @@ defmodule Surgex.FollowerSync do
       Waits for slave repo to catch up with master's changes up to specified log location (lsn).
       """
       def acquire_follower_sync(lsn, ok_func, error_func \\ nil) do
-        Surgex.FollowerSync.call(__MODULE__, lsn, ok_func, error_func)
+        FollowerSync.call(__MODULE__, lsn, ok_func, error_func)
       end
     end
   end

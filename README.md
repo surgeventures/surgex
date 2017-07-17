@@ -17,8 +17,10 @@ Surgex is a package of cross-project helper modules, each too small or too young
 publishing them separately. It currently consists of:
 
 - `Surgex.Config`: application config getter, aka. `Application.get_env` on steroids
+- `Surgex.Drain`: tools for simplifying and empowering fault tolerance
 - `Surgex.Parser`: parses, casts and catches errors in the web request input
-- `Surgex.Sentry`: extensions to the official Sentry package
+- `Surgex.Tube`: tools for moving data between PostgreSQL databases and tables
+- `Surgex.Type`: collection of custom Ecto types
 
 ## Separate packages
 
