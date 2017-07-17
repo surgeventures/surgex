@@ -11,6 +11,7 @@ defmodule Surgex.Mixfile do
      package: package(),
      aliases: aliases(),
      test_coverage: [tool: ExCoveralls],
+     escript: [main_module: Surgex.Command],
      preferred_cli_env: [
        check: :test,
        coveralls: :test,

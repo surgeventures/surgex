@@ -1,6 +1,6 @@
 defmodule Surgex.ChangesetTest do
   use ExUnit.Case
-  alias Surgex.Drain.Changeset
+  alias Surgex.ErrorPipe.Changeset
 
   test "changeset with all possible errors" do
     assert Changeset.build_errors_document(%{

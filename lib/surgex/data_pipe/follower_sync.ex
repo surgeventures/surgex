@@ -1,4 +1,4 @@
-defmodule Surgex.FollowerSync do
+defmodule Surgex.DataPipe.FollowerSync do
   @moduledoc """
   Waits for a PostgreSQL slave synchronization with a remote master.
   """

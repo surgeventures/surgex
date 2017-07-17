@@ -21,3 +21,6 @@ erl_crash.dump
 
 # Output from inch_ex
 /docs
+
+# Output from escript.build
+/surgex

@@ -1,4 +1,4 @@
-defmodule Surgex.Drain.Sentry do
+defmodule Surgex.ErrorPipe.Sentry do
   @moduledoc """
   Extensions to the official Sentry package.
   """

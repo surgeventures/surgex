@@ -1,4 +1,4 @@
-defmodule Surgex.ForeignDataWrapper do
+defmodule Surgex.DataPipe.ForeignDataWrapper do
   @moduledoc """
   Configures a PostgreSQL Foreign Data Wrapper linkage between two repos.
 
