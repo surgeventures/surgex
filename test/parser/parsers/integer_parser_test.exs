@@ -7,6 +7,7 @@ defmodule Surgex.Parser.IntegerParserTest do
   end
 
   test "valid input" do
+    assert IntegerParser.call(123) == {:ok, 123}
     assert IntegerParser.call("123") == {:ok, 123}
     assert IntegerParser.call("123", min: 123, max: 123) == {:ok, 123}
   end
