@@ -33,7 +33,7 @@ defmodule Surgex.Refactor do
     {task, filenames, opts}
   end
 
-  defp call_task({"map-filenames", filenames, opts}) do
+  defp call_task({"map_filenames", filenames, opts}) do
     scanned_tuples = MapFilenames.scan(filenames)
     Enum.each(scanned_tuples, fn {filename, new_filename} ->
       IO.puts("#{filename} => #{new_filename}")
@@ -45,25 +45,24 @@ defmodule Surgex.Refactor do
   end
   defp call_task(_), do: raise(ArgumentError, "Unsupported refactor task")
 
-  defp expand_paths([]), do: expand_paths(["."])
-  defp expand_paths(paths), do: ls_r(paths)
-
   defp filter_elixir_files(paths) do
     Enum.filter(paths, &String.match?(&1, ~r/\.exs?$/))
   end
 
-  defp ls_r(paths) when is_list(paths) do
+  defp expand_paths([]), do: expand_paths(["."])
+  defp expand_paths(paths) when is_list(paths) do
     paths
-    |> Enum.map(&ls_r/1)
+    |> Enum.map(&expand_paths/1)
     |> Enum.concat
   end
-  defp ls_r(path) do
+  defp expand_paths(path) do
     cond do
       File.regular?(path) -> [path]
       File.dir?(path) ->
-        File.ls!(path)
+        path
+        |> File.ls!
         |> Enum.map(&Path.join(path, &1))
-        |> Enum.map(&ls_r/1)
+        |> Enum.map(&expand_paths/1)
         |> Enum.concat
       true -> []
     end
