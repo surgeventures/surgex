@@ -48,14 +48,21 @@ defmodule Surgex.Mixfile do
   end
 
   defp deps do
-    [{:credo, "~> 0.8.1", only: [:dev, :test]},
-     {:ecto, "~> 2.1.4", optional: true},
-     {:ex_doc, "~> 0.14", only: :dev, runtime: false},
-     {:ex_phone_number, "~> 0.1.1", optional: true},
-     {:excoveralls, "~> 0.7", only: :test},
-     {:inch_ex, "~> 0.5", only: [:dev, :test]},
-     {:jabbax, ">= 0.1.0", optional: true},
-     {:plug, "~> 1.3.2 or ~> 1.4", optional: true}]
+    [
+      {:credo, "~> 0.8.1", only: [:dev, :test]},
+      {:ex_doc, "~> 0.14", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.7", only: :test},
+      {:inch_ex, "~> 0.5", only: [:dev, :test]},
+    ] ++ optional_deps()
+  end
+
+  defp optional_deps do
+    [
+      {:ecto, "~> 2.1.4"},
+      {:ex_phone_number, "~> 0.1.1"},
+      {:jabbax, ">= 0.1.0"},
+      {:plug, "~> 1.3.2 or ~> 1.4"},
+    ] |> Enum.map(&merge_dep_flags(&1, optional: true))
   end
 
   defp check_alias do
@@ -66,4 +73,7 @@ defmodule Surgex.Mixfile do
       "test",
     ]
   end
+
+  defp merge_dep_flags({pkg, ver}, flags), do: {pkg, ver, flags}
+  defp merge_dep_flags({pkg, ver, flg}, flags), do: {pkg, ver, Keyword.merge(flg, flags)}
 end
