@@ -1,4 +1,6 @@
 defmodule Mix.Tasks.Surgex.Refactor do
+  @moduledoc false
+
   use Mix.Task
   alias Surgex.Refactor
 

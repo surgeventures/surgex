@@ -1,4 +1,6 @@
 defmodule Surgex.Command do
+  @moduledoc false
+
   alias Surgex.Refactor
 
   def main(["refactor" | args]), do: Refactor.call(args)

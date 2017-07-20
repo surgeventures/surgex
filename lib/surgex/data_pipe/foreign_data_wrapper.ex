@@ -30,7 +30,7 @@ defmodule Surgex.DataPipe.ForeignDataWrapper do
     user_opts = build_user_opts(config)
 
     apply(source_repo, :transaction, [fn ->
-      FreshaAPI.Repo
+      source_repo
       |> execute("CREATE EXTENSION IF NOT EXISTS postgres_fdw")
       |> execute("DROP SERVER IF EXISTS #{server} CASCADE")
       |> execute("CREATE SERVER #{server} FOREIGN DATA WRAPPER postgres_fdw" <> server_opts)

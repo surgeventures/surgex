@@ -39,6 +39,10 @@ defmodule Surgex.Refactor do
       IO.puts("#{filename} => #{new_filename}")
     end)
 
+    if length(scanned_tuples) == 0 do
+      IO.puts("No files found.")
+    end
+
     if Keyword.get(opts, :fix, false) do
       MapFilenames.fix(scanned_tuples)
     end

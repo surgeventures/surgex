@@ -2,7 +2,7 @@ defmodule Surgex.SentryTest do
   use ExUnit.Case
   import ExUnit.CaptureLog
   alias Mix.{Config, Project}
-  alias Surgex.ErrorPipe.Sentry
+  alias Surgex.Sentry
 
   describe "init/0" do
     test "patch enabled" do
@@ -36,7 +36,7 @@ defmodule Surgex.SentryTest do
 
   describe "scrub_params/1" do
     test "params with secrets" do
-      assert Sentry.scrub_params(%{
+      assert Sentry.scrub_params(%Plug.Conn{
         params: %{
           "username" => "a",
           "password" => "secret",

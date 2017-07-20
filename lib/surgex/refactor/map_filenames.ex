@@ -4,30 +4,34 @@ defmodule Surgex.Refactor.MapFilenames do
   """
 
   def scan(filenames) do
-    Enum.map(filenames, fn filename ->
-      module_match =
-        filename
-        |> File.stream!()
-        |> Enum.find_value(&Regex.run(~r/^defmodule ([\w.]+)/, &1))
+    filenames
+    |> Enum.map(&scan_map/1)
+    |> Enum.filter(&(&1))
+  end
 
-      with [_, module_name] <- module_match do
-        new_filename_wo_ext =
-          module_name
-          |> String.split(".")
-          |> List.last()
-          |> Macro.underscore()
+  defp scan_map(filename) do
+    module_match =
+      filename
+      |> File.stream!()
+      |> Enum.find_value(&Regex.run(~r/^defmodule ([\w.]+)/, &1))
 
-        new_filename = Path.join(
-          Path.dirname(filename),
-          new_filename_wo_ext <> Path.extname(filename))
+    with [_, module_name] <- module_match do
+      new_filename_wo_ext =
+        module_name
+        |> String.split(".")
+        |> List.last()
+        |> Macro.underscore()
 
-        if filename != new_filename do
-          {filename, new_filename}
-        end
-      else
-        _ -> nil
+      new_filename = Path.join(
+        Path.dirname(filename),
+        new_filename_wo_ext <> Path.extname(filename))
+
+      if filename != new_filename do
+        {filename, new_filename}
       end
-    end) |> Enum.filter(&(&1))
+    else
+      _ -> nil
+    end
   end
 
   def fix(scanned_tuples) do

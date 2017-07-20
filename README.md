@@ -16,11 +16,14 @@ a set of functions in the `Surgex.Guide` module ([visit at HexDocs](https://hexd
 Surgex is a package of cross-project helper modules, each too small or too young to justify
 publishing them separately. It currently consists of:
 
+- `Surgex.Changeset`: tools for working with Ecto changesets
 - `Surgex.Config`: application config getter, aka. `Application.get_env` on steroids
 - `Surgex.DataPipe`: tools for moving data between PostgreSQL databases and tables
-- `Surgex.ErrorPipe`: tools for simplifying and empowering fault tolerance
+- `Surgex.DeviseSession`: configures Ruby on Rails + Devise session in Plug
 - `Surgex.Parser`: parses, casts and catches errors in the web request input
-- `Surgex.Type`: collection of custom Ecto types
+- `Surgex.PhoneNumber`: an `Ecto.Type` implementation of a E164-compilant phone numbers
+- `Surgex.Refactor`: tools for making code maintenance and refactors easier
+- `Surgex.Sentry`: extensions to the official Sentry package
 
 ## Separate packages
 

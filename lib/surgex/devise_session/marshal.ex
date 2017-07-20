@@ -1,7 +1,5 @@
-defmodule Surgex.DeviseSession.MarshalSerializer do
-  @moduledoc """
-  Share a session with a Rails app using Ruby's Marshal format.
-  """
+defmodule Surgex.DeviseSession.Marshal do
+  @moduledoc false
 
   def encode(value) do
     {:ok, ExMarshal.encode(value)}

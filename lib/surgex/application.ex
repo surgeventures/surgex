@@ -6,7 +6,7 @@ defmodule Surgex.Application do
   use Application
   use GenServer
   require Logger
-  alias Surgex.ErrorPipe.Sentry
+  alias Surgex.Sentry
 
   @doc false
   def start(_type, _args) do

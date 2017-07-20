@@ -1,5 +1,7 @@
 defmodule Surgex.PhoneNumber do
-  @moduledoc false
+  @moduledoc """
+  An `Ecto.Type` implementation of E164-compilant phone numbers.
+  """
 
   @behaviour Ecto.Type
 
@@ -13,7 +15,7 @@ defmodule Surgex.PhoneNumber do
 
   defimpl String.Chars do
     def to_string(phone_number = %{e164: e164}) do
-      alias Surgex.Type.PhoneNumber
+      alias Surgex.PhoneNumber
 
       PhoneNumber.format(phone_number) || Kernel.to_string(e164)
     rescue
