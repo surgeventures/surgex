@@ -1,4 +1,4 @@
-defmodule Surgex.Type.PhoneNumber do
+defmodule Surgex.PhoneNumber do
   @moduledoc false
 
   @behaviour Ecto.Type
