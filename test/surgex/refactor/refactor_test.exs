@@ -41,7 +41,6 @@ defmodule Surgex.RefactorTest do
     File.rm_rf!("test/samples")
   end
 
-
   test "map filenames without fixing them" do
     result = capture_io(fn ->
       Refactor.call([
