@@ -3,6 +3,24 @@ defmodule Surgex.Refactor.MapFilenames do
   Maps module names to filenames and finds non-matches.
   """
 
+  def call(filenames, opts) do
+    scanned_tuples = scan(filenames)
+
+    Enum.each(scanned_tuples, fn {filename, new_filename} ->
+      IO.puts("#{filename} => #{new_filename}")
+    end)
+
+    if length(scanned_tuples) == 0 do
+      IO.puts("No files found.")
+    end
+
+    if Keyword.get(opts, :fix, false) do
+      fixed = fix(scanned_tuples)
+
+      IO.puts("Renamed #{length(fixed)}")
+    end
+  end
+
   def scan(filenames) do
     filenames
     |> Enum.map(&scan_map/1)
@@ -35,8 +53,9 @@ defmodule Surgex.Refactor.MapFilenames do
   end
 
   def fix(scanned_tuples) do
-    Enum.map(scanned_tuples, fn {filename, new_filename} ->
+    Enum.filter(scanned_tuples, fn {filename, new_filename} ->
       File.rename(filename, new_filename)
+      true
     end)
   end
 end

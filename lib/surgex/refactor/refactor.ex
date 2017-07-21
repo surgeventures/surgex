@@ -33,21 +33,11 @@ defmodule Surgex.Refactor do
     {task, filenames, opts}
   end
 
-  defp call_task({"map_filenames", filenames, opts}) do
-    scanned_tuples = MapFilenames.scan(filenames)
-    Enum.each(scanned_tuples, fn {filename, new_filename} ->
-      IO.puts("#{filename} => #{new_filename}")
-    end)
-
-    if length(scanned_tuples) == 0 do
-      IO.puts("No files found.")
-    end
-
-    if Keyword.get(opts, :fix, false) do
-      MapFilenames.fix(scanned_tuples)
-    end
+  defp call_task({task, filenames, opts}) do
+    "Elixir.Surgex.Refactor.#{Macro.camelize(task)}"
+    |> String.to_existing_atom()
+    |> apply(:call, [filenames, opts])
   end
-  defp call_task(_), do: raise(ArgumentError, "Unsupported refactor task")
 
   defp filter_elixir_files(paths) do
     Enum.filter(paths, &String.match?(&1, ~r/\.exs?$/))
