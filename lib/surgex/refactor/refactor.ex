@@ -3,8 +3,6 @@ defmodule Surgex.Refactor do
   Tools for making code maintenance and refactors easier.
   """
 
-  alias Surgex.Refactor.MapFilenames
-
   def call(args) do
     args
     |> parse_args

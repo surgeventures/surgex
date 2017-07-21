@@ -4,8 +4,5 @@
 
     // Temporary for alpha features
     "lib/surgex/data_pipe",
-    "lib/surgex/refactor",
-    "lib/surgex/command.ex",
-    "lib/mix/tasks",
   ]
 }

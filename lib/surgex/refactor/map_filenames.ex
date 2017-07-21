@@ -4,20 +4,24 @@ defmodule Surgex.Refactor.MapFilenames do
   """
 
   def call(filenames, opts) do
-    scanned_tuples = scan(filenames)
+    scanned = scan(filenames)
 
-    Enum.each(scanned_tuples, fn {filename, new_filename} ->
+    Enum.each(scanned, fn {filename, new_filename} ->
       IO.puts("#{filename} => #{new_filename}")
     end)
 
-    if length(scanned_tuples) == 0 do
+    if length(scanned) == 0 do
       IO.puts("No files found.")
     end
 
     if Keyword.get(opts, :fix, false) do
-      fixed = fix(scanned_tuples)
+      fixed = fix(scanned)
 
-      IO.puts("Renamed #{length(fixed)}")
+      IO.puts("Renamed #{length(fixed)} file(s).")
+
+      fixed
+    else
+      scanned
     end
   end
 
