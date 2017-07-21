@@ -15,9 +15,37 @@ defmodule Surgex.DataPipe.TableSync do
 
   Returns a tuple with a number of upserts (inserts + updates) and a number of deletions.
   """
-  def call(repo, table, columns, query, opts \\ []) do
+  def call(repo, source, target, opts \\ [])
+  def call(repo, source, target, opts) do
+    table = case target do
+      name when is_binary(name) -> name
+      schema -> schema.__schema__(:source)
+    end
+
+    columns = Keyword.get_lazy(opts, :columns, fn ->
+      target.__schema__(:fields)
+    end)
+
+    conflict_target = Keyword.get_lazy(opts, :conflict_target, fn ->
+      target.__schema__(:primary_key)
+    end)
+
+    query = case(source) do
+      %{select: select} when not(is_nil(select)) -> source
+      _ -> select(source, ^columns)
+    end
+
+    default_opts = [
+      on_conflict: :replace_all,
+      conflict_target: conflict_target
+    ]
+
+    do_sync(repo, table, columns, query, Keyword.merge(default_opts, opts))
+  end
+
+  defp do_sync(repo, table, columns, query, opts) do
     delete_query_sql = "id NOT IN (SELECT id FROM upserts)"
-    params = Keyword.get(opts, :params) || []
+    params = Keyword.get(opts, :params, [])
     {scoped_query, scoped_params, scoped_delete_query_sql} =
       parse_scope(opts, query, params, delete_query_sql)
 
@@ -45,7 +73,6 @@ defmodule Surgex.DataPipe.TableSync do
     case Keyword.get(opts, :scope) do
       nil ->
         {query, params, delete_sql}
-
       scope ->
         {
           where(query, ^scope),
@@ -53,7 +80,7 @@ defmodule Surgex.DataPipe.TableSync do
           delete_sql <> (
             scope
             |> Enum.map(fn {col, val} -> " AND #{col} = #{val}" end)
-            |> Enum.join("")
+            |> Enum.join()
           )
         }
     end
@@ -62,13 +89,11 @@ defmodule Surgex.DataPipe.TableSync do
   defp parse_on_conflict(opts, columns) do
     case Keyword.fetch(opts, :on_conflict) do
       {:ok, :replace_all} ->
-        targets = Keyword.get(opts, :conflict_target, [:id])
+        targets = Keyword.fetch!(opts, :conflict_target)
         setters = Enum.map(columns, fn col -> "#{col} = excluded.#{col}" end)
-
         "ON CONFLICT (#{list_to_sql(targets)}) DO UPDATE SET #{list_to_sql(setters)}"
-
       :error ->
-        ""
+        nil
     end
   end
 
