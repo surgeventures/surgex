@@ -1,4 +1,6 @@
 defmodule Surgex.ForeignFactory do
+  @moduledoc false
+
   use ExMachina.Ecto, repo: Surgex.ForeignRepo
   alias Surgex.ForeignUser
 

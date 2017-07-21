@@ -1,5 +1,9 @@
 defmodule Surgex.DataCase do
+  @moduledoc false
+
   use ExUnit.CaseTemplate
+  alias Ecto.Adapters.SQL.Sandbox
+  alias Surgex.{ForeignRepo, Repo}
 
   using do
     quote do
@@ -12,17 +16,17 @@ defmodule Surgex.DataCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Surgex.Repo)
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Surgex.ForeignRepo)
+    :ok = Sandbox.checkout(Repo)
+    :ok = Sandbox.checkout(ForeignRepo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Surgex.Repo, {:shared, self()})
-      Ecto.Adapters.SQL.Sandbox.mode(Surgex.ForeignRepo, {:shared, self()})
+      Sandbox.mode(Repo, {:shared, self()})
+      Sandbox.mode(ForeignRepo, {:shared, self()})
     end
 
     if tags[:transaction] == false do
-      Ecto.Adapters.SQL.Sandbox.mode(Surgex.Repo, :auto)
-      Ecto.Adapters.SQL.Sandbox.mode(Surgex.ForeignRepo, :auto)
+      Sandbox.mode(Repo, :auto)
+      Sandbox.mode(ForeignRepo, :auto)
     end
 
     :ok

@@ -1,4 +1,6 @@
 defmodule Surgex.OtherUser do
+  @moduledoc false
+
   use Ecto.Schema
   alias Surgex.PhoneNumber
 
