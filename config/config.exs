@@ -1,6 +1,11 @@
 use Mix.Config
 
 if Mix.env == :test do
+  config :logger, level: :info
+
+  config :surgex,
+    ecto_repos: [Surgex.Repo]
+
   config :surgex, :config_test,
     filled_key: "filled value",
     system_key_without_default: {:system, "NON_EXISTING_ENV_VAR"},
@@ -15,4 +20,11 @@ if Mix.env == :test do
     follower_sync_enabled: true,
     follower_sync_timeout: 100,
     follower_sync_interval: 10
+
+  config :surgex, Surgex.Repo,
+    adapter: Ecto.Adapters.Postgres,
+    database: "surgex_repo_test",
+    hostname: "localhost",
+    pool: Ecto.Adapters.SQL.Sandbox,
+    port: System.get_env("POSTGRES_TEST_PORT")
 end

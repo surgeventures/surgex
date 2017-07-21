@@ -5,6 +5,7 @@ defmodule Surgex.Mixfile do
     [app: :surgex,
      version: "1.7.0",
      elixir: "~> 1.4",
+     elixirc_paths: elixirc_paths(Mix.env),
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps(),
@@ -41,9 +42,13 @@ defmodule Surgex.Mixfile do
      extra_applications: [:logger]]
   end
 
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_),     do: ["lib"]
+
   defp aliases do
     [
       "check": check_alias(),
+      "test": ["ecto.drop --quiet", "ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]
   end
 
@@ -51,8 +56,10 @@ defmodule Surgex.Mixfile do
     [
       {:credo, "~> 0.8.1", only: [:dev, :test]},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false},
+      {:ex_machina, "~> 2.0", only: :test},
       {:excoveralls, "~> 0.7", only: :test},
       {:inch_ex, "~> 0.5", only: [:dev, :test]},
+      {:postgrex, ">= 0.0.0", only: :test},
     ] ++ optional_deps()
   end
 
