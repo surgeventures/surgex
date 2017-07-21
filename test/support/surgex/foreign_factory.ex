@@ -1,5 +1,5 @@
 defmodule Surgex.ForeignFactory do
-  use ExMachina.Ecto, repo: Surgex.Repo
+  use ExMachina.Ecto, repo: Surgex.ForeignRepo
   alias Surgex.ForeignUser
 
   def foreign_user_factory do

@@ -20,6 +20,11 @@ defmodule Surgex.DataCase do
       Ecto.Adapters.SQL.Sandbox.mode(Surgex.ForeignRepo, {:shared, self()})
     end
 
+    if tags[:transaction] == false do
+      Ecto.Adapters.SQL.Sandbox.mode(Surgex.Repo, :auto)
+      Ecto.Adapters.SQL.Sandbox.mode(Surgex.ForeignRepo, :auto)
+    end
+
     :ok
   end
 end

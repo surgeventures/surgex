@@ -2,15 +2,23 @@ defmodule Surgex.DataPipe.ForeignDataWrapperTest do
   use Surgex.DataCase
   import ExUnit.CaptureLog
   alias Surgex.DataPipe.ForeignDataWrapper
-  alias Surgex.ForeignUser
+  alias Surgex.{
+    ForeignFactory,
+    ForeignUser,
+  }
 
-  test "init" do
+  @tag transaction: false
+  test "successfully connects to foreign repo" do
     assert capture_log(fn ->
       ForeignDataWrapper.init(Repo, ForeignRepo)
     end) =~ ~r/Preparing foreign data wrapper at Repo.foreign_repo/
-  end
 
-  test "prefix" do
-    assert ForeignDataWrapper.prefix(from(u in ForeignUser), ForeignRepo).prefix == "foreign_repo"
+    ForeignFactory.insert(:foreign_user)
+
+    assert (
+      ForeignUser
+      |> ForeignDataWrapper.prefix(ForeignRepo)
+      |> Repo.aggregate(:count, :id)
+    ) == 1
   end
 end

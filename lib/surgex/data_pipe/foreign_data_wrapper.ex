@@ -29,15 +29,20 @@ defmodule Surgex.DataPipe.ForeignDataWrapper do
     server_opts = build_server_opts(config)
     user_opts = build_user_opts(config)
 
-    apply(source_repo, :transaction, [fn ->
-      source_repo
-      |> execute("CREATE EXTENSION IF NOT EXISTS postgres_fdw")
-      |> execute("DROP SERVER IF EXISTS #{server} CASCADE")
-      |> execute("CREATE SERVER #{server} FOREIGN DATA WRAPPER postgres_fdw" <> server_opts)
-      |> execute("CREATE USER MAPPING FOR CURRENT_USER SERVER #{server}" <> user_opts)
-      |> execute("DROP SCHEMA IF EXISTS #{schema}")
-      |> execute("CREATE SCHEMA #{schema}")
-      |> execute("IMPORT FOREIGN SCHEMA public FROM SERVER #{server} INTO #{schema}")
+    script = [
+      "CREATE EXTENSION IF NOT EXISTS postgres_fdw",
+      "DROP SERVER IF EXISTS #{server} CASCADE",
+      "CREATE SERVER #{server} FOREIGN DATA WRAPPER postgres_fdw" <> server_opts,
+      "CREATE USER MAPPING FOR CURRENT_USER SERVER #{server}" <> user_opts,
+      "DROP SCHEMA IF EXISTS #{schema}",
+      "CREATE SCHEMA #{schema}",
+      "IMPORT FOREIGN SCHEMA public FROM SERVER #{server} INTO #{schema}"
+    ]
+
+    {:ok, _} = apply(source_repo, :transaction, [fn ->
+      Enum.each(script, fn command ->
+        SQL.query!(source_repo, command)
+      end)
     end])
   end
 
@@ -47,8 +52,13 @@ defmodule Surgex.DataPipe.ForeignDataWrapper do
   After calling this function, a given query will target tables from the previously linked repo
   instead of Repo.
   """
-  def prefix(query, foreign_repo) do
+  def prefix(query = %{}, foreign_repo) do
     Map.put(query, :prefix, build_foreign_alias(foreign_repo))
+  end
+  def prefix(schema, foreign_repo) do
+    import Ecto.Query, only: [from: 1]
+
+    prefix(from(schema), foreign_repo)
   end
 
   defp build_server_opts(config) do
@@ -84,10 +94,5 @@ defmodule Surgex.DataPipe.ForeignDataWrapper do
     |> Module.split
     |> List.last
     |> Macro.underscore
-  end
-
-  defp execute(repo, sql) do
-    SQL.query!(repo, sql)
-    repo
   end
 end
