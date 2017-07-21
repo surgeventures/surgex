@@ -1,22 +1,9 @@
 defmodule Surgex.DataCase do
-  @moduledoc """
-  This module defines the setup for tests requiring
-  access to the application's data layer.
-
-  You may define functions here to be used as helpers in
-  your tests.
-
-  Finally, if the test case interacts with the database,
-  it cannot be async. For this reason, every test runs
-  inside a transaction which is reset at the beginning
-  of the test unless the test case is marked as async.
-  """
-
   use ExUnit.CaseTemplate
 
   using do
     quote do
-      alias Surgex.Repo
+      alias Surgex.{ForeignRepo, Repo}
 
       import Ecto
       import Ecto.{Changeset, Query}
@@ -26,9 +13,11 @@ defmodule Surgex.DataCase do
 
   setup tags do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Surgex.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Surgex.ForeignRepo)
 
     unless tags[:async] do
       Ecto.Adapters.SQL.Sandbox.mode(Surgex.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(Surgex.ForeignRepo, {:shared, self()})
     end
 
     :ok

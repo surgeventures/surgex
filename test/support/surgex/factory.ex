@@ -1,8 +1,4 @@
 defmodule Surgex.Factory do
-  @moduledoc """
-  Holds factories for internal marketplace schemas.
-  """
-
   use ExMachina.Ecto, repo: Surgex.Repo
   alias Surgex.{OtherUser, User}
 
