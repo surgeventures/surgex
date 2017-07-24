@@ -6,7 +6,7 @@ defmodule Surgex.DataPipe.FollowerSync do
   """
 
   require Logger
-  alias Surgex.FollowerSync
+  alias Surgex.DataPipe.FollowerSync
 
   defmacro __using__(_) do
     quote do
@@ -14,62 +14,51 @@ defmodule Surgex.DataPipe.FollowerSync do
       Waits for slave repo to catch up with master's changes up to specified log location (lsn).
       """
       def ensure_follower_sync(lsn) do
-        FollowerSync.call(__MODULE__, lsn, ok_func, error_func)
+        FollowerSync.call(__MODULE__, lsn)
       end
     end
   end
 
-  def call(repo, lsn, ok_func, error_func \\ nil) do
+  def call(repo, lsn) do
     if enabled?() do
-      repo
-      |> wait_for_replay(lsn)
-      |> handle_wait_for_replay(lsn, ok_func, error_func)
+      wait_for_sync(repo, lsn)
     else
-      ok_func.()
       :ok
     end
   end
 
-  defp wait_for_replay(repo, lsn, start_time \\ get_current_time()) do
-    last_lsn = select_last_replay_lsn(repo)
+  defp wait_for_sync(repo, lsn, start_time \\ get_current_time()) do
+    with {:ok, last_lsn} <- select_last_replay_lsn(repo) do
+      handle_lsn_update(repo, lsn, last_lsn, start_time)
+    end
+  end
+
+  defp handle_lsn_update(repo, lsn, last_lsn, start_time) do
     current_time = get_current_time()
     elapsed_time = current_time - start_time
 
     cond do
       normalize_lsn(last_lsn) >= normalize_lsn(lsn) ->
-        {:ok, elapsed_time}
+        Logger.info(fn -> "Follower sync acquired after #{elapsed_time}ms" end)
+        :ok
 
       elapsed_time >= timeout() ->
-        {:error, :timeout, last_lsn}
+        Logger.error(fn -> "Follower sync timeout after #{timeout()}ms: #{last_lsn} < #{lsn}" end)
+        {:error, :timeout}
 
       true ->
         :timer.sleep(interval())
-        wait_for_replay(repo, lsn, start_time)
+        wait_for_sync(repo, lsn, start_time)
     end
-  end
-
-  defp handle_wait_for_replay({:ok, elapsed_time}, _lsn, ok_func, _error_func) do
-    Logger.info(fn -> "Follower sync acquired after #{elapsed_time}ms" end)
-
-    ok_func.()
-
-    :ok
-  end
-  defp handle_wait_for_replay({:error, :timeout, last_lsn}, lsn, _ok_func, error_func) do
-    Logger.error(fn -> "Follower sync timeout after #{timeout()}ms: #{last_lsn} < #{lsn}" end)
-
-    if error_func, do: error_func.()
-
-    {:error, :timeout}
   end
 
   defp select_last_replay_lsn(repo) do
     case apply(repo, :query!, ["SELECT pg_last_xlog_replay_location()::varchar"]) do
       %{rows: [[lsn]]} when is_binary(lsn) ->
-        lsn
-
+        {:ok, lsn}
       _ ->
-        raise("Unable to fetch pg_last_xlog_replay_location")
+        Logger.error(fn -> "Unable to fetch pg_last_xlog_replay_location" end)
+        {:error, :no_replay_location}
     end
   end
 

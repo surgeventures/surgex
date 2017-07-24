@@ -4,6 +4,14 @@ defmodule Surgex.DataPipe.FollowerSyncTest.RepoMock do
   end
 end
 
+defmodule Surgex.DataPipe.FollowerSyncTest.RepoWithUsingMock do
+  use Surgex.DataPipe.FollowerSync
+
+  def query!("SELECT pg_last_xlog_replay_location()::varchar") do
+    %{rows: [["1"]]}
+  end
+end
+
 defmodule Surgex.DataPipe.FollowerSyncTest.RepoWithoutLogMock do
   def query!("SELECT pg_last_xlog_replay_location()::varchar") do
     nil
@@ -17,54 +25,32 @@ defmodule Surgex.DataPipe.FollowerSyncTest do
   alias Surgex.DataPipe.FollowerSync
   alias Surgex.DataPipe.FollowerSyncTest.{
     RepoMock,
-    RepoWithoutLogMock
+    RepoWithoutLogMock,
+    RepoWithUsingMock,
   }
 
-  setup do
-    :ets.new(:test_flags, [:named_table])
-    :ok
+  test "success" do
+    assert capture_log(fn ->
+      assert FollowerSync.call(RepoMock, "1") == :ok
+    end) =~ ~r/Follower sync acquired after 0ms/
   end
 
-  test "success" do
-    success = fn -> :ets.insert(:test_flags, {"success"}) end
-
+  test "success via __using__" do
     assert capture_log(fn ->
-      assert FollowerSync.call(RepoMock, "1", success) == :ok
+      assert RepoWithUsingMock.ensure_follower_sync("1") == :ok
     end) =~ ~r/Follower sync acquired after 0ms/
-
-    assert [{"success"}] = :ets.lookup(:test_flags, "success")
   end
 
   test "failure" do
-    success = fn -> :ets.insert(:test_flags, {"success"}) end
-
     assert capture_log(fn ->
-      assert FollowerSync.call(RepoMock, "2", success) == {:error, :timeout}
+      assert FollowerSync.call(RepoMock, "2") == {:error, :timeout}
     end) =~ ~r/Follower sync timeout after 100ms/
-
-    assert [] = :ets.lookup(:test_flags, "success")
-  end
-
-  test "failure with callback" do
-    success = fn -> :ets.insert(:test_flags, {"success"}) end
-    failure = fn -> :ets.insert(:test_flags, {"failure"}) end
-
-    assert capture_log(fn ->
-      assert FollowerSync.call(RepoMock, "2", success, failure) == {:error, :timeout}
-    end) =~ ~r/Follower sync timeout after 100ms/
-
-    assert [] = :ets.lookup(:test_flags, "success")
-    assert [{"failure"}] = :ets.lookup(:test_flags, "failure")
   end
 
   test "repo without log" do
-    success = fn -> :ets.insert(:test_flags, {"success"}) end
-
-    assert_raise(RuntimeError, "Unable to fetch pg_last_xlog_replay_location", fn ->
-      FollowerSync.call(RepoWithoutLogMock, "1", success)
-    end)
-
-    assert [] = :ets.lookup(:test_flags, "success")
+    assert capture_log(fn ->
+      FollowerSync.call(RepoWithoutLogMock, "1") == {:error, :no_replay_location}
+    end) =~ ~r/Unable to fetch pg_last_xlog_replay_location/
   end
 
   test "disabled" do
@@ -72,10 +58,7 @@ defmodule Surgex.DataPipe.FollowerSyncTest do
       follower_sync_enabled: false
     ])
 
-    success = fn -> :ets.insert(:test_flags, {"success"}) end
-
-    assert FollowerSync.call(RepoWithoutLogMock, "1", success)
-    assert [{"success"}] = :ets.lookup(:test_flags, "success")
+    assert FollowerSync.call(RepoWithoutLogMock, "1") == :ok
 
     Config.persist(surgex: [
       follower_sync_enabled: true
