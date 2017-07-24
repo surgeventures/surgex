@@ -563,23 +563,23 @@ defmodule Surgex.Guide.SoftwareDesign do
 
   Preferred:
 
-    with {:ok, user} <- load_user(id),
-         {:ok, avatar} <- load_user_avatar(user)
-    do
-      {:ok, user, avatar}
-    end
+      with {:ok, user} <- load_user(id),
+           {:ok, avatar} <- load_user_avatar(user)
+      do
+        {:ok, user, avatar}
+      end
 
   Redundant `case` equivalent of the above:
 
-    case load_user(id) do
-      {:ok, user} ->
-        case load_user_avatar(user) do
-          {:ok, avatar} ->
-              {:ok, user, avatar}
-          error -> error
-        end
-      error -> error
-    end
+      case load_user(id) do
+        {:ok, user} ->
+          case load_user_avatar(user) do
+            {:ok, avatar} ->
+                {:ok, user, avatar}
+            error -> error
+          end
+        error -> error
+      end
 
   """
   def flow_directive_usage, do: nil
