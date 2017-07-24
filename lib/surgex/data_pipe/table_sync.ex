@@ -1,6 +1,8 @@
 defmodule Surgex.DataPipe.TableSync do
   @moduledoc """
   Extracts and transforms data from one PostgreSQL table into another.
+
+  Refer to `Surgex.DataPipe` for usage examples.
   """
 
   import Ecto.Query

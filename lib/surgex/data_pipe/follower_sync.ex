@@ -1,6 +1,8 @@
 defmodule Surgex.DataPipe.FollowerSync do
   @moduledoc """
   Waits for a PostgreSQL slave synchronization with a remote master.
+
+  Refer to `Surgex.DataPipe` for usage examples.
   """
 
   require Logger
@@ -11,7 +13,7 @@ defmodule Surgex.DataPipe.FollowerSync do
       @doc """
       Waits for slave repo to catch up with master's changes up to specified log location (lsn).
       """
-      def acquire_follower_sync(lsn, ok_func, error_func \\ nil) do
+      def ensure_follower_sync(lsn) do
         FollowerSync.call(__MODULE__, lsn, ok_func, error_func)
       end
     end
