@@ -48,6 +48,3 @@
 - Changed `Surgex.Sentry` to run as an OTP app
 - Extended `Surgex.Sentry` to take release and environment from Mix
 - Completed `Surgex.Guide`
-
-
-
