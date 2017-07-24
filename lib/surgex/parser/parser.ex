@@ -204,6 +204,7 @@ defmodule Surgex.Parser do
     pop_and_parse_key(current_payload, {key, opts}, parser, key)
   end
 
+  # credo:disable-for-next-line Credo.Check.Refactor.ABCSize
   defp pop_and_parse_key({map, output, errors}, {input_key, opts}, parser, output_key) do
     stringify = Keyword.get(opts, :stringify, true)
     include_missing = Keyword.get(opts, :include_missing, false)

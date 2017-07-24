@@ -36,7 +36,7 @@ defmodule Surgex.SentryTest do
 
   describe "scrub_params/1" do
     test "params with secrets" do
-      assert Sentry.scrub_params(%{
+      assert Sentry.scrub_params(%Plug.Conn{
         params: %{
           "username" => "a",
           "password" => "secret",

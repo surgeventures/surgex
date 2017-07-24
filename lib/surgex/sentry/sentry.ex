@@ -76,14 +76,12 @@ defmodule Surgex.Sentry do
       use Sentry.Plug, body_scrubber: &Surgex.Sentry.scrub_params/1
 
   """
-  def scrub_params(conn) do
-    scrub_map(conn.params)
-  end
+  def scrub_params(%Plug.Conn{params: params}), do: scrub_map(params)
 
-  defp scrub_map(map) do
+  defp scrub_map(map = %{}) do
     map
     |> Enum.map(&scrub_map_item/1)
-    |> Enum.into(%{})
+    |> Map.new()
   end
 
   defp scrub_list(list), do: Enum.map(list, &scrub_value/1)

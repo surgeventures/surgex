@@ -40,7 +40,7 @@
         {Credo.Check.Readability.TrailingBlankLine},
         {Credo.Check.Readability.TrailingWhiteSpace},
         {Credo.Check.Readability.VariableNames},
-        {Credo.Check.Refactor.ABCSize, max_size: 40},
+        {Credo.Check.Refactor.ABCSize},
         {Credo.Check.Refactor.AppendSingleItem},
         {Credo.Check.Refactor.CondStatements},
         {Credo.Check.Refactor.CyclomaticComplexity},

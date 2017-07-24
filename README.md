@@ -1,4 +1,4 @@
-# Surgex [![Hex version badge](https://img.shields.io/hexpm/v/surgex.svg?style=flat-square)](https://hexdocs.pm/surgex) [![Build status badge](https://img.shields.io/codeship/b9a1e790-42d4-0135-8d64-4209f04046aa.svg?style=flat-square)](https://app.codeship.com/projects/230448) [![Code quality badge](https://img.shields.io/codeclimate/github/surgeventures/surgex.svg?style=flat-square)](https://codeclimate.com/github/surgeventures/surgex) [![Coverage badge](https://img.shields.io/coveralls/surgeventures/surgex.svg?style=flat-square)](https://coveralls.io/github/surgeventures/surgex) [![License badge](https://img.shields.io/hexpm/l/surgex.svg?style=flat-square)](https://github.com/surgeventures/surgex/blob/master/LICENSE.md)
+# Surgex [![Hex version badge](https://img.shields.io/hexpm/v/surgex.svg?style=flat-square)](https://hexdocs.pm/surgex) [![License badge](https://img.shields.io/hexpm/l/surgex.svg?style=flat-square)](https://github.com/surgeventures/surgex/blob/master/LICENSE.md) [![Build status badge](https://img.shields.io/codeship/b9a1e790-42d4-0135-8d64-4209f04046aa/master.svg?style=flat-square)](https://app.codeship.com/projects/230448) [![Code quality badge](https://img.shields.io/codeclimate/github/surgeventures/surgex.svg?style=flat-square)](https://codeclimate.com/github/surgeventures/surgex) [![Code coverage badge](https://codecov.io/gh/surgeventures/surgex/branch/master/graph/badge.svg?style=flat-square)](https://codecov.io/gh/surgeventures/surgex/branch/master)
 
 ***All Things Elixir @ Surge Ventures Inc, the creators of [Shedul](https://www.shedul.com)***
 
@@ -16,8 +16,13 @@ a set of functions in the `Surgex.Guide` module ([visit at HexDocs](https://hexd
 Surgex is a package of cross-project helper modules, each too small or too young to justify
 publishing them separately. It currently consists of:
 
+- `Surgex.Changeset`: tools for working with Ecto changesets
 - `Surgex.Config`: application config getter, aka. `Application.get_env` on steroids
+- `Surgex.DataPipe`: tools for moving data between PostgreSQL databases and tables
+- `Surgex.DeviseSession`: configures Ruby on Rails + Devise session in Plug
 - `Surgex.Parser`: parses, casts and catches errors in the web request input
+- `Surgex.PhoneNumber`: an `Ecto.Type` implementation of a E164-compilant phone numbers
+- `Surgex.Refactor`: tools for making code maintenance and refactors easier
 - `Surgex.Sentry`: extensions to the official Sentry package
 
 ## Separate packages

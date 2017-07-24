@@ -1,5 +1,7 @@
 defmodule Surgex.PhoneNumber do
-  @moduledoc false
+  @moduledoc """
+  An `Ecto.Type` implementation of E164-compilant phone numbers.
+  """
 
   @behaviour Ecto.Type
 
