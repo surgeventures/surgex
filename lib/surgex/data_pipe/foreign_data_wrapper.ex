@@ -12,7 +12,9 @@ defmodule Surgex.DataPipe.ForeignDataWrapper do
   depend on connection to foreign repo and its schema are running in the system (based on
   https://robots.thoughtbot.com/postgres-foreign-data-wrapper).
 
-  Refer to `Surgex.DataPipe` for usage examples.
+  ## Usage
+
+  Refer to `Surgex.DataPipe` for a complete data pipe example.
   """
 
   require Logger

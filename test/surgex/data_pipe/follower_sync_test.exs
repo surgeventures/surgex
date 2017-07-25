@@ -18,6 +18,12 @@ defmodule Surgex.DataPipe.FollowerSyncTest.RepoWithoutLogMock do
   end
 end
 
+defmodule Surgex.DataPipe.FollowerSyncTest.RepoWithLocalConfigMock do
+  def query!("SELECT pg_last_xlog_replay_location()::varchar") do
+    raise("This should never raise due to local config")
+  end
+end
+
 defmodule Surgex.DataPipe.FollowerSyncTest do
   use ExUnit.Case
   import ExUnit.CaptureLog
@@ -25,6 +31,7 @@ defmodule Surgex.DataPipe.FollowerSyncTest do
   alias Surgex.DataPipe.FollowerSync
   alias Surgex.DataPipe.FollowerSyncTest.{
     RepoMock,
+    RepoWithLocalConfigMock,
     RepoWithoutLogMock,
     RepoWithUsingMock,
   }
@@ -51,6 +58,12 @@ defmodule Surgex.DataPipe.FollowerSyncTest do
     assert capture_log(fn ->
       FollowerSync.call(RepoWithoutLogMock, "1") == {:error, :no_replay_location}
     end) =~ ~r/Unable to fetch pg_last_xlog_replay_location/
+  end
+
+  test "repo with local config" do
+    capture_log(fn ->
+      FollowerSync.call(RepoWithLocalConfigMock, "1") == :ok
+    end)
   end
 
   test "disabled" do

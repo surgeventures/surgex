@@ -2,7 +2,7 @@ defmodule Surgex.DeviseSession do
   @moduledoc """
   Configures Ruby on Rails + Devise session in Plug.
 
-  ## Examples
+  ## Usage
 
   Add the following to your application's endpoint (or replace an existing call to `Plug.Session`):
 

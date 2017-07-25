@@ -2,10 +2,35 @@ defmodule Surgex.DataPipe.FollowerSync do
   @moduledoc """
   Waits for a PostgreSQL slave synchronization with a remote master.
 
-  Refer to `Surgex.DataPipe` for usage examples.
+  ## Usage
+
+  Can be configured globally or per repo as follows:
+
+      config :surgex,
+        follower_sync_enabled: true,
+        follower_sync_timeout: 15_000,
+        follower_sync_interval: 1_000
+
+      config :my_project, MyProject.MyRepo,
+        # ...
+        follower_sync_enabled: true,
+        follower_sync_timeout: 15_000,
+        follower_sync_interval: 1_000
+
+  As a convenience versus calling `Surgex.DataPipe.FollowerSync.call/2` all the time, it can be
+  `use`d in a repo module as follows:
+
+      defmodule MyProject.MyRepo do
+        use Surgex.DataPipe.FollowerSync
+      end
+
+      MyProject.MyRepo.ensure_follower_sync(lsn)
+
+  Refer to `Surgex.DataPipe` for a complete data pipe example.
   """
 
   require Logger
+  alias Surgex.Config
   alias Surgex.DataPipe.FollowerSync
 
   defmacro __using__(_) do
@@ -20,7 +45,7 @@ defmodule Surgex.DataPipe.FollowerSync do
   end
 
   def call(repo, lsn) do
-    if enabled?() do
+    if enabled?(repo) do
       wait_for_sync(repo, lsn)
     else
       :ok
@@ -36,18 +61,20 @@ defmodule Surgex.DataPipe.FollowerSync do
   defp handle_lsn_update(repo, lsn, last_lsn, start_time) do
     current_time = get_current_time()
     elapsed_time = current_time - start_time
+    timeout = get_timeout(repo)
+    interval = get_interval(repo)
 
     cond do
       normalize_lsn(last_lsn) >= normalize_lsn(lsn) ->
         Logger.info(fn -> "Follower sync acquired after #{elapsed_time}ms" end)
         :ok
 
-      elapsed_time >= timeout() ->
-        Logger.error(fn -> "Follower sync timeout after #{timeout()}ms: #{last_lsn} < #{lsn}" end)
+      elapsed_time >= timeout ->
+        Logger.error(fn -> "Follower sync timeout after #{timeout}ms: #{last_lsn} < #{lsn}" end)
         {:error, :timeout}
 
       true ->
-        :timer.sleep(interval())
+        :timer.sleep(interval)
         wait_for_sync(repo, lsn, start_time)
     end
   end
@@ -66,9 +93,19 @@ defmodule Surgex.DataPipe.FollowerSync do
 
   defp get_current_time, do: :os.system_time(:milli_seconds)
 
-  defp enabled?, do: Application.get_env(:surgex, :follower_sync_enabled, true)
+  defp enabled?(repo), do: get_config(repo, :follower_sync_enabled, true)
 
-  defp timeout, do: Application.get_env(:surgex, :follower_sync_timeout, 15_000)
+  defp get_timeout(repo), do: get_config(repo, :follower_sync_timeout, 15_000)
 
-  defp interval, do: Application.get_env(:surgex, :follower_sync_interval, 1_000)
+  defp get_interval(repo), do: get_config(repo, :follower_sync_interval, 1_000)
+
+  defp get_config(repo, key, default) do
+    with repo_config when not(is_nil(repo_config)) <- Config.get(repo),
+         {:ok, repo_value} <- Keyword.fetch(repo_config, key)
+    do
+      repo_value
+    else
+      _ -> Application.get_env(:surgex, key, default)
+    end
+  end
 end

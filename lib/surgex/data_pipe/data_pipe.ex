@@ -20,8 +20,8 @@ defmodule Surgex.DataPipe do
   the external service should include the current log location (lsn) of D1 in the event. We can use
   that to wait for D2 to catch up:
 
-      %{lsn: lsn} = external_event
-      FollowerSync.call(D2Repo, lsn)
+      %{lsn: d1_lsn} = external_event
+      FollowerSync.call(D2Repo, d1_lsn)
 
   Then, we may connect our D3 database to D2 via an efficient PostgreSQL FDW link in order for data
   to flow directly between databases without having to load them into app memory:

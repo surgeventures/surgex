@@ -2,6 +2,8 @@ defmodule Surgex.Parser do
   @moduledoc """
   Parses, casts and catches errors in the web request input, such as params or JSON API body.
 
+  ## Usage
+
   In order to use it, you should import the `Surgex.Parser` module, possibly in the `controller`
   macro in the `web.ex` file belonging to your Phoenix project, which will make functions like
   `parse` available in all controllers.

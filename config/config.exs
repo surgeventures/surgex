@@ -21,6 +21,9 @@ if Mix.env == :test do
     follower_sync_timeout: 100,
     follower_sync_interval: 10
 
+  config :surgex, Surgex.DataPipe.FollowerSyncTest.RepoWithLocalConfigMock,
+    follower_sync_enabled: false
+
   config :surgex, Surgex.Repo,
     adapter: Ecto.Adapters.Postgres,
     database: "surgex_repo_test",
