@@ -100,12 +100,11 @@ defmodule Surgex.DataPipe.FollowerSync do
   defp get_interval(repo), do: get_config(repo, :follower_sync_interval, 1_000)
 
   defp get_config(repo, key, default) do
-    with repo_config when not(is_nil(repo_config)) <- Config.get(repo),
-         {:ok, repo_value} <- Keyword.fetch(repo_config, key)
-    do
-      repo_value
-    else
-      _ -> Application.get_env(:surgex, key, default)
+    case Config.get(repo, key) do
+      nil ->
+        Application.get_env(:surgex, key, default)
+      repo_value ->
+        repo_value
     end
   end
 end

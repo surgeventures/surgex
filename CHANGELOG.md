@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.1.1
+
+- Fixed nil scope bug in `Surgex.Config.get/2`
+- Fixed per-repo config parse bug in `Surgex.DataPipe.FollowerSync`
+
+## 2.1.0
+
+- Added support for per-repo config in `Surgex.DataPipe.FollowerSync`
+
 ## 2.0.0
 
 - Replaced `Surgex.Config.Session` with `Surgex.DeviseSession`

@@ -47,7 +47,7 @@ defmodule Surgex.Config do
   """
   def get(scope, key) do
     @app_name
-    |> Application.get_env(scope)
+    |> Application.get_env(scope, [])
     |> Keyword.fetch(key)
     |> parse_fetch
   end
