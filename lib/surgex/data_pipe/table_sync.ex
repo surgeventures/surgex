@@ -35,6 +35,7 @@ defmodule Surgex.DataPipe.TableSync do
     end)
 
     query = case(source) do
+      "SELECT " <> _ -> source
       %{select: select} when not(is_nil(select)) -> source
       _ -> select(source, ^columns)
     end
@@ -101,6 +102,7 @@ defmodule Surgex.DataPipe.TableSync do
     end
   end
 
+  defp query_to_sql(_repo, sql) when is_binary(sql), do: sql
   defp query_to_sql(repo, query) do
     {sql, _} = SQL.to_sql(:all, repo, query)
     sql

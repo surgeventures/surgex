@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0
+
+- Added support for raw SQL source in `Surgex.DataPipe.TableSync`
+
 ## 2.1.1
 
 - Fixed nil scope bug in `Surgex.Config.get/2`

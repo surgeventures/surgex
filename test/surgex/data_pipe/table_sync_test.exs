@@ -76,4 +76,19 @@ defmodule Surgex.DataPipe.TableSyncTest do
 
     assert Repo.get_by(OtherUser, email: "UPDATED@EXAMPLE.COM")
   end
+
+  test "sql -> table" do
+    columns = [:email, :id, :provider_id]
+    conflict_target = [:id]
+    sql = "SELECT upper(email), id, provider_id FROM users WHERE id > 1"
+
+    {upserts, deletions} = TableSync.call(Repo, sql, "other_users",
+      columns: columns,
+      conflict_target: conflict_target)
+
+    assert upserts == 5
+    assert deletions == 2
+
+    assert Repo.get_by(OtherUser, email: "UPDATED@EXAMPLE.COM")
+  end
 end
