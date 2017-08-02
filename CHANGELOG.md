@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.1
+
+- Fixed `Surgex.Parser` to return the same error reason multiple times
+
 ## 2.2.0
 
 - Added support for raw SQL source in `Surgex.DataPipe.TableSync`

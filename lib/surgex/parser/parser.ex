@@ -230,10 +230,10 @@ defmodule Surgex.Parser do
         prefixed_new_errors = Enum.map(new_errors, fn {reason, pointer} ->
           {reason, "#{used_key}/#{pointer}"}
         end)
-        final_errors = Keyword.merge(errors, prefixed_new_errors)
+        final_errors = prefixed_new_errors ++ errors
         {remaining_map, output, final_errors}
       {:error, reason} ->
-        final_errors = Keyword.put_new(errors, reason, used_key)
+        final_errors = [{reason, used_key} | errors]
         {remaining_map, output, final_errors}
     end
   end
