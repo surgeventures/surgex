@@ -4,6 +4,7 @@ defmodule Surgex.DataPipe do
 
   The following tools are available:
 
+  - `Surgex.DataPipe.Cleaner`: cleans tables in a PostgreSQL database
   - `Surgex.DataPipe.FollowerSync`: waits for a slave synchronization with a remote master
   - `Surgex.DataPipe.ForeignDataWrapper`: configures a FDW linkage between two repos
   - `Surgex.DataPipe.TableSync`: ETLs data from one database or table into another

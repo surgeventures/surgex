@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4.0
+
+- Added `Surgex.DataPipe.Cleaner`
+
 ## 2.3.0
 
 - Added `Surgex.Guide.CodeStyle.pipe_chain_alignment/0`
