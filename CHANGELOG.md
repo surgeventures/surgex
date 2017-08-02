@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.0
+
+- Added `Surgex.Guide.CodeStyle.pipe_chain_alignment/0`
+
 ## 2.2.1
 
 - Fixed `Surgex.Parser` to return the same error reason multiple times

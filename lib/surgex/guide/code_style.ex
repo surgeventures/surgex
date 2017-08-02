@@ -1331,4 +1331,35 @@ defmodule Surgex.Guide.CodeStyle do
 
   """
   def test_happy_case_placement, do: nil
+
+  @doc """
+  Pipe chains must be aligned into multiple lines.
+
+  > Check out `Surgex.Guide.CodeStyle.assignment_indentation/0` to see how to assign the output from
+    properly formatted multi-line chains.
+
+  ## Reasoning
+
+  This comes from general preference of vertical spacing over horizontal spacing, expressed across
+  this guide by rules such as `Surgex.Guide.CodeStyle.block_alignment/0`. This ensures that the code
+  is readable and not too condensed. Also, it's easier to modify or extend multi-line chains,
+  because they don't require re-aligning the whole thing.
+
+  By the way, single-line chains look kinda like a code copied from `iex` in a hurry, which is only
+  fine when the building was on fire during the coding session.
+
+  ## Examples
+
+  Preferred:
+
+      user
+      |> reset_password()
+      |> send_password_reset_email()
+
+  Too condensed:
+
+      user |> reset_password() |> send_password_reset_email()
+
+  """
+  def pipe_chain_alignment, do: nil
 end
