@@ -1,8 +1,8 @@
 # Changelog
 
-## 2.4.0
+## 2.5.0
 
-- Added `Surgex.DataPipe.Cleaner`
+- Added `Surgex.DatabaseCleaner`
 
 ## 2.3.0
 

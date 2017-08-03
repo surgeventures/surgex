@@ -1,15 +1,13 @@
-defmodule Surgex.DataPipe.CleanerTest do
+defmodule Surgex.DatabaseCleanerTest do
   use Surgex.DataCase
   import Surgex.Factory
-  alias Surgex.DataPipe.Cleaner
+  alias Surgex.DatabaseCleaner
   alias Surgex.{
     OtherUser,
     User,
   }
 
   setup do
-    Cleaner.call(Repo)
-
     insert(:user)
     insert(:other_user)
 
@@ -18,7 +16,7 @@ defmodule Surgex.DataPipe.CleanerTest do
 
   @tag transaction: false
   test "default" do
-    Cleaner.call(Repo)
+    DatabaseCleaner.call(Repo)
 
     assert Repo.aggregate(User, :count, :id) == 0
     assert Repo.aggregate(OtherUser, :count, :id) == 0
@@ -28,7 +26,7 @@ defmodule Surgex.DataPipe.CleanerTest do
 
   @tag transaction: false
   test "method = delete_all" do
-    Cleaner.call(Repo, method: :delete_all)
+    DatabaseCleaner.call(Repo, method: :delete_all)
 
     assert Repo.aggregate(User, :count, :id) == 0
     assert Repo.aggregate(OtherUser, :count, :id) == 0
@@ -37,16 +35,24 @@ defmodule Surgex.DataPipe.CleanerTest do
   end
 
   @tag transaction: false
-  test "tables = [string]" do
-    Cleaner.call(Repo, only: ["users"])
+  test "only = [string]" do
+    DatabaseCleaner.call(Repo, only: ["users"])
 
     assert Repo.aggregate(User, :count, :id) == 0
     assert Repo.aggregate(OtherUser, :count, :id) == 1
   end
 
   @tag transaction: false
-  test "tables = [schema]" do
-    Cleaner.call(Repo, only: [User])
+  test "only = [schema]" do
+    DatabaseCleaner.call(Repo, only: [User])
+
+    assert Repo.aggregate(User, :count, :id) == 0
+    assert Repo.aggregate(OtherUser, :count, :id) == 1
+  end
+
+  @tag transaction: false
+  test "except = [schema]" do
+    DatabaseCleaner.call(Repo, except: [OtherUser])
 
     assert Repo.aggregate(User, :count, :id) == 0
     assert Repo.aggregate(OtherUser, :count, :id) == 1

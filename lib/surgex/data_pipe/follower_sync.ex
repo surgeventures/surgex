@@ -1,10 +1,10 @@
 defmodule Surgex.DataPipe.FollowerSync do
   @moduledoc """
-  Waits for a PostgreSQL slave synchronization with a remote master.
+  Acquires a PostgreSQL slave synchronization with a remote master.
 
   ## Usage
 
-  Can be configured globally or per repo as follows:
+  It can be configured globally or per repo as follows:
 
       config :surgex,
         follower_sync_enabled: true,
@@ -44,6 +44,9 @@ defmodule Surgex.DataPipe.FollowerSync do
     end
   end
 
+  @doc """
+  Waits for a given slave repo's sync up to specific remote master's lsn.
+  """
   def call(repo, lsn) do
     if enabled?(repo) do
       wait_for_sync(repo, lsn)

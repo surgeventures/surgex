@@ -1,32 +1,33 @@
-defmodule Surgex.DataPipe.Cleaner do
+defmodule Surgex.DatabaseCleaner do
   @moduledoc """
-  Cleans tables in a PostgreSQL database.
+  Cleans tables in a database represented by an Ecto repo.
 
   ## Usage
 
-  Here's basic example:
+  Here's a basic example:
 
-      Surgex.DataPipe.Cleaner.call(Repo)
-      Surgex.DataPipe.Cleaner.call(Repo, method: :delete_all)
-      Surgex.DataPipe.Cleaner.call(Repo, only: ~w(posts users))
-      Surgex.DataPipe.Cleaner.call(Repo, only: [Post, User])
+      Surgex.DatabaseCleaner.call(MyProject.Repo)
+      Surgex.DatabaseCleaner.call(MyProject.Repo, method: :delete_all)
+      Surgex.DatabaseCleaner.call(MyProject.Repo, only: ~w(posts users))
+      Surgex.DatabaseCleaner.call(MyProject.Repo, only: [Post, User])
+      Surgex.DatabaseCleaner.call(MyProject.Repo, except: [Project])
 
-  ### Non-transactional tests
-
-  Besides data piping scenarios, this module may come handy in tests. You may use it globally if you
-  want to clean before all tests as following:
+  This module may come in handy as a tool for configuring integration tests. You may use it globally
+  if you want to clean before all tests as following:
 
       setup do
-        Surgex.DataPipe.Cleaner.call(MyProject.Repo)
+        :ok = Ecto.Adapters.SQL.Sandbox.checkout(MyProject.Repo)
 
         # ...
+
+        Surgex.DatabaseCleaner.call(MyProject.Repo)
 
         :ok
       end
 
-
-  Also, you can clean repo only after those tests that are tagged not to run in an Ecto sandbox. It
-  can be achieved via the `on_exit` callback as following:
+  Also, in order not to ruin test performance and the general experience of the Ecto sandbox, you
+  may want to clean repo only after those tests that are tagged not to run in the sandbox. It can be
+  achieved via the following `on_exit` callback:
 
       setup do
         if tags[:sandbox] == false do
@@ -34,7 +35,7 @@ defmodule Surgex.DataPipe.Cleaner do
 
           on_exit(fn ->
             :ok = Ecto.Adapters.SQL.Sandbox.checkout(MyProject.Repo, sandbox: false)
-            Surgex.DataPipe.Cleaner.call(MyProject.Repo)
+            Surgex.DatabaseCleaner.call(MyProject.Repo)
           end)
         else
           # ...
@@ -51,22 +52,24 @@ defmodule Surgex.DataPipe.Cleaner do
   ## Options
 
   - `method`: one of `:truncate` (default), `:delete_all`
-  - `only`: only cleans specified tables (defaults to all tables)
+  - `only`: cleans specified tables/schemas (defaults to all tables)
+  - `except`: cleans all tables/schemas except specified ones
 
   """
   def call(repo, opts \\ []) do
     method = Keyword.get(opts, :method, :truncate)
-    tables = Keyword.get(opts, :only)
+    only = Keyword.get(opts, :only)
+    except = Keyword.get(opts, :except)
 
     repo
-    |> get_all_tables()
-    |> filter_tables(tables)
+    |> get_all_tables(only)
+    |> filter_tables(except)
     |> clean_tables(repo, method)
 
     :ok
   end
 
-  defp get_all_tables(repo) do
+  defp get_all_tables(repo, nil) do
     import Ecto.Query
 
     query =
@@ -79,21 +82,12 @@ defmodule Surgex.DataPipe.Cleaner do
     repo
     |> apply(:all, [prefixed_query])
     |> List.delete("schema_migrations")
-    |> Enum.into(MapSet.new)
+    |> Enum.map(&get_table_name/1)
   end
+  defp get_all_tables(_repo, tables), do: Enum.map(tables, &get_table_name/1)
 
   defp filter_tables(all_tables, nil), do: all_tables
-  defp filter_tables(all_tables, selected_tables) do
-    selected_tables_set =
-      selected_tables
-      |> Enum.map(&get_table_name/1)
-      |> Enum.into(MapSet.new)
-
-    all_tables
-    |> Enum.into(MapSet.new)
-    |> MapSet.intersection(selected_tables_set)
-    |> MapSet.to_list
-  end
+  defp filter_tables(all_tables, except), do: all_tables -- Enum.map(except, &get_table_name/1)
 
   defp get_table_name(name) when is_binary(name), do: name
   defp get_table_name(schema) do

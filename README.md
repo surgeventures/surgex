@@ -18,6 +18,7 @@ publishing them separately. It currently consists of:
 
 - `Surgex.Changeset`: tools for working with Ecto changesets
 - `Surgex.Config`: application config getter, aka. `Application.get_env` on steroids
+- `Surgex.DatabaseCleaner`: cleans tables in a database represented by an Ecto repo
 - `Surgex.DataPipe`: tools for moving data between PostgreSQL databases and tables
 - `Surgex.DeviseSession`: configures Ruby on Rails + Devise session in Plug
 - `Surgex.Parser`: parses, casts and catches errors in the web request input

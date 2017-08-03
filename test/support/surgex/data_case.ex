@@ -3,7 +3,11 @@ defmodule Surgex.DataCase do
 
   use ExUnit.CaseTemplate
   alias Ecto.Adapters.SQL.Sandbox
-  alias Surgex.{ForeignRepo, Repo}
+  alias Surgex.{
+    DatabaseCleaner,
+    ForeignRepo,
+    Repo,
+  }
 
   using do
     quote do
@@ -27,6 +31,20 @@ defmodule Surgex.DataCase do
     if tags[:transaction] == false do
       Sandbox.mode(Repo, :auto)
       Sandbox.mode(ForeignRepo, :auto)
+
+      on_exit(fn ->
+        :ok = Sandbox.checkout(Repo)
+        :ok = Sandbox.checkout(ForeignRepo)
+
+        Sandbox.mode(Repo, {:shared, self()})
+        Sandbox.mode(ForeignRepo, {:shared, self()})
+
+        Sandbox.mode(Repo, :auto)
+        Sandbox.mode(ForeignRepo, :auto)
+
+        DatabaseCleaner.call(Repo)
+        DatabaseCleaner.call(ForeignRepo)
+      end)
     end
 
     :ok
