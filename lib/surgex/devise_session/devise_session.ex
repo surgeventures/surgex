@@ -62,7 +62,13 @@ defmodule Surgex.DeviseSession do
   end
 
   def call(conn, config) do
-    Session.call(conn, patch_config(config))
+    conn
+    |> patch_conn()
+    |> Session.call(patch_config(config))
+  end
+
+  defp patch_conn(conn) do
+    update_in(conn.secret_key_base, &Config.parse/1)
   end
 
   defp patch_config(config) do

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.1
+
+- Fixed `Surgex.DeviseSession` to support `Plug.Conn` with `{:system, "SECRET_KEY_BASE"}`
+
 ## 2.5.0
 
 - Added `Surgex.DatabaseCleaner`

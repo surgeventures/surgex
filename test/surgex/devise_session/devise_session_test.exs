@@ -15,6 +15,8 @@ defmodule Surgex.DeviseSessionTest do
       |> Enum.map(fn _ -> "x" end)
       |> Enum.join()
 
+    System.put_env("SECRET_KEY_BASE", secret_key_base)
+
     opts = [store: :cookie,
             key: "_my_rails_project_session",
             domain: {:system, "SESSION_COOKIE_DOMAIN"}]
@@ -22,7 +24,7 @@ defmodule Surgex.DeviseSessionTest do
     setter_conn =
       :get
       |> conn("/foo")
-      |> Map.put(:secret_key_base, secret_key_base)
+      |> Map.put(:secret_key_base, {:system, "SECRET_KEY_BASE"})
       |> DeviseSession.call(DeviseSession.init(opts))
       |> Conn.fetch_session()
       |> Conn.put_session("warden.user.user.key", [[123], ""])
