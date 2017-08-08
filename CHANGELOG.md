@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.0
+
+- Added `Surgex.Guide.SoftwareDesign.return_ok_error_usage/0` rule
+
 ## 2.5.1
 
 - Fixed `Surgex.DeviseSession` to support `Plug.Conn` with `{:system, "SECRET_KEY_BASE"}`
