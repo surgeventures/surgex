@@ -1,8 +1,12 @@
 # Changelog
 
-## 2.6.0
+## 2.7.0
 
 - Added `Surgex.Scout` to support setting Scout Agent Key with `{:system, "SCOUT_API_KEY"}`
+
+## 2.6.0
+
+- Added `Surgex.Guide.SoftwareDesign.return_ok_error_usage/0` rule
 
 ## 2.5.1
 

@@ -858,4 +858,75 @@ defmodule Surgex.Guide.SoftwareDesign do
 
   """
   def error_handling, do: nil
+
+  @doc ~S"""
+  Functions should return `:ok`/`:error` when both success and failure paths are present.
+
+  ## Reasoning
+
+  First of all, we do want to adhere to the long-standing Elixir convention of returning
+  `:ok`/`:error` atoms from functions. They may either be stand-alone (simple `:ok`/`:error` when
+  there's nothing more to add) or wrapped in a tuple with extra contextual info, such as `{:ok,
+  fetched_data}` or `{:error, reason}`. Tuples may be mixed with stand-alone atoms, eg. the same
+  function may return `:ok` upon success (since there's nothing more to add upon success) while
+   multiple distinct error paths may return `{:error, reason}` to make them distinct to the caller.
+
+  That said, there's a case when usage of this pattern may make the code more confusing. It's when
+  specific code simply cannot fail. If it cannot fail, then it doesn't make sense to make it tell
+  its caller that something went ok. In such cases, the function should simply return the value that
+  was asked for (`fetched_data` in example above) or `nil` if there's nothing to return (eg. when a
+  non-failing function only creates side effects).
+
+  This fits nicely into the way the Elixir standard library is designed (eg. `Map.get/2` never fails
+  so it only returns the value but `Map.fetch/2` does fail so it returns `{:ok, value}` or
+  `:error`). As such, this rule makes our code consistent with Elixir conventions and community code
+  that's supposed to follow them.
+
+  > Refer to the `Surgex.Guide.SoftwareDesign.error_handling/0` rule in order to learn when to
+    actually implement the failure path.
+
+  ## Examples
+
+  Preferred:
+
+      def print_debug_info(message) do
+        IO.puts(message)
+
+        nil
+      end
+
+      def remove_file(path) do
+        if File.exists?(path)
+          :ok = File.rm(path)
+        else
+          {:error, :file_not_found}
+        end
+      end
+
+  Confusing `:ok` when there's no failure path (`IO.puts/1` returns `:ok`):
+
+      def print_debug_info(message) do
+        IO.puts(message)
+      end
+
+      def remove_file(path) do
+        if File.exists?(path)
+          :ok = File.rm(path)
+        else
+          raise("No such file: #{inspect path}")
+        end
+      end
+
+  Lack of `:ok` when there's a failure path (`File.read!/1` returns the file content):
+
+      def read_file(path) do
+        if File.exists?(path)
+          File.read!(path)
+        else
+          {:error, :file_not_found}
+        end
+      end
+
+  """
+  def return_ok_error_usage, do: nil
 end
