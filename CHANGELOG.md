@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.0
+
+- Added `Surgex.Scout` to support setting Scout Agent Key with `{:system, "SCOUT_API_KEY"}`
+
 ## 2.5.1
 
 - Fixed `Surgex.DeviseSession` to support `Plug.Conn` with `{:system, "SECRET_KEY_BASE"}`

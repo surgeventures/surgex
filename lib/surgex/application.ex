@@ -6,7 +6,10 @@ defmodule Surgex.Application do
   use Application
   use GenServer
   require Logger
-  alias Surgex.Sentry
+  alias Surgex.{
+    Scout,
+    Sentry,
+  }
 
   @doc false
   def start(_type, _args) do
@@ -14,6 +17,7 @@ defmodule Surgex.Application do
   end
 
   def init(_) do
+    Scout.init()
     Sentry.init()
 
     {:ok, nil, :hibernate}
