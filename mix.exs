@@ -68,6 +68,7 @@ defmodule Surgex.Mixfile do
       {:ecto, "~> 2.1.4"},
       {:ex_marshal, "~> 0.0.8"},
       {:ex_phone_number, "~> 0.1.1"},
+      {:exprotobuf, "~> 1.2.7"},
       {:httpoison, "~> 0.13.0"},
       {:jabbax, ">= 0.1.0"},
       {:plug, "~> 1.3.2 or ~> 1.4"},

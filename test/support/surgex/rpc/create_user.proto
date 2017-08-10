@@ -1,0 +1,31 @@
+syntax = "proto3";
+package create_user;
+
+message Request {
+  message User {
+    enum Gender {
+      MALE = 0;
+      FEMALE = 1;
+    }
+
+    string name = 1;
+    Gender gender = 2;
+  }
+
+  User user = 1;
+}
+
+message Response {
+  message User {
+    enum Gender {
+      MALE = 0;
+      FEMALE = 1;
+    }
+
+    uint32 id = 1;
+    string name = 2;
+    Gender gender = 3;
+  }
+
+  User user = 1;
+}
