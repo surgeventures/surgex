@@ -10,6 +10,9 @@ defmodule Surgex.Config do
   but should be set to actual application name. Then, all Mix configs that will be fetched via
   `Surgex.Config` should be nested in that scope.
 
+  Check out `Surgex.Config.Patch` for an automated solution that allows to patch any Mix config with
+  the capabilities of this module.
+
   ## Usage
 
   Here's how your `prod.exs` may look:
