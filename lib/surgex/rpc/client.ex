@@ -1,32 +1,28 @@
 defmodule Surgex.RPC.Client do
-  alias Surgex.RPC.Transport
+  alias Surgex.RPC.{
+    CallError,
+    Transport,
+  }
 
   defmacro __using__(_opts) do
     quote do
       import Surgex.RPC.Client, only: [transport: 1, transport: 2, proto: 1, service: 1]
 
       def call(request) do
-        Surgex.RPC.Client.call(request, __transport__())
+        Surgex.RPC.Client.call(request)
       end
 
       def call!(request) do
-        Surgex.RPC.Client.call!(request, __transport__())
+        Surgex.RPC.Client.call!(request)
       end
     end
   end
 
-  defmacro transport(adapter, adapter_opts) do
+  defmacro transport(adapter, adapter_opts \\ []) do
     opts = Keyword.put(adapter_opts, :adapter, adapter)
 
     quote do
-      transport(unquote(opts))
-    end
-  end
-  defmacro transport(opts) do
-    quote do
-      def __transport__ do
-        unquote(opts)
-      end
+      def __transport__, do: unquote(opts)
     end
   end
 
@@ -37,7 +33,11 @@ defmodule Surgex.RPC.Client do
   end
 
   defmacro service(opts) do
-    proto = Keyword.fetch!(opts, :proto) |> Code.eval_quoted([], __CALLER__) |> elem(0)
+    proto =
+      opts
+      |> Keyword.fetch!(:proto)
+      |> Code.eval_quoted([], __CALLER__)
+      |> elem(0)
 
     name = Keyword.get_lazy(opts, :name, fn ->
       proto
@@ -52,12 +52,24 @@ defmodule Surgex.RPC.Client do
         :"#{__CALLER__.module}.#{Macro.camelize(to_string(name))}"
     end
 
-    request_mod = :"#{base_mod}.Request"
-    response_mod = :"#{base_mod}.Response"
+    request_mod = case Keyword.fetch(opts, :request) do
+      {:ok, value} ->
+        Macro.expand(value, __CALLER__)
+      :error ->
+        :"#{base_mod}.Request"
+    end
+
+    response_mod = case Keyword.fetch(opts, :request) do
+      {:ok, value} ->
+        Macro.expand(value, __CALLER__)
+      :error ->
+        :"#{base_mod}.Response"
+    end
+
     service_opts = [
       name: name,
-      request: request_mod,
-      response: response_mod
+      request_mod: request_mod,
+      response_mod: response_mod
     ]
 
     quote do
@@ -68,41 +80,25 @@ defmodule Surgex.RPC.Client do
 
         use Protobuf, from: unquote(proto)
 
-        def __service_name__ do
-          unquote(name)
-        end
+        def __service__, do: unquote(service_opts)
 
-        def __transport__ do
-          apply(@client_mod, :__transport__, [])
-        end
-
-        def call(request \\ []) do
-          Surgex.RPC.Client.call(request, unquote(service_opts), __transport__())
-        end
-
-        def call!(request \\ []) do
-          Surgex.RPC.Client.call!(request, unquote(service_opts), __transport__())
-        end
+        def __transport__, do: @client_mod.__transport__()
       end
     end
   end
 
-  def call(request_struct, transport_opts) do
-    service_opts = infer_service_opts(request_struct)
+  def call(request_struct = %{__struct__: request_mod}) do
+    base_mod = get_base_mod(request_mod)
+    service_opts = base_mod.__service__()
+    transport_opts = base_mod.__transport__()
 
     call(request_struct, service_opts, transport_opts)
   end
-  def call(request, service_opts, transport_opts) when is_list(request) do
-    request_mod = Keyword.fetch!(service_opts, :request)
-    request_struct = apply(request_mod, :new, [request])
-
-    call(request_struct, service_opts, transport_opts)
-  end
-  def call(request, service_opts, transport_opts) do
+  def call(request_struct, service_opts, transport_opts) do
     service_name = Keyword.fetch!(service_opts, :name)
-    request_mod = Keyword.fetch!(service_opts, :request)
-    response_mod = Keyword.fetch!(service_opts, :response)
-    request_buf = request_mod.encode(request)
+    request_mod = Keyword.fetch!(service_opts, :request_mod)
+    response_mod = Keyword.fetch!(service_opts, :response_mod)
+    request_buf = request_mod.encode(request_struct)
     request = {service_name, request_buf}
 
     case Transport.call(request, transport_opts) do
@@ -115,35 +111,27 @@ defmodule Surgex.RPC.Client do
     end
   end
 
-  def call!(request_struct, transport_opts) do
+  def call!(request_struct) do
     request_struct
-    |> call(transport_opts)
+    |> call()
     |> handle_non_failing_response()
   end
-  def call!(request, service_opts, transport_opts) do
-    request
+  def call!(request_struct, service_opts, transport_opts) do
+    request_struct
     |> call(service_opts, transport_opts)
     |> handle_non_failing_response()
   end
 
   defp handle_non_failing_response({:ok, response}), do: response
   defp handle_non_failing_response({:error, errors}) do
-    raise("Remote call rejected: #{inspect errors}")
+    raise CallError, errors: errors
   end
 
-  defp infer_service_opts(_request_struct = %{__struct__: struct}) do
-    request_mod = struct
+  defp get_base_mod(request_mod) do
     request_mod_parts = Module.split(request_mod)
     [_ | base_reverse_parts] = Enum.reverse(request_mod_parts)
     base_parts = Enum.reverse(base_reverse_parts)
-    base_mod = :"Elixir.#{Enum.join(base_parts, ".")}"
-    service_name = apply(base_mod, :__service_name__, [])
-    response_mod = :"#{base_mod}.Response"
 
-    [
-      name: service_name,
-      request: request_mod,
-      response: response_mod
-    ]
+    :"Elixir.#{Enum.join(base_parts, ".")}"
   end
 end

@@ -1,4 +1,6 @@
 defmodule Surgex.RPC.HTTPAdapter do
+  alias Surgex.RPC.TransportError
+
   def call({service_name, request_buf}, opts) do
     url = Keyword.fetch!(opts, :url)
     secret = Keyword.fetch!(opts, :secret)
@@ -28,7 +30,7 @@ defmodule Surgex.RPC.HTTPAdapter do
   defp make_http_request(url, headers, body) do
     response = HTTPoison.post!(url, body, headers)
     if response.status_code != 200 do
-      raise("HTTP request failed with code #{response.status_code}")
+      raise TransportError, adapter: __MODULE__, context: response.status_code
     end
 
     response.body

@@ -7,8 +7,8 @@ defmodule Surgex.RPC.Transport do
     case adapter do
       :http ->
         HTTPAdapter.call(request, adapter_opts)
-      unknown ->
-        raise("Unknown transport adapter: #{unknown}")
+      adapter_mod ->
+        adapter_mod.call(request, adapter_opts)
     end
   end
 end
