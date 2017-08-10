@@ -35,9 +35,8 @@ defmodule Surgex.Scout do
   end
 
   defp get_api_key do
-    case Application.get_env(:surgex, :scout_api_key, "") do
-      value ->
-        Config.parse(value)
-    end
+    :surgex
+    |> Application.get_env(:scout_api_key, "")
+    |> Config.parse()
   end
 end
