@@ -3,7 +3,7 @@ defmodule Surgex.Mixfile do
 
   def project do
     [app: :surgex,
-     version: "2.6.0",
+     version: "2.7.0",
      elixir: "~> 1.4",
      elixirc_paths: elixirc_paths(Mix.env),
      build_embedded: Mix.env == :prod,
