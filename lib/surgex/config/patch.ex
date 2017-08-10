@@ -21,9 +21,17 @@ defmodule Surgex.Config.Patch do
 
   """
   def init do
+    require Logger
+
     case Application.fetch_env(:surgex, :config_patch) do
-      {:ok, schema} -> apply(schema)
-      :error -> nil
+      {:ok, schema} ->
+        new_config = apply(schema)
+        Logger.info fn ->
+          "Patching config: #{inspect new_config}"
+        end
+
+      :error ->
+        nil
     end
   end
 
@@ -38,15 +46,9 @@ defmodule Surgex.Config.Patch do
 
   """
   def apply(schema) do
-    require Logger
-
     new_config = resolve(schema)
-
-    Logger.info fn ->
-      "Patching config: #{inspect new_config}"
-    end
-
     Mix.Config.persist(new_config)
+    new_config
   end
 
   defp resolve(tuple = {:system, _}), do: Config.parse(tuple)
