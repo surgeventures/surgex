@@ -10,6 +10,7 @@ defmodule Surgex.Application do
     Scout,
     Sentry,
   }
+  alias Surgex.Config.Patch
 
   @doc false
   def start(_type, _args) do
@@ -17,6 +18,7 @@ defmodule Surgex.Application do
   end
 
   def init(_) do
+    Patch.init()
     Scout.init()
     Sentry.init()
 

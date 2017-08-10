@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.0
+
+- Added `Surgex.Config.Patch`
+
 ## 2.7.0
 
 - Added `Surgex.Scout` to support setting Scout Agent Key with `{:system, "SCOUT_API_KEY"}`
