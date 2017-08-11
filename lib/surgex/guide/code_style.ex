@@ -1397,5 +1397,5 @@ defmodule Surgex.Guide.CodeStyle do
         # ...
       end
   """
-  def aliases_in_typespecs, do: nil
+  def typespec_alias_usage, do: nil
 end
