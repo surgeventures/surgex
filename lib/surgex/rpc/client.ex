@@ -6,6 +6,7 @@ defmodule Surgex.RPC.Client do
   alias Surgex.RPC.{
     CallError,
     HTTPAdapter,
+    Processor,
   }
 
   defmacro __using__(_opts) do
@@ -44,6 +45,7 @@ defmodule Surgex.RPC.Client do
     end
   end
 
+  # credo:disable-for-next-line /ABCSize|CyclomaticComplexity/
   defmacro service(opts) do
     proto =
       opts
@@ -136,28 +138,9 @@ defmodule Surgex.RPC.Client do
 
   defp call_mock(request_buf, request_mod, response_mod, mock_mod) do
     if Application.get_env(:surgex, :rpc_mocking_enabled) do
-      result =
-        request_buf
-        |> request_mod.decode()
-        |> mock_mod.call()
-
-      case result do
-        :ok ->
-          {:ok, response_mod.encode(response_mod.new())}
-        {:ok, response_struct} ->
-          {:ok, response_mod.encode(response_struct)}
-        :error ->
-          {:error, [error: nil]}
-        {:error, errors} when is_list(errors) ->
-          {:error, Enum.map(errors, &normalize_error/1)}
-        {:error, error} ->
-          {:error, normalize_error(error)}
-      end
+      Processor.call(mock_mod, request_buf, request_mod, response_mod)
     end
   end
-
-  defp normalize_error(reason) when is_atom(reason) or is_binary(reason), do: {reason, nil}
-  defp normalize_error({reason, pointer}), do: {reason, pointer}
 
   defp call_transport(request_tuple, opts) do
     {adapter, adapter_opts} = Keyword.pop(opts, :adapter)

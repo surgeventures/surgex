@@ -1,4 +1,6 @@
 defmodule Surgex.RPC.SampleClient do
+  @moduledoc false
+
   use Surgex.RPC.Client
 
   transport :http, url: "http://example.com/rpc", secret: "xyz"

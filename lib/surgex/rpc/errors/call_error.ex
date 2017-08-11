@@ -5,9 +5,6 @@ defmodule Surgex.RPC.CallError do
 
   defexception [:errors]
 
-  def message(%__MODULE__{errors: [error: nil]}) do
-    "error"
-  end
   def message(%__MODULE__{errors: errors}) do
     errors
     |> Enum.map(&format_error/1)
