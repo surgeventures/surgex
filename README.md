@@ -24,6 +24,7 @@ publishing them separately. It currently consists of:
 - `Surgex.Parser`: parses, casts and catches errors in the web request input
 - `Surgex.PhoneNumber`: an `Ecto.Type` implementation of a E164-compilant phone numbers
 - `Surgex.Refactor`: tools for making code maintenance and refactors easier
+- `Surgex.RPC`: remote procedure call system based on Protocol Buffers
 - `Surgex.Scout`: extensions to the official ScoutApm package
 - `Surgex.Sentry`: extensions to the official Sentry package
 

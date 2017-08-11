@@ -1,6 +1,113 @@
 defmodule Surgex.RPC.Client do
   @moduledoc """
   Calls services in remote systems.
+
+  ## Usage
+
+  Here's how your RPC client module may look like:
+
+      defmodule MyProject.RemoteRPC do
+        use Surgex.RPC.Client
+
+        # first, configure your transport of choice
+        transport :http,
+          url: "https://app.example.com/rpc",
+          secret: "my-rpc-secret"
+
+        # then, declare services with a convention driven config
+        proto Path.expand("./proto/create_user.proto", __DIR__)
+        proto Path.expand("./proto/create_admin.proto", __DIR__)
+
+        # ...or with a customized config (equivalent of first proto call above)
+        service proto: Path.expand("./proto/create_user.proto", __DIR__),
+                service_name: "create_user",
+                service_mod: __MODULE__.CreateUser,
+                request_mod: __MODULE__.CreateUser.Request,
+                response_mod: __MODULE__.CreateUser.Response,
+                mock_mod: __MODULE__.CreateUserMock
+
+      end
+
+  Having that, you can call your RPC as follows:
+
+      alias MyProject.RemoteRPC
+      alias MyProject.RemoteRPC.CreateUser.{Request, Response}
+
+      request = %Request{}
+
+      case RemoteRPC.call(request) do
+        {:ok, response = %Response{}} ->
+          # do stuff with response
+        {:error, errors}
+          # do stuff with errors
+      end
+
+      # ...or assume that a failure is out of the question
+      response = RemoteRPC.call!(request)
+
+  ## Testing
+
+  You can enable client mocks by adding the following to your `config/test.exs`:
+
+      config :surgex, rpc_mocking_enabled: true
+
+  Then, you can add a mock module for your specific service to `test/support`. The module should be
+  the `mock_mod` on sample above (which by default is a `service_mod` with the `Mock` suffix). For
+  example, to mock the service sourced from `create_user.proto` on example above, you may implement
+  the following module:
+
+      # test/support/my_project/remote_rpc/create_user_mock.ex
+
+      alias MyProject.RemoteRPC.CreateUser.{Request, Response}
+
+      defmodule MyProject.RemoteRPC.CreateUserMock do
+        # with default response
+        def call(request = %Request{) do
+          :ok
+        end
+
+        # ...or with specific response
+        def call(request = %Request{}) do
+          {:ok, %Response{}}
+        end
+
+        # ...or with default error
+        def call(request = %Request{}) do
+          :error
+        end
+
+        # ...or with specific error code
+        def call(request = %Request{}) do
+          {:error, :something_happened}
+        end
+
+        # ...or with specific error message
+        def call(request = %Request{}) do
+          {:error, "Something went wrong"}
+        end
+
+        # ...or with error related to specific part of the request
+        def call(request = %Request{}) do
+          {:error, {:specific_arg_error, struct: "user", struct: "images", repeated: 0}}
+        end
+
+        # ...or with multiple errors (all above syntaxes are supported)
+        def call(request = %Request{}) do
+          {:error, [
+            :something_happened,
+            "Something went wrong",
+            {:specific_arg_error, struct: "user", struct: "images", repeated: 0}
+          ]}
+        end
+      end
+
+  You can define multiple `call` clauses in your mock and use pattern matching to create different
+  output based on varying input.
+
+  Mock bypasses the transport layer (obviously), but it still encodes/decodes your request protobuf
+  just as regular client does and it still encodes/decodes the response from your mock. This ensures
+  that your test structures are compilant with specific proto in use.
+
   """
 
   alias Surgex.RPC.{
@@ -32,6 +139,16 @@ defmodule Surgex.RPC.Client do
     end
   end
 
+  @doc """
+  Specifies a transport adapter for the RPC calls along with its options.
+
+  The following adapters are supported:
+
+  - `Surgex.RPC.HTTPAdapter`
+
+  You may also use your own adapter by passing it as first argument.
+
+  """
   defmacro transport(adapter, adapter_opts \\ []) do
     opts = Keyword.put(adapter_opts, :adapter, adapter)
 
@@ -40,12 +157,33 @@ defmodule Surgex.RPC.Client do
     end
   end
 
+  @doc """
+  Attaches a service based on a given proto file.
+
+  This is an equivalent of `service proto: proto` call.
+  """
   defmacro proto(proto) do
     quote do
       service(proto: unquote(proto))
     end
   end
 
+  @doc """
+  Attaches a service to the client module with a customized config.
+
+  ## Options
+
+  - `proto`: the `.proto` file that specifies the service's interface
+  - `service_name`: string identifier of the service; defaults to proto file's root name
+  - `service_mod`: base module that hosts the proto structures; defaults to camelized service name
+    nested in the client module
+  - `request_mod`: request struct module; defaults to `Request` structure nested in the service
+    module
+  - `response_mod`: response struct module; defaults to `Response` structure nested in the service
+    module
+  - `mock_mod`: mock module; defaults to service module suffixed with `Mock`
+
+  """
   # credo:disable-for-next-line /ABCSize|CyclomaticComplexity/
   defmacro service(opts) do
     proto =
@@ -110,6 +248,13 @@ defmodule Surgex.RPC.Client do
     end
   end
 
+  @doc """
+  Makes a remote call with specific request struct, service opts and transport opts.
+
+  This is a base client function that all remote calls end up going through. It can be used to make
+  an RPC call without the custom client module. Client modules that `use Surgex.RPC.Client` fill all
+  arguments except the request struct and offer a `call/1` equivalent of this function.
+  """
   def call(request_struct, service_opts, transport_opts) do
     service_name = Keyword.fetch!(service_opts, :service_name)
     request_mod = Keyword.fetch!(service_opts, :request_mod)
@@ -131,6 +276,12 @@ defmodule Surgex.RPC.Client do
     end
   end
 
+  @doc """
+  Makes a non-failing remote call with specific request struct, service opts and transport opts.
+
+  This is an equivalent of `call/3` that returns response instead of success tuple upon succes and
+  that raises `Surgex.RPC.CallError` upon failure.
+  """
   def call!(request_struct, service_opts, transport_opts) do
     request_struct
     |> call(service_opts, transport_opts)

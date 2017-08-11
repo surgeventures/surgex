@@ -1,10 +1,26 @@
 defmodule Surgex.RPC.HTTPAdapter do
   @moduledoc """
   Transports RPC calls through HTTP requests protected with a secret header.
+
+  ## Usage
+
+  In order to use this adapter in you client, use the following code:
+
+      defmodule ShedulAPI.CoreRPC do
+        use Surgex.RPC.Client
+
+        transport :http,
+          url: "https://app.example.com/rpc",
+          secret: "my-rpc-secret"
+
+        # ...
+      end
+
   """
 
   alias Surgex.RPC.TransportError
 
+  @doc false
   def call({service_name, request_buf}, opts) do
     url = Keyword.fetch!(opts, :url)
     secret = Keyword.fetch!(opts, :secret)
