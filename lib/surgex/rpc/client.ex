@@ -64,14 +64,14 @@ defmodule Surgex.RPC.Client do
         :"#{__CALLER__.module}.#{Macro.camelize(to_string(service_name))}"
     end
 
-    request_mod = case Keyword.fetch(opts, :request) do
+    request_mod = case Keyword.fetch(opts, :request_mod) do
       {:ok, value} ->
         Macro.expand(value, __CALLER__)
       :error ->
         :"#{service_mod}.Request"
     end
 
-    response_mod = case Keyword.fetch(opts, :request) do
+    response_mod = case Keyword.fetch(opts, :response_mod) do
       {:ok, value} ->
         Macro.expand(value, __CALLER__)
       :error ->
