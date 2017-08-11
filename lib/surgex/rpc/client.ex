@@ -12,20 +12,20 @@ defmodule Surgex.RPC.Client do
     quote do
       import Surgex.RPC.Client, only: [transport: 1, transport: 2, proto: 1, service: 1]
 
-      def call(request_struct = %{__struct__: request_mod}) do
-        transport_opts = __transport_opts__()
-        service_mod = __service_mod__(request_mod)
-        service_opts = service_mod.__service_opts__()
-
-        Surgex.RPC.Client.call(request_struct, service_opts, transport_opts)
+      def call(request_struct) do
+        do_call(request_struct, :call)
       end
 
-      def call!(request_struct = %{__struct__: request_mod}) do
+      def call!(request_struct) do
+        do_call(request_struct, :call!)
+      end
+
+      defp do_call(request_struct = %{__struct__: request_mod}, method) do
         transport_opts = __transport_opts__()
         service_mod = __service_mod__(request_mod)
         service_opts = service_mod.__service_opts__()
 
-        Surgex.RPC.Client.call!(request_struct, service_opts, transport_opts)
+        apply(Surgex.RPC.Client, method, [request_struct, service_opts, transport_opts])
       end
     end
   end
@@ -78,10 +78,18 @@ defmodule Surgex.RPC.Client do
         :"#{service_mod}.Response"
     end
 
+    mock_mod = case Keyword.fetch(opts, :mock_mod) do
+      {:ok, value} ->
+        Macro.expand(value, __CALLER__)
+      :error ->
+        :"#{service_mod}Mock"
+    end
+
     service_opts = [
       service_name: service_name,
       request_mod: request_mod,
-      response_mod: response_mod
+      response_mod: response_mod,
+      mock_mod: mock_mod,
     ]
 
     quote do
@@ -103,10 +111,16 @@ defmodule Surgex.RPC.Client do
     service_name = Keyword.fetch!(service_opts, :service_name)
     request_mod = Keyword.fetch!(service_opts, :request_mod)
     response_mod = Keyword.fetch!(service_opts, :response_mod)
+    mock_mod = Keyword.fetch!(service_opts, :mock_mod)
+
     request_buf = request_mod.encode(request_struct)
     request_tuple = {service_name, request_buf}
 
-    case call_transport(request_tuple, transport_opts) do
+    result =
+      call_mock(request_buf, request_mod, response_mod, mock_mod) ||
+      call_transport(request_tuple, transport_opts)
+
+    case result do
       {:ok, response_buf} ->
         {:ok, response_mod.decode(response_buf)}
       {:error, errors} ->
@@ -119,6 +133,31 @@ defmodule Surgex.RPC.Client do
     |> call(service_opts, transport_opts)
     |> handle_non_failing_response()
   end
+
+  defp call_mock(request_buf, request_mod, response_mod, mock_mod) do
+    if Application.get_env(:surgex, :rpc_mocking_enabled) do
+      result =
+        request_buf
+        |> request_mod.decode()
+        |> mock_mod.call()
+
+      case result do
+        :ok ->
+          {:ok, response_mod.encode(response_mod.new())}
+        {:ok, response_struct} ->
+          {:ok, response_mod.encode(response_struct)}
+        :error ->
+          {:error, [error: nil]}
+        {:error, errors} when is_list(errors) ->
+          {:error, Enum.map(errors, &normalize_error/1)}
+        {:error, error} ->
+          {:error, normalize_error(error)}
+      end
+    end
+  end
+
+  defp normalize_error(reason) when is_atom(reason) or is_binary(reason), do: {reason, nil}
+  defp normalize_error({reason, pointer}), do: {reason, pointer}
 
   defp call_transport(request_tuple, opts) do
     {adapter, adapter_opts} = Keyword.pop(opts, :adapter)
