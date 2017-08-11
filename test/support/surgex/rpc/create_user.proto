@@ -1,0 +1,28 @@
+syntax = "proto3";
+package create_user;
+
+message Request {
+  message User {
+    enum Gender {
+      MALE = 0;
+      FEMALE = 1;
+    }
+
+    string name = 1;
+    Gender gender = 2;
+    repeated uint32 photo_ids = 3;
+    map<string, bool> permissions = 4;
+  }
+
+  User user = 1;
+}
+
+message Response {
+  message User {
+    uint32 id = 1;
+    bool admin = 4;
+    string name = 2;
+  }
+
+  User user = 1;
+}
