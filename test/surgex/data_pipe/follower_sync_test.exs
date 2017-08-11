@@ -39,13 +39,13 @@ defmodule Surgex.DataPipe.FollowerSyncTest do
   test "success" do
     assert capture_log(fn ->
       assert FollowerSync.call(RepoMock, "1") == :ok
-    end) =~ ~r/Follower sync acquired after 0ms/
+    end) =~ ~r/Follower sync acquired after \dms/
   end
 
   test "success via __using__" do
     assert capture_log(fn ->
       assert RepoWithUsingMock.ensure_follower_sync("1") == :ok
-    end) =~ ~r/Follower sync acquired after 0ms/
+    end) =~ ~r/Follower sync acquired after \dms/
   end
 
   test "failure" do
