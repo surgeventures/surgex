@@ -1,8 +1,11 @@
 # Changelog
 
-## 2.9.0
+## 2.10.0
 
 - Added `Surgex.RPC`
+
+## 2.9.0
+
 - Added `Surgex.Guide.CodeStyle.typespec_alias_usage/0` rule
 
 ## 2.8.0
