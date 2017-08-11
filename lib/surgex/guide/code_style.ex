@@ -1362,4 +1362,40 @@ defmodule Surgex.Guide.CodeStyle do
 
   """
   def pipe_chain_alignment, do: nil
+
+  @doc """
+  Modules referenced in typespecs should be aliased.
+
+  ## Reasoning
+
+  When writing typespecs, it is often necessary to reference a module in some nested naming
+  scheme. One could reference it with the absolute name, e.g. `Application.Accounting.Invoice.t`,
+  but this makes typespecs rather lengthy.
+
+  Using aliased modules makes typespecs easier to read and, as an added benefit, it allows for an
+  in-front declaration of module dependencies. This way we can easily spot breaches in module
+  isolation.
+
+  ## Examples
+
+  Preferred:
+
+      alias VideoApp.Recommendations.{Rating, Recommendation, User}
+
+      @spec calculate_recommendations(User.t, [Rating.t]) :: [Recommendation.t]
+      def calculate_recommendations(user, ratings) do
+        # ...
+      end
+
+  Way too long:
+
+      @spec calculate_recommendations(
+        VideoApp.Recommendations.User.t,
+        [VideoApp.Recommendations.Rating.t]
+      ) :: [VideoApp.Recommendations.Recommendation.t]
+      def calculate_recommendations(user, ratings) do
+        # ...
+      end
+  """
+  def aliases_in_typespecs, do: nil
 end
