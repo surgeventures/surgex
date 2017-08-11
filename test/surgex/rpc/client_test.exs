@@ -23,6 +23,7 @@ end
 
 defmodule Surgex.RPC.ClientTest do
   use ExUnit.Case
+  alias Mix.Config
   alias Surgex.RPC.{
     CallError,
     SampleClient,
@@ -190,7 +191,7 @@ defmodule Surgex.RPC.ClientTest do
     end
 
     test "custom adapter error with proto macro" do
-      Mix.Config.persist(surgex: [
+      Config.persist(surgex: [
         rpc_mocking_enabled: false
       ])
 
@@ -200,13 +201,13 @@ defmodule Surgex.RPC.ClientTest do
         SampleClientWithCustomAdapter.call!(request)
       end
     after
-      Mix.Config.persist(surgex: [
+      Config.persist(surgex: [
         rpc_mocking_enabled: true
       ])
     end
 
     test "custom adapter error with service macro" do
-      Mix.Config.persist(surgex: [
+      Config.persist(surgex: [
         rpc_mocking_enabled: false
       ])
 
@@ -216,13 +217,13 @@ defmodule Surgex.RPC.ClientTest do
         SampleClientWithCustomAdapter.call!(request)
       end
     after
-      Mix.Config.persist(surgex: [
+      Config.persist(surgex: [
         rpc_mocking_enabled: true
       ])
     end
 
     test "HTTP adapter error" do
-      Mix.Config.persist(surgex: [
+      Config.persist(surgex: [
         rpc_mocking_enabled: false
       ])
 
@@ -232,7 +233,7 @@ defmodule Surgex.RPC.ClientTest do
         SampleClient.call!(request)
       end
     after
-      Mix.Config.persist(surgex: [
+      Config.persist(surgex: [
         rpc_mocking_enabled: true
       ])
     end

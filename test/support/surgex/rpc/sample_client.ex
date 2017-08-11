@@ -6,13 +6,6 @@ defmodule Surgex.RPC.SampleClient do
   transport :http, url: "http://example.com/rpc", secret: "xyz"
 
   proto "./test/support/surgex/rpc/create_user.proto"
-
-  service proto: Path.expand("./create_user.proto", __DIR__),
-          service_name: "create_user_b",
-          service_mod: __MODULE__.CreateUserB,
-          request_mod: __MODULE__.CreateUserB.Request,
-          response_mod: __MODULE__.CreateUserB.Response,
-          mock_mod: __MODULE__.CreateUserB.Mock
 end
 
 defmodule Surgex.RPC.SampleClient.CreateUserMock do
