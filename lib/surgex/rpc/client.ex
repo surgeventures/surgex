@@ -1,4 +1,8 @@
 defmodule Surgex.RPC.Client do
+  @moduledoc """
+  Calls services in remote systems.
+  """
+
   alias Surgex.RPC.{
     CallError,
     HTTPAdapter,
