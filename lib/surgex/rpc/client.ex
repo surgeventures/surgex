@@ -7,6 +7,7 @@ defmodule Surgex.RPC.Client do
     CallError,
     HTTPAdapter,
     Processor,
+    TransportError,
   }
 
   defmacro __using__(_opts) do
@@ -140,6 +141,8 @@ defmodule Surgex.RPC.Client do
     if Application.get_env(:surgex, :rpc_mocking_enabled) do
       Processor.call(mock_mod, request_buf, request_mod, response_mod)
     end
+  rescue
+    error -> raise TransportError, adapter: :mock, context: error
   end
 
   defp call_transport(request_tuple, opts) do

@@ -10,6 +10,8 @@ message Request {
 
     string name = 1;
     Gender gender = 2;
+    repeated uint32 photo_ids = 3;
+    map<string, bool> permissions = 4;
   }
 
   User user = 1;
@@ -17,14 +19,9 @@ message Request {
 
 message Response {
   message User {
-    enum Gender {
-      MALE = 0;
-      FEMALE = 1;
-    }
-
     uint32 id = 1;
+    bool admin = 4;
     string name = 2;
-    Gender gender = 3;
   }
 
   User user = 1;

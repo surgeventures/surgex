@@ -10,4 +10,7 @@ defmodule Surgex.RPC.TransportError do
   def message(%__MODULE__{adapter: HTTPAdapter, context: status_code}) do
     "HTTP request failed with code #{status_code}"
   end
+  def message(%__MODULE__{adapter: :mock, context: error}) do
+    "Mock failed with #{Exception.format_banner(:error, error)}"
+  end
 end

@@ -4,7 +4,8 @@ if Mix.env == :test do
   config :logger, level: :info
 
   config :surgex,
-    ecto_repos: [Surgex.Repo, Surgex.ForeignRepo]
+    ecto_repos: [Surgex.Repo, Surgex.ForeignRepo],
+    rpc_mocking_enabled: true
 
   config :surgex, :config_test,
     filled_key: "filled value",

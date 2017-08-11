@@ -17,7 +17,7 @@ defmodule Surgex.RPC.Processor do
       {:error, errors} when is_list(errors) ->
         {:error, Enum.map(errors, &normalize_error/1)}
       {:error, error} ->
-        {:error, normalize_error(error)}
+        {:error, [normalize_error(error)]}
     end
   end
 

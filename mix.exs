@@ -59,6 +59,7 @@ defmodule Surgex.Mixfile do
       {:ex_machina, "~> 2.0", only: :test},
       {:excoveralls, "~> 0.7", only: :test},
       {:inch_ex, "~> 0.5", only: [:dev, :test]},
+      {:mock, "~> 0.2.1", only: :test},
       {:postgrex, ">= 0.0.0", only: :test},
     ] ++ optional_deps()
   end
