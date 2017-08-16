@@ -9,23 +9,19 @@ defmodule Surgex.RPC.Client do
       defmodule MyProject.RemoteRPC do
         use Surgex.RPC.Client
 
-        # first, configure your transport of choice
-        transport :http,
-          url: "https://app.example.com/rpc",
-          secret: "my-rpc-secret"
-
         # then, declare services with a convention driven config
-        proto Path.expand("./proto/create_user.proto", __DIR__)
-        proto Path.expand("./proto/create_admin.proto", __DIR__)
+        proto :create_user
 
-        # ...or with a customized config (equivalent of first proto call above)
-        service proto: Path.expand("./proto/create_user.proto", __DIR__),
+        # ...or with custom proto file name (equivalent of previous call above)
+        proto Path.expand("./proto/create_user.proto", __DIR__)
+
+        # ...or with a completely custom config (equivalent of previous calls above)
+        service proto: [from: Path.expand("./proto/create_user.proto", __DIR__)],
                 service_name: "create_user",
                 service_mod: __MODULE__.CreateUser,
                 request_mod: __MODULE__.CreateUser.Request,
                 response_mod: __MODULE__.CreateUser.Response,
                 mock_mod: __MODULE__.CreateUserMock
-
       end
 
   Having that, you can call your RPC as follows:
@@ -110,6 +106,7 @@ defmodule Surgex.RPC.Client do
 
   """
 
+  alias Surgex.Config
   alias Surgex.RPC.{
     CallError,
     HTTPAdapter,
@@ -117,7 +114,9 @@ defmodule Surgex.RPC.Client do
     TransportError,
   }
 
-  defmacro __using__(_opts) do
+  defmacro __using__(opts) do
+    proto_root = Keyword.get(opts, :proto_root, "./proto")
+
     quote do
       import Surgex.RPC.Client, only: [transport: 1, transport: 2, proto: 1, service: 1]
 
@@ -127,6 +126,22 @@ defmodule Surgex.RPC.Client do
 
       def call!(request_struct) do
         do_call(request_struct, :call!)
+      end
+
+      def __proto_root__ do
+        unquote(proto_root)
+      end
+
+      def __transport_opts__ do
+        dsl_opts = try do
+          apply(__MODULE__, :__transport_opts_dsl__, [])
+        rescue
+          UndefinedFunctionError -> []
+        end
+
+        config_opts = Config.get(__MODULE__, :transport) || []
+
+        Keyword.merge(config_opts, dsl_opts)
       end
 
       defp do_call(request_struct = %{__struct__: request_mod}, method) do
@@ -146,25 +161,42 @@ defmodule Surgex.RPC.Client do
 
   - `Surgex.RPC.HTTPAdapter`
 
-  You may also use your own adapter by passing it as first argument.
-
-  """
+  You may also use your own adapter module by passing it as first argument.
+    """
   defmacro transport(adapter, adapter_opts \\ []) do
     opts = Keyword.put(adapter_opts, :adapter, adapter)
 
     quote do
-      def __transport_opts__, do: unquote(opts)
+      def __transport_opts_dsl__, do: unquote(opts)
     end
   end
 
   @doc """
-  Attaches a service based on a given proto file.
+  Attaches a service inferring its options from given service name.
 
   This is an equivalent of `service proto: proto` call.
   """
-  defmacro proto(proto) do
+  defmacro proto(name) do
+    {proto, service_name} = case name do
+      atom when is_atom(atom) ->
+        {
+          [from: Path.expand("../proto/#{name}.proto", __CALLER__.file)],
+          to_string(name)
+        }
+      string when is_binary(string) ->
+        {
+          [from: string],
+          string
+          |> Path.basename
+          |> Path.rootname
+        }
+    end
+
     quote do
-      service(proto: unquote(proto))
+      service(
+        proto: unquote(proto),
+        service_name: unquote(service_name),
+      )
     end
   end
 
@@ -173,7 +205,7 @@ defmodule Surgex.RPC.Client do
 
   ## Options
 
-  - `proto`: the `.proto` file that specifies the service's interface
+  - `proto`: options passed to `Protobuf`, usually `[from: "some/proto/file.proto"]`
   - `service_name`: string identifier of the service; defaults to proto file's root name
   - `service_mod`: base module that hosts the proto structures; defaults to camelized service name
     nested in the client module
@@ -192,11 +224,7 @@ defmodule Surgex.RPC.Client do
       |> Code.eval_quoted([], __CALLER__)
       |> elem(0)
 
-    service_name = Keyword.get_lazy(opts, :service_name, fn ->
-      proto
-      |> Path.basename
-      |> Path.rootname
-    end)
+    service_name = Keyword.fetch!(opts, :service_name)
 
     service_mod = case Keyword.fetch(opts, :service_mod) do
       {:ok, value} ->
@@ -241,7 +269,7 @@ defmodule Surgex.RPC.Client do
       defmodule unquote(service_mod) do
         @client_mod client_mod
 
-        use Protobuf, from: unquote(proto)
+        use Protobuf, unquote(proto)
 
         def __service_opts__, do: unquote(service_opts)
       end

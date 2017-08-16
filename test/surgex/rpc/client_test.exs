@@ -11,9 +11,9 @@ defmodule Surgex.RPC.SampleClientWithCustomAdapter do
 
   transport __MODULE__.Adapter, x: "y"
 
-  proto "./test/support/surgex/rpc/empty.proto"
+  proto :empty
 
-  service proto: Path.expand("./../../support/surgex/rpc/empty.proto", __DIR__),
+  service proto: [from: Path.expand("./proto/empty.proto", __DIR__)],
           service_name: "create_user",
           service_mod: __MODULE__.EmptyService,
           request_mod: __MODULE__.EmptyService.Request,

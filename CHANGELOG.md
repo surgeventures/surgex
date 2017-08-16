@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.11.0
+
+- Added support for configuring `Surgex.RPC.HTTPAdapter` via Mix config, powered by `Surgex.Config`
+- Added support for passing service name atom to `Surgex.RPC.Client.proto/1`
+- Added support for passing arbitrary opts to `Protobuf` via `Surgex.RPC.Client.service/1`
+
 ## 2.10.0
 
 - Added `Surgex.RPC`

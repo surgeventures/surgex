@@ -5,7 +5,7 @@ defmodule Surgex.RPC.SampleClient do
 
   transport :http, url: "http://example.com/rpc", secret: "xyz"
 
-  proto "./test/support/surgex/rpc/create_user.proto"
+  proto :create_user
 end
 
 defmodule Surgex.RPC.SampleClient.CreateUserMock do

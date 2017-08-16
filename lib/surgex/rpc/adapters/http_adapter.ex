@@ -4,9 +4,9 @@ defmodule Surgex.RPC.HTTPAdapter do
 
   ## Usage
 
-  In order to use this adapter in you client, use the following code:
+  In order to use this adapter in your client, use the following code:
 
-      defmodule ShedulAPI.CoreRPC do
+      defmodule MyProject.MyRPC do
         use Surgex.RPC.Client
 
         transport :http,
@@ -16,14 +16,29 @@ defmodule Surgex.RPC.HTTPAdapter do
         # ...
       end
 
+  You can also configure the adapter per environment in your Mix config as follows:
+
+      config :my_project, MyProject.MyRPC,
+        transport: [adapter: :http,
+                    url: {:system, "MY_RPC_URL"},
+                    secret: {:system, "MY_RPC_SECRET"}]
+
   """
 
+  alias Surgex.Config
   alias Surgex.RPC.TransportError
 
   @doc false
   def call({service_name, request_buf}, opts) do
-    url = Keyword.fetch!(opts, :url)
-    secret = Keyword.fetch!(opts, :secret)
+    url =
+      opts
+      |> Keyword.fetch!(:url)
+      |> Config.parse()
+
+    secret =
+      opts
+      |> Keyword.fetch!(:secret)
+      |> Config.parse()
 
     headers = build_headers(secret)
     request_body = build_request_body(service_name, request_buf)
