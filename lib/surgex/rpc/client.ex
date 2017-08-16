@@ -172,9 +172,9 @@ defmodule Surgex.RPC.Client do
   end
 
   @doc """
-  Attaches a service inferring its options from given service name.
+  Attaches a service inferring its options from given proto name.
 
-  This is an equivalent of `service proto: proto` call.
+  Supports either atom or binary name. Check out moduledoc for `Surgex.RPC.Client` for more info.
   """
   defmacro proto(name) do
     {proto, service_name} = case name do
