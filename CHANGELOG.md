@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.12.0
+
+- Added `Surgex.Parser.SlugParser`
+- Added `Surgex.Parser.SlugOrIdParser`
+
 ## 2.11.0
 
 - Added support for configuring `Surgex.RPC.HTTPAdapter` via Mix config, powered by `Surgex.Config`
