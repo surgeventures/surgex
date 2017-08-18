@@ -41,8 +41,7 @@ defmodule Surgex.RPC.HTTPAdapter do
       |> Config.parse()
 
     headers = build_headers(secret)
-    request_body = build_request_body(request_payload)
-    response_body = make_http_request(url, request_body, headers)
+    response_body = make_http_request(url, request_payload, headers)
 
     response_body
   end
