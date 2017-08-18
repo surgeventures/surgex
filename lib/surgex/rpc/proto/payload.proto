@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+message RequestPayload {
+  string service_name = 1;
+  string request_buf = 2;
+}
+
+message ResponsePayload {
+  message Error {
+    message ErrorPointerItem {
+      string type = 1;
+      string key = 2;
+    }
+
+    string reason = 1;
+    bool reason_as_code = 2;
+    repeated ErrorPointerItem pointer = 3;
+  }
+
+  string response_buf = 1;
+  repeated Error errors = 2;
+}

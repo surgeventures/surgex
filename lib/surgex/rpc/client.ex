@@ -110,6 +110,7 @@ defmodule Surgex.RPC.Client do
   alias Surgex.RPC.{
     CallError,
     HTTPAdapter,
+    Payload,
     Processor,
     TransportError,
   }
@@ -290,11 +291,10 @@ defmodule Surgex.RPC.Client do
     mock_mod = Keyword.fetch!(service_opts, :mock_mod)
 
     request_buf = request_mod.encode(request_struct)
-    request_tuple = {service_name, request_buf}
 
     result =
       call_mock(request_buf, request_mod, response_mod, mock_mod) ||
-      call_transport(request_tuple, transport_opts)
+      call_adapter(service_name, request_buf, transport_opts)
 
     case result do
       {:ok, response_buf} ->
@@ -324,15 +324,17 @@ defmodule Surgex.RPC.Client do
     error -> raise TransportError, adapter: :mock, context: error
   end
 
-  defp call_transport(request_tuple, opts) do
+  defp call_adapter(service_name, request_buf, opts) do
     {adapter, adapter_opts} = Keyword.pop(opts, :adapter)
-
-    case adapter do
+    request_payload_buf = Payload.encode(service_name, request_buf)
+    response_payload_buf = case adapter do
       :http ->
-        HTTPAdapter.call(request_tuple, adapter_opts)
+        HTTPAdapter.call(request_payload_buf, adapter_opts)
       adapter_mod ->
-        adapter_mod.call(request_tuple, adapter_opts)
+        adapter_mod.call(request_payload_buf, adapter_opts)
     end
+
+    Payload.decode(response_payload_buf)
   end
 
   defp handle_non_failing_response({:ok, response}), do: response
