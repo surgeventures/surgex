@@ -45,7 +45,6 @@ defmodule Surgex.RPC.HTTPAdapter do
     response_body = make_http_request(url, request_body, headers)
 
     response_body
-    |> decode_response_body()
   end
 
   defp build_headers(secret) do
@@ -65,9 +64,5 @@ defmodule Surgex.RPC.HTTPAdapter do
     end
 
     response.body
-  end
-
-  defp decode_response_body(response_payload_b64) do
-    Base.decode64!(response_payload_b64)
   end
 end

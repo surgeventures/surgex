@@ -110,8 +110,9 @@ defmodule Surgex.RPC.Client do
   alias Surgex.RPC.{
     CallError,
     HTTPAdapter,
-    Payload,
     Processor,
+    RequestPayload,
+    ResponsePayload,
     TransportError,
   }
 
@@ -326,15 +327,15 @@ defmodule Surgex.RPC.Client do
 
   defp call_adapter(service_name, request_buf, opts) do
     {adapter, adapter_opts} = Keyword.pop(opts, :adapter)
-    request_payload_buf = Payload.encode(service_name, request_buf)
-    response_payload_buf = case adapter do
+    request_payload = RequestPayload.encode(service_name, request_buf)
+    response_payload = case adapter do
       :http ->
-        HTTPAdapter.call(request_payload_buf, adapter_opts)
+        HTTPAdapter.call(request_payload, adapter_opts)
       adapter_mod ->
-        adapter_mod.call(request_payload_buf, adapter_opts)
+        adapter_mod.call(request_payload, adapter_opts)
     end
 
-    Payload.decode(response_payload_buf)
+    ResponsePayload.decode(response_payload)
   end
 
   defp handle_non_failing_response({:ok, response}), do: response

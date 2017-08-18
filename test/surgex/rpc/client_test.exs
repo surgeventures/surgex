@@ -32,7 +32,6 @@ defmodule Surgex.RPC.ClientTest do
   }
   alias Surgex.RPC.SampleClient.CreateUser
   alias Surgex.RPC.SampleClientWithCustomAdapter
-  alias Surgex.RPC.Payload.Proto.ResponsePayload
 
   describe "call/1" do
     test "success" do
@@ -230,32 +229,17 @@ defmodule Surgex.RPC.ClientTest do
       ])
 
       mocked_post = fn _, _, _ ->
-        response_payload = %ResponsePayload{
-          errors: [
-            %ResponsePayload.Error{
-              reason: "some_code",
-              reason_as_code: true,
-              pointer: [
-                %ResponsePayload.Error.ErrorPointerItem{
-                  type: "struct",
-                  key: "user"
-                },
-                %ResponsePayload.Error.ErrorPointerItem{
-                  type: "repeated",
-                  key: "0"
-                },
-                %ResponsePayload.Error.ErrorPointerItem{
-                  type: "map",
-                  key: "param"
-                },
-              ]
-            },
-            %ResponsePayload.Error{
-              reason: "some error"
+        response_payload = %{
+          "errors" => [
+            %{
+              "reason" => ":some_code",
+              "pointer" => [["struct", "user"], ["repeated", 0], ["map", "param"]]
+            }, %{
+              "reason" => "some error"
             }
           ]
         }
-        response_body = Base.encode64(ResponsePayload.encode(response_payload))
+        response_body = Poison.encode!(response_payload)
 
         %{
           status_code: 200,
