@@ -3,7 +3,7 @@ defmodule Surgex.Mixfile do
 
   def project do
     [app: :surgex,
-     version: "2.12.0",
+     version: "2.12.1",
      elixir: "~> 1.4",
      elixirc_paths: elixirc_paths(Mix.env),
      build_embedded: Mix.env == :prod,
@@ -81,7 +81,6 @@ defmodule Surgex.Mixfile do
     [
       "deps.get",
       "clean",
-      "compile --warnings-as-errors",
       "test",
     ]
   end

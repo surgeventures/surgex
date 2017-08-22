@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.12.1
+
+- Fixed `Surgex.RPC.Client` to support no services in the client
+- Refactored `Surgex.RPC` for proper payload - transport separation
+
 ## 2.12.0
 
 - Added `Surgex.Parser.SlugParser`
