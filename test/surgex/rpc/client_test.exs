@@ -21,6 +21,14 @@ defmodule Surgex.RPC.SampleClientWithCustomAdapter do
           mock_mod: __MODULE__.EmptyService.Mock
 end
 
+defmodule Surgex.RPC.SampleClientWithoutService do
+  @moduledoc false
+
+  use Surgex.RPC.Client
+
+  transport __MODULE__.Adapter, x: "y"
+end
+
 defmodule Surgex.RPC.ClientTest do
   use ExUnit.Case, async: false
   import Mock

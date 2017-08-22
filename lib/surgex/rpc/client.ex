@@ -146,6 +146,9 @@ defmodule Surgex.RPC.Client do
         Keyword.merge(config_opts, dsl_opts)
       end
 
+      def __service_mod__(request_mod)
+      def __service_mod__(nil), do: nil
+
       defp do_call(request_struct = %{__struct__: request_mod}, method) do
         transport_opts = __transport_opts__()
         service_mod = __service_mod__(request_mod)
