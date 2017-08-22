@@ -52,10 +52,6 @@ defmodule Surgex.RPC.HTTPAdapter do
     ]
   end
 
-  defp build_request_body(request_payload) do
-    Base.encode64(request_payload)
-  end
-
   defp make_http_request(url, body, headers) do
     response = HTTPoison.post!(url, body, headers)
     if response.status_code != 200 do
