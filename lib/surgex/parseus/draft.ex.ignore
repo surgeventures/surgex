@@ -18,10 +18,10 @@ parser =
   |> flatten
 
 case parser do
-  parser = %Parser{result: {id, email, password}} ->
+  parser = %Parser{output: {id, email, password}} ->
     case action(id, email, password) do
-      {:ok, result} ->
-        render(something: result)
+      {:ok, output} ->
+        render(something: output)
       {:error, :email_taken} ->
         put_error(parser, :email, "taken")
     end

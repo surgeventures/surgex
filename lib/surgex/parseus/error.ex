@@ -1,6 +1,5 @@
 defmodule Surgex.Parseus.Error do
-  defstruct key: nil,
-            reason: nil,
+  defstruct reason: nil,
             source: nil,
             info: []
 
