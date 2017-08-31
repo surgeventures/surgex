@@ -10,7 +10,7 @@ defmodule Surgex.Parseus.KeyRenameProcessor do
       |> Keyword.delete(old_key)
       |> Keyword.put(new_key, map_value)
 
-    new_result = case Keyword.fetch(output, old_key) do
+    new_output = case Keyword.fetch(output, old_key) do
       {:ok, value} ->
         output
         |> Keyword.delete(old_key)
@@ -19,6 +19,6 @@ defmodule Surgex.Parseus.KeyRenameProcessor do
         output
     end
 
-    %{px | mapping: new_mapping, output: new_result}
+    %{px | mapping: new_mapping, output: new_output}
   end
 end

@@ -118,6 +118,7 @@ defmodule Surgex.Parseus do
     RequiredValidator,
 
     CastProcessor,
+    InvalidKeyDropProcessor,
     KeyDropProcessor,
     KeyParserProcessor,
     KeyRenameProcessor,
@@ -125,16 +126,24 @@ defmodule Surgex.Parseus do
     ValidationProcessor,
   }
 
+  def add_error(px = %__MODULE__{}, key, error = %Error{}) do
+    update_in px.errors, fn errors -> [{key, error} | errors] end
+  end
+
   def cast(input, fields) do
     CastProcessor.call(input, fields)
   end
 
-  def drop_key(px, key) do
+  def drop(px, key) do
     KeyDropProcessor.call(px, key)
   end
 
-  def rename_key(px, old_key, new_key) do
-    KeyRenameProcessor.call(px, old_key, new_key)
+  def drop_invalid(px) do
+    InvalidKeyDropProcessor.call(px)
+  end
+
+  def get_input_field(%__MODULE__{mapping: mapping}, key) do
+    Keyword.fetch!(mapping, key)
   end
 
   def parse(px, key, parser, opts \\ []) do
@@ -155,6 +164,10 @@ defmodule Surgex.Parseus do
 
   def parse_integer(px, key) do
     parse(px, key, IntegerParser)
+  end
+
+  def rename(px, old_key, new_key) do
+    KeyRenameProcessor.call(px, old_key, new_key)
   end
 
   def validate(px, key, validator, opts \\ []) do
@@ -195,13 +208,5 @@ defmodule Surgex.Parseus do
 
   def validate_required(px, key) do
     validate_all(px, RequiredValidator, key)
-  end
-
-  def add_error(px = %__MODULE__{}, key, error = %Error{}) do
-    update_in px.errors, fn errors -> [{key, error} | errors] end
-  end
-
-  def get_input_field(%__MODULE__{mapping: mapping}, key) do
-    Keyword.fetch!(mapping, key)
   end
 end

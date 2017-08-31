@@ -26,8 +26,8 @@ defmodule Surgex.Parseus.KeyParserProcessor do
   defp call_parser_with_args(parser, args) when is_function(parser), do: apply(parser, args)
 
   defp handle_result({:ok, new_value}, px = %Parseus{output: output}, key, _parser) do
-    new_result = Keyword.put(output, key, new_value)
-    %{px | output: new_result}
+    new_output = Keyword.put(output, key, new_value)
+    %{px | output: new_output}
   end
   defp handle_result(:error, px, key, parser) do
     replace_output_with_error(px, key, source: parser)

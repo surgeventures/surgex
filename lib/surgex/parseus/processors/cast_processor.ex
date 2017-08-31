@@ -4,20 +4,20 @@ defmodule Surgex.Parseus.CastProcessor do
   alias Surgex.Parseus
 
   def call(px = %Parseus{input: input, output: output, mapping: mapping}, fields) do
-    {new_result, new_mapping} = Enum.reduce(fields, {output, mapping}, fn field, {output, mapping} ->
+    {new_output, new_mapping} = Enum.reduce(fields, {output, mapping}, fn field, {output, mapping} ->
       field_key = make_key(field)
       new_mapping = Keyword.put(mapping, field_key, field)
 
       case Access.fetch(input, field) do
         {:ok, value} ->
-          new_result = Keyword.put(output, field_key, value)
-          {new_result, new_mapping}
+          new_output = Keyword.put(output, field_key, value)
+          {new_output, new_mapping}
         :error ->
           {output, new_mapping}
       end
     end)
 
-    %{px | output: new_result, mapping: new_mapping}
+    %{px | output: new_output, mapping: new_mapping}
   end
   def call(input, fields) do
     call(%Parseus{input: input}, fields)
