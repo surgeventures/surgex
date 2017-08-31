@@ -123,6 +123,7 @@ defmodule Surgex.Parseus do
     KeyParserProcessor,
     KeyRenameProcessor,
     KeyValidationProcessor,
+    NestedProcessor,
     ValidationProcessor,
   }
 
@@ -140,6 +141,10 @@ defmodule Surgex.Parseus do
 
   def drop_invalid(px) do
     InvalidKeyDropProcessor.call(px)
+  end
+
+  def from(px, key, proc) do
+    NestedProcessor.call(px, key, proc)
   end
 
   def get_input_key(%__MODULE__{mapping: mapping}, output_key) do

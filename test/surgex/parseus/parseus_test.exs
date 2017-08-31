@@ -109,4 +109,36 @@ defmodule Surgex.ParseusTest do
     assert "license-agreement" ==
       get_input_key(px, :agreement)
   end
+
+  test "nested success" do
+    import Parseus
+
+    input = %{
+      data: %{
+        id: 123,
+        attributes: %{
+          "name" => "Mike"
+        }
+      }
+    }
+
+    assert %{output: output, errors: []} =
+      %Parseus{input: input}
+      |> from(:data, fn input ->
+           input
+           |> cast([:id])
+           |> validate_required([:id])
+           |> validate_number(:id, greater_than: 0)
+           |> from(:attributes, fn input ->
+                input
+                |> cast(["name"])
+                |> validate_length(:name, max: 50)
+              end)
+         end)
+
+    assert Enum.sort(output) == [
+      id: 123,
+      name: "Mike",
+    ]
+  end
 end
