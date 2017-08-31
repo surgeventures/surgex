@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.13.0
+
+- Added `Surgex.Parser.ResourceParser`
+
 ## 2.12.1
 
 - Fixed `Surgex.RPC.Client` to support no services in the client
