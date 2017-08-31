@@ -1,8 +1,8 @@
-defmodule Surgex.Parseus.IntegerParser do
+defmodule Surgex.Parseus.FloatParser do
   @moduledoc false
 
   def call(input) when is_binary(input) do
-    case Integer.parse(input) do
+    case Float.parse(input) do
       {output, ""} ->
         {:ok, output}
       _ ->

@@ -103,12 +103,22 @@ defmodule Surgex.Parseus do
   alias __MODULE__.{
     Error,
 
+    BooleanParser,
+    DateParser,
+    EnumParser,
     IntegerParser,
 
+    AcceptanceValidator,
+    BooleanValidator,
+    ExclusionValidator,
+    FormatValidator,
+    InclusionValidator,
+    LengthValidator,
     NumberValidator,
     RequiredValidator,
 
     CastProcessor,
+    KeyDropProcessor,
     KeyParserProcessor,
     KeyRenameProcessor,
     KeyValidationProcessor,
@@ -119,12 +129,28 @@ defmodule Surgex.Parseus do
     CastProcessor.call(input, fields)
   end
 
+  def drop_key(px, key) do
+    KeyDropProcessor.call(px, key)
+  end
+
   def rename_key(px, old_key, new_key) do
     KeyRenameProcessor.call(px, old_key, new_key)
   end
 
   def parse(px, key, parser, opts \\ []) do
     KeyParserProcessor.call(px, key, parser, opts)
+  end
+
+  def parse_boolean(px, key) do
+    parse(px, key, BooleanParser)
+  end
+
+  def parse_date(px, key) do
+    parse(px, key, DateParser)
+  end
+
+  def parse_enum(px, key, allowed_values) do
+    parse(px, key, EnumParser, allowed_values)
   end
 
   def parse_integer(px, key) do
@@ -135,8 +161,32 @@ defmodule Surgex.Parseus do
     KeyValidationProcessor.call(px, key, validator, opts)
   end
 
+  def validate_acceptance(px, key) do
+    validate(px, key, AcceptanceValidator)
+  end
+
+  def validate_boolean(px, key) do
+    validate(px, key, BooleanValidator)
+  end
+
   def validate_all(px, validator, opts \\ []) do
     ValidationProcessor.call(px, validator, opts)
+  end
+
+  def validate_exclusion(px, key, forbidden_values) do
+    validate(px, key, ExclusionValidator, forbidden_values)
+  end
+
+  def validate_format(px, key, format) do
+    validate(px, key, FormatValidator, format)
+  end
+
+  def validate_inclusion(px, key, allowed_values) do
+    validate(px, key, InclusionValidator, allowed_values)
+  end
+
+  def validate_length(px, key, opts) do
+    validate(px, key, LengthValidator, opts)
   end
 
   def validate_number(px, key, opts \\ []) do
