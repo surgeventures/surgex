@@ -1,4 +1,6 @@
 defmodule Surgex.Parseus.KeyRenameProcessor do
+  @moduledoc false
+
   alias Surgex.Parseus
 
   def call(px = %Parseus{output: output, mapping: mapping}, old_key, new_key) do

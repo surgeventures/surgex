@@ -1,4 +1,8 @@
 defmodule Surgex.Parseus.Error do
+  @moduledoc """
+  Represents a failure of parsing or validation.
+  """
+
   defstruct reason: nil,
             source: nil,
             info: []

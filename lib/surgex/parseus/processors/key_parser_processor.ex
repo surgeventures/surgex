@@ -1,4 +1,6 @@
 defmodule Surgex.Parseus.KeyParserProcessor do
+  @moduledoc false
+
   alias Surgex.Parseus
   alias Surgex.Parseus.Error
 

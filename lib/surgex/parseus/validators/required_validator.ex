@@ -1,4 +1,6 @@
 defmodule Surgex.Parseus.RequiredValidator do
+  @moduledoc false
+
   def call(input, key) when is_atom(key), do: call(input, [key])
   def call(input, keys) when is_list(keys) do
     case get_errors(input, keys) do

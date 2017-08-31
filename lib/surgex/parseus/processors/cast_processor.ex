@@ -1,4 +1,6 @@
 defmodule Surgex.Parseus.CastProcessor do
+  @moduledoc false
+
   alias Surgex.Parseus
 
   def call(px = %Parseus{input: input, output: output, mapping: mapping}, fields) do
