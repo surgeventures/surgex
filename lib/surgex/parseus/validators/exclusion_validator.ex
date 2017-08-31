@@ -3,7 +3,7 @@ defmodule Surgex.Parseus.ExclusionValidator do
 
   def call(input, forbidden_values) do
     if input in forbidden_values do
-      :error
+      {:error, nil, forbidden_values: forbidden_values}
     else
       :ok
     end

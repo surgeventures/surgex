@@ -126,8 +126,8 @@ defmodule Surgex.Parseus do
     ValidationProcessor,
   }
 
-  def add_error(px = %__MODULE__{}, key, error = %Error{}) do
-    update_in px.errors, fn errors -> [{key, error} | errors] end
+  def add_error(px = %__MODULE__{}, key, error) do
+    update_in px.errors, fn errors -> [{key, Error.build(error)} | errors] end
   end
 
   def cast(input, fields) do
@@ -142,8 +142,8 @@ defmodule Surgex.Parseus do
     InvalidKeyDropProcessor.call(px)
   end
 
-  def get_input_field(%__MODULE__{mapping: mapping}, key) do
-    Keyword.fetch!(mapping, key)
+  def get_input_key(%__MODULE__{mapping: mapping}, output_key) do
+    Keyword.fetch!(mapping, output_key)
   end
 
   def parse(px, key, parser, opts \\ []) do

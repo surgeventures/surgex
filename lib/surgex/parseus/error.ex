@@ -7,7 +7,10 @@ defmodule Surgex.Parseus.Error do
             source: nil,
             info: []
 
-  def build(opts) do
+  def build(reason) when is_atom(reason) or is_binary(reason), do: build(reason: reason)
+  def build({reason, info}), do: build(reason: reason, info: info)
+  def build(error = %__MODULE__{}), do: error
+  def build(opts) when is_list(opts) do
     struct(__MODULE__, update_in(opts[:source], &parse_source/1))
   end
 

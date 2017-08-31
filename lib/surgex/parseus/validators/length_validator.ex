@@ -12,20 +12,20 @@ defmodule Surgex.Parseus.LengthValidator do
   end
 
   defp validate_is(_input, nil), do: :ok
-  defp validate_is(input, max) do
-    if String.length(input) == max do
+  defp validate_is(input, expected) do
+    if String.length(input) == expected do
       :ok
     else
-      {:error, :not_equal}
+      {:error, :not_equal, expected: expected}
     end
   end
 
   defp validate_min(_input, nil), do: :ok
-  defp validate_min(input, max) do
-    if String.length(input) >= max do
+  defp validate_min(input, min) do
+    if String.length(input) >= min do
       :ok
     else
-      {:error, :not_within_max}
+      {:error, :below_min, min: min}
     end
   end
 
@@ -34,7 +34,7 @@ defmodule Surgex.Parseus.LengthValidator do
     if String.length(input) <= max do
       :ok
     else
-      {:error, :not_within_min}
+      {:error, :above_max, max: max}
     end
   end
 end

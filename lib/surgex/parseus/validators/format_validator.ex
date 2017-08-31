@@ -5,7 +5,7 @@ defmodule Surgex.Parseus.FormatValidator do
     if String.match?(input, format) do
       :ok
     else
-      :error
+      {:error, nil, format: format}
     end
   end
 end

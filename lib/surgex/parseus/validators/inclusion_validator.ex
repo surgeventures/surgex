@@ -5,7 +5,7 @@ defmodule Surgex.Parseus.InclusionValidator do
     if input in allowed_values do
       :ok
     else
-      :error
+      {:error, nil, allowed_values: allowed_values}
     end
   end
 end
