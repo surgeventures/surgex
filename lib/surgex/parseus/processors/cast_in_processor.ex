@@ -3,7 +3,6 @@ defmodule Surgex.Parseus.CastInProcessor do
 
   alias Surgex.Parseus
 
-  def call(px, input_keys, proc, output_key \\ nil)
   def call(px, input_key, proc, output_key) when not(is_list(input_key)) do
     call(px, [input_key], proc, output_key)
   end

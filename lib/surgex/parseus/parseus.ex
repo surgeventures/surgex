@@ -140,11 +140,7 @@ defmodule Surgex.Parseus do
     CastAllInProcessor.call(input, input_keys, proc, output_key)
   end
 
-  def cast_in(input, input_key, proc) do
-    CastInProcessor.call(input, input_key, proc)
-  end
-
-  def cast_in(input, input_key, output_key, proc) do
+  def cast_in(input, input_key, output_key \\ nil, proc) do
     CastInProcessor.call(input, input_key, proc, output_key)
   end
 
