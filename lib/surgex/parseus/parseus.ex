@@ -118,12 +118,13 @@ defmodule Surgex.Parseus do
     RequiredValidator,
 
     CastProcessor,
+    CastAllInProcessor,
+    CastInProcessor,
     InvalidKeyDropProcessor,
     KeyDropProcessor,
     KeyParserProcessor,
     KeyRenameProcessor,
     KeyValidationProcessor,
-    NestedProcessor,
     ValidationProcessor,
   }
 
@@ -131,8 +132,20 @@ defmodule Surgex.Parseus do
     update_in px.errors, fn errors -> [{key, Error.build(error)} | errors] end
   end
 
-  def cast(input, fields) do
-    CastProcessor.call(input, fields)
+  def cast(input, input_keys) do
+    CastProcessor.call(input, input_keys)
+  end
+
+  def cast_all_in(input, input_keys, output_key, proc) do
+    CastAllInProcessor.call(input, input_keys, proc, output_key)
+  end
+
+  def cast_in(input, input_key, proc) do
+    CastInProcessor.call(input, input_key, proc)
+  end
+
+  def cast_in(input, input_key, output_key, proc) do
+    CastInProcessor.call(input, input_key, proc, output_key)
   end
 
   def drop(px, key) do
@@ -141,10 +154,6 @@ defmodule Surgex.Parseus do
 
   def drop_invalid(px) do
     InvalidKeyDropProcessor.call(px)
-  end
-
-  def from(px, key, proc) do
-    NestedProcessor.call(px, key, proc)
   end
 
   def get_input_key(%__MODULE__{mapping: mapping}, output_key) do

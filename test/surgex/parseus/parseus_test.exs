@@ -1,6 +1,6 @@
 defmodule Surgex.ParseusTest do
   use ExUnit.Case
-  alias Surgex.Parseus
+  import Surgex.Parseus
   alias Surgex.Parseus.Error
 
   @long_text "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor " <>
@@ -11,8 +11,6 @@ defmodule Surgex.ParseusTest do
     "est laborum."
 
   test "basic success" do
-    import Parseus
-
     input = %{
       "name" => "Mike",
       "email" => "mike@example.com",
@@ -23,28 +21,8 @@ defmodule Surgex.ParseusTest do
       "notes" => "Please don't send me e-mails!",
     }
 
-    assert %{output: output, errors: []} =
-      input
-      |> cast(["name", "email", "type", "license-agreement", "age", "birth-date", "notes"])
-      |> rename(:license_agreement, :agreement)
-      |> validate_required([:name, :email, :type, :agreement])
-      |> validate_length(:name, max: 50)
-      |> validate_format(:email, ~r/^.*@example\.com$/)
-      |> validate_length(:email, max: 100)
-      |> parse_enum(:type, ["regular", "admin", "super-admin"])
-      |> validate_inclusion(:type, [:regular, :admin])
-      |> parse_boolean(:agreement)
-      |> validate_boolean(:agreement)
-      |> validate_acceptance(:agreement)
-      |> drop(:agreement)
-      |> parse_integer(:age)
-      |> validate_number(:age, type: :integer, greater_than_or_equal_to: 18, less_than: 123)
-      |> parse_date(:birth_date)
-      |> validate_length(:notes, max: 100)
-      |> validate_exclusion(:type, [@long_text])
-      |> drop_invalid()
-
-    assert Enum.sort(output) == [
+    assert %{output: output, errors: []} = parse_basic(input)
+    assert sort(output) == [
       age: 21,
       birth_date: ~D[1950-02-15],
       email: "mike@example.com",
@@ -55,8 +33,6 @@ defmodule Surgex.ParseusTest do
   end
 
   test "basic failure" do
-    import Parseus
-
     input = %{
       "email" => "mike",
       "type" => "something-else",
@@ -67,30 +43,9 @@ defmodule Surgex.ParseusTest do
       "notes" => @long_text,
     }
 
-    assert px = %{output: output, errors: errors} =
-      input
-      |> cast(["name", "email", "type", "license-agreement", "age", "birth-date", "notes"])
-      |> rename(:license_agreement, :agreement)
-      |> validate_required([:name, :email, :type, :agreement])
-      |> validate_length(:name, max: 50)
-      |> validate_format(:email, ~r/^.*@example\.com$/)
-      |> validate_length(:email, max: 100)
-      |> add_error(:email, :taken)
-      |> parse_enum(:type, ["regular", "admin", "super-admin"])
-      |> validate_inclusion(:type, [:regular, :admin])
-      |> parse_boolean(:agreement)
-      |> validate_boolean(:agreement)
-      |> validate_acceptance(:agreement)
-      |> drop(:agreement)
-      |> parse_integer(:age)
-      |> validate_number(:age, type: :integer, greater_than_or_equal_to: 18, less_than: 123)
-      |> parse_date(:birth_date)
-      |> validate_length(:notes, max: 100)
-      |> validate_exclusion(:notes, [@long_text])
-      |> drop_invalid()
-
-    assert Enum.sort(output) == []
-    assert Enum.sort(errors) == [
+    assert px = %{output: output, errors: errors} = parse_basic(input)
+    assert sort(output) == []
+    assert sort(errors) == [
       age: %Error{
         source: :number_validator,
         reason: :not_greater_than_or_equal_to,
@@ -98,7 +53,6 @@ defmodule Surgex.ParseusTest do
       },
       agreement: %Error{source: :acceptance_validator},
       birth_date: %Error{source: :date_parser},
-      email: %Error{reason: :taken},
       email: %Error{source: :format_validator, info: [format: ~r/^.*@example\.com$/]},
       name: %Error{source: :required_validator},
       notes: %Error{source: :exclusion_validator, info: [forbidden_values: [@long_text]]},
@@ -106,39 +60,158 @@ defmodule Surgex.ParseusTest do
       type: %Error{source: :enum_parser}
     ]
 
-    assert "license-agreement" ==
-      get_input_key(px, :agreement)
+    assert get_input_key(px, :agreement) == "license-agreement"
   end
 
   test "nested success" do
-    import Parseus
-
     input = %{
       data: %{
-        id: 123,
+        type: "users",
+        id: 1,
         attributes: %{
           "name" => "Mike"
+        },
+        relationships: %{
+          "avatar" => %{
+            data: %{
+              type: "user-avatars",
+              id: 2,
+              attributes: %{
+                "url" => "http://example.com/avatar.jpg"
+              }
+            }
+          },
+          "accounts" => %{
+            data: [
+              %{
+                type: "user-accounts",
+                attributes: %{
+                  "provider" => "facebook",
+                  "uid" => 300
+                }
+              },
+              %{
+                type: "user-accounts",
+                attributes: %{
+                  "provider" => "twitter",
+                  "uid" => 400
+                }
+              }
+            ]
+          }
         }
       }
     }
 
-    assert %{output: output, errors: []} =
-      %Parseus{input: input}
-      |> from(:data, fn input ->
-           input
-           |> cast([:id])
-           |> validate_required([:id])
-           |> validate_number(:id, greater_than: 0)
-           |> from(:attributes, fn input ->
-                input
-                |> cast(["name"])
-                |> validate_length(:name, max: 50)
-              end)
-         end)
-
-    assert Enum.sort(output) == [
-      id: 123,
+    assert %{output: output, errors: []} = parse_nested(input)
+    assert sort(output) == [
+      accounts: [
+        [provider: "facebook", uid: 300],
+        [provider: "twitter", uid: 400],
+      ],
+      avatar: [
+        id: 2,
+        url: "http://example.com/avatar.jpg",
+      ],
+      id: 1,
       name: "Mike",
     ]
   end
+
+  test "nested failure" do
+    input = %{
+      data: %{
+        id: -1,
+        attributes: %{
+          "name" => @long_text
+        },
+      }
+    }
+
+    assert px = %{output: output, errors: errors} = parse_nested(input)
+    assert sort(output) == []
+    assert sort(errors) == [
+      id: %Error{source: :number_validator, reason: :not_greater_than, info: [min: 0]},
+      name: %Error{source: :length_validator, reason: :above_max, info: [max: 50]},
+    ]
+    assert get_input_key(px, :id) == [:data, :id]
+    assert get_input_key(px, :name) == [:data, :attributes, "name"]
+  end
+
+  defp parse_basic(input) do
+    input
+    |> cast(["name", "email", "type", "license-agreement", "age", "birth-date", "notes"])
+    |> rename(:license_agreement, :agreement)
+    |> validate_required([:name, :email, :type, :agreement])
+    |> validate_length(:name, max: 50)
+    |> validate_format(:email, ~r/^.*@example\.com$/)
+    |> validate_length(:email, max: 100)
+    |> parse_enum(:type, ["regular", "admin", "super-admin"])
+    |> validate_inclusion(:type, [:regular, :admin])
+    |> parse_boolean(:agreement)
+    |> validate_boolean(:agreement)
+    |> validate_acceptance(:agreement)
+    |> drop(:agreement)
+    |> parse_integer(:age)
+    |> validate_number(:age, type: :integer, greater_than_or_equal_to: 18, less_than: 123)
+    |> parse_date(:birth_date)
+    |> validate_length(:notes, max: 100)
+    |> validate_exclusion(:notes, [@long_text])
+    |> drop_invalid()
+  end
+
+  defp parse_nested(input) do
+    input
+    |> cast_in(:data, fn input ->
+         input
+         |> cast([:id, :type])
+         |> validate_required([:id])
+         |> validate_number(:id, greater_than: 0)
+         |> validate_inclusion(:type, ["users"])
+         |> drop(:type)
+         |> cast_in(:attributes, fn input ->
+              input
+              |> cast(["name"])
+              |> validate_length(:name, max: 50)
+            end)
+         |> cast_in([:relationships, "avatar", :data], :avatar, fn input ->
+              input
+              |> cast([:id, :type])
+              |> validate_required([:id])
+              |> validate_number(:id, greater_than: 0)
+              |> validate_inclusion(:type, ["user-avatars"])
+              |> drop(:type)
+              |> cast_in(:attributes, fn input ->
+                   input
+                   |> cast(["url"])
+                   |> validate_length(:url, max: 50)
+                 end)
+            end)
+         |> cast_all_in([:relationships, "accounts", :data, Access.all()], :accounts, fn input ->
+              input
+              |> cast([:type])
+              |> validate_inclusion(:type, ["user-accounts"])
+              |> drop(:type)
+              |> cast_in(:attributes, fn input ->
+                   input
+                   |> cast(["provider", "uid"])
+                   |> validate_required(:provider)
+                   |> validate_inclusion(:provider, ["facebook", "twitter"])
+                   |> validate_number(:uid)
+                 end)
+            end)
+       end)
+    |> drop_invalid()
+  end
+
+  def sort(struct = %{__struct__: _}), do: struct
+  def sort(enum) when is_list(enum) or is_map(enum) do
+    enum
+    |> Enum.sort
+    |> Enum.map(fn
+         {key, value} -> {key, sort(value)}
+         value -> sort(value)
+       end)
+  end
+  def sort(any), do: any
 end
