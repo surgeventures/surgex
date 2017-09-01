@@ -1,9 +1,9 @@
 defmodule Surgex.Parseus.RenameProcessor do
   @moduledoc false
 
-  alias Surgex.Parseus
+  alias Surgex.Parseus.Set
 
-  def call(px = %Parseus{output: output, mapping: mapping}, old_key, new_key) do
+  def call(set = %Set{output: output, mapping: mapping}, old_key, new_key) do
     map_value = Keyword.fetch!(mapping, old_key)
     new_mapping =
       mapping
@@ -19,6 +19,6 @@ defmodule Surgex.Parseus.RenameProcessor do
         output
     end
 
-    %{px | mapping: new_mapping, output: new_output}
+    %{set | mapping: new_mapping, output: new_output}
   end
 end

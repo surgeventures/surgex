@@ -43,7 +43,7 @@ defmodule Surgex.ParseusTest do
       "notes" => @long_text,
     }
 
-    assert px = %{output: output, errors: errors} = parse_basic(input)
+    assert set = %{output: output, errors: errors} = parse_basic(input)
     assert sort(output) == []
     assert sort(errors) == [
       age: %Error{
@@ -60,7 +60,7 @@ defmodule Surgex.ParseusTest do
       type: %Error{source: :enum_parser}
     ]
 
-    assert get_input_key(px, :agreement) == "license-agreement"
+    assert get_input_key(set, :agreement) == "license-agreement"
   end
 
   test "nested success" do
@@ -128,14 +128,14 @@ defmodule Surgex.ParseusTest do
       }
     }
 
-    assert px = %{output: output, errors: errors} = parse_nested(input)
+    assert set = %{output: output, errors: errors} = parse_nested(input)
     assert sort(output) == []
     assert sort(errors) == [
       id: %Error{source: :number_validator, reason: :not_greater_than, info: [min: 0]},
       name: %Error{source: :length_validator, reason: :above_max, info: [max: 50]},
     ]
-    assert get_input_key(px, :id) == [:data, :id]
-    assert get_input_key(px, :name) == [:data, :attributes, "name"]
+    assert get_input_key(set, :id) == [:data, :id]
+    assert get_input_key(set, :name) == [:data, :attributes, "name"]
   end
 
   defp parse_basic(input) do
@@ -162,46 +162,59 @@ defmodule Surgex.ParseusTest do
 
   defp parse_nested(input) do
     input
-    |> cast_in(:data, fn input ->
-         input
-         |> cast([:id, :type])
-         |> validate_required([:id])
-         |> validate_number(:id, greater_than: 0)
-         |> validate_inclusion(:type, ["users"])
-         |> drop(:type)
-         |> cast_in(:attributes, fn input ->
-              input
-              |> cast(["name"])
-              |> validate_length(:name, max: 50)
-            end)
-         |> cast_in([:relationships, "avatar", :data], :avatar, fn input ->
-              input
-              |> cast([:id, :type])
-              |> validate_required([:id])
-              |> validate_number(:id, greater_than: 0)
-              |> validate_inclusion(:type, ["user-avatars"])
-              |> drop(:type)
-              |> cast_in(:attributes, fn input ->
-                   input
-                   |> cast(["url"])
-                   |> validate_length(:url, max: 50)
-                 end)
-            end)
-         |> cast_all_in([:relationships, "accounts", :data, Access.all()], :accounts, fn input ->
-              input
-              |> cast([:type])
-              |> validate_inclusion(:type, ["user-accounts"])
-              |> drop(:type)
-              |> cast_in(:attributes, fn input ->
-                   input
-                   |> cast(["provider", "uid"])
-                   |> validate_required(:provider)
-                   |> validate_inclusion(:provider, ["facebook", "twitter"])
-                   |> validate_number(:uid)
-                 end)
-            end)
-       end)
+    |> cast_in(:data, &parse_nested_data/1)
     |> drop_invalid()
+  end
+
+  defp parse_nested_data(input) do
+    input
+    |> cast([:id, :type])
+    |> validate_required([:id])
+    |> validate_number(:id, greater_than: 0)
+    |> validate_inclusion(:type, ["users"])
+    |> drop(:type)
+    |> cast_in(:attributes, &parse_nested_attrs/1)
+    |> cast_in([:relationships, "avatar", :data], :avatar, &parse_nested_avatar/1)
+    |> cast_all_in([:relationships, "accounts", :data, Access.all()], :accounts,
+         &parse_nested_account/1)
+  end
+
+  defp parse_nested_attrs(input) do
+    input
+    |> cast(["name"])
+    |> validate_length(:name, max: 50)
+  end
+
+  defp parse_nested_avatar(input) do
+    input
+    |> cast([:id, :type])
+    |> validate_required([:id])
+    |> validate_number(:id, greater_than: 0)
+    |> validate_inclusion(:type, ["user-avatars"])
+    |> drop(:type)
+    |> cast_in(:attributes, &parse_nested_avatar_attrs/1)
+  end
+
+  defp parse_nested_avatar_attrs(input) do
+    input
+    |> cast(["url"])
+    |> validate_length(:url, max: 50)
+  end
+
+  defp parse_nested_account(input) do
+    input
+    |> cast([:type])
+    |> validate_inclusion(:type, ["user-accounts"])
+    |> drop(:type)
+    |> cast_in(:attributes, &parse_nested_account_attrs/1)
+  end
+
+  defp parse_nested_account_attrs(input) do
+    input
+    |> cast(["provider", "uid"])
+    |> validate_required(:provider)
+    |> validate_inclusion(:provider, ["facebook", "twitter"])
+    |> validate_number(:uid)
   end
 
   def sort(struct = %{__struct__: _}), do: struct

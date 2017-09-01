@@ -1,14 +1,14 @@
 defmodule Surgex.Parseus.DropProcessor do
   @moduledoc false
 
-  alias Surgex.Parseus
+  alias Surgex.Parseus.Set
 
-  def call(px, keys) when is_list(keys) do
-    Enum.reduce(keys, px, &call(&2, &1))
+  def call(set, keys) when is_list(keys) do
+    Enum.reduce(keys, set, &call(&2, &1))
   end
-  def call(px = %Parseus{output: output}, key) do
+  def call(set = %Set{output: output}, key) do
     new_output = Keyword.delete(output, key)
 
-    %{px | output: new_output}
+    %{set | output: new_output}
   end
 end

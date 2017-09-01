@@ -1,19 +1,18 @@
 defmodule Surgex.Parseus.ValidateProcessor do
   @moduledoc false
 
-  alias Surgex.Parseus
-  alias Surgex.Parseus.Error
+  alias Surgex.Parseus.{Error, Set}
 
-  def call(px, keys, validator, opts) when is_list(keys) do
-    Enum.reduce(keys, px, &call(&2, &1, validator, opts))
+  def call(set, keys, validator, opts) when is_list(keys) do
+    Enum.reduce(keys, set, &call(&2, &1, validator, opts))
   end
-  def call(px = %Parseus{output: output}, key, validator, opts) do
+  def call(set = %Set{output: output}, key, validator, opts) do
     with {:ok, old_value} <- Keyword.fetch(output, key) do
       validator
       |> call_validator(old_value, opts)
-      |> handle_result(px, key, validator)
+      |> handle_result(set, key, validator)
     else
-      _ -> px
+      _ -> set
     end
   end
 
@@ -23,23 +22,23 @@ defmodule Surgex.Parseus.ValidateProcessor do
   defp call_validator_with_args(validator, args) when is_atom(validator), do: apply(validator, :call, args)
   defp call_validator_with_args(validator, args) when is_function(validator), do: apply(validator, args)
 
-  defp handle_result(:ok, px, _, _) do
-    px
+  defp handle_result(:ok, set, _, _) do
+    set
   end
-  defp handle_result(:error, px, key, validator) do
-    put_error(px, key, source: validator)
+  defp handle_result(:error, set, key, validator) do
+    put_error(set, key, source: validator)
   end
-  defp handle_result({:error, reason}, px, key, validator) do
-    put_error(px, key, source: validator, reason: reason)
+  defp handle_result({:error, reason}, set, key, validator) do
+    put_error(set, key, source: validator, reason: reason)
   end
-  defp handle_result({:error, reason, info}, px, key, validator) do
-    put_error(px, key, source: validator, reason: reason, info: info)
+  defp handle_result({:error, reason, info}, set, key, validator) do
+    put_error(set, key, source: validator, reason: reason, info: info)
   end
 
-  defp put_error(px = %Parseus{errors: errors}, key, attrs) do
+  defp put_error(set = %Set{errors: errors}, key, attrs) do
     new_error = Error.build(attrs)
     new_errors = [{key, new_error} | errors]
 
-    %{px | errors: new_errors}
+    %{set | errors: new_errors}
   end
 end

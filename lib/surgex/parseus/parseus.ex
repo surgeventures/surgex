@@ -95,13 +95,9 @@ defmodule Surgex.Parseus do
 
   """
 
-  defstruct input: nil,
-            output: [],
-            errors: [],
-            mapping: []
-
   alias __MODULE__.{
     Error,
+    Set,
 
     BooleanParser,
     DateParser,
@@ -128,8 +124,8 @@ defmodule Surgex.Parseus do
     ValidateProcessor,
   }
 
-  def add_error(px = %__MODULE__{}, key, error) do
-    update_in px.errors, fn errors -> [{key, Error.build(error)} | errors] end
+  def add_error(set = %Set{}, key, error) do
+    update_in set.errors, fn errors -> [{key, Error.build(error)} | errors] end
   end
 
   def cast(input, input_keys) do
@@ -144,79 +140,79 @@ defmodule Surgex.Parseus do
     CastInProcessor.call(input, input_key, proc, output_key)
   end
 
-  def drop(px, key) do
-    DropProcessor.call(px, key)
+  def drop(set, key) do
+    DropProcessor.call(set, key)
   end
 
-  def drop_invalid(px) do
-    DropInvalidProcessor.call(px)
+  def drop_invalid(set) do
+    DropInvalidProcessor.call(set)
   end
 
-  def get_input_key(%__MODULE__{mapping: mapping}, output_key) do
+  def get_input_key(%Set{mapping: mapping}, output_key) do
     Keyword.fetch!(mapping, output_key)
   end
 
-  def parse(px, key, parser, opts \\ []) do
-    ParseProcessor.call(px, key, parser, opts)
+  def parse(set, key, parser, opts \\ []) do
+    ParseProcessor.call(set, key, parser, opts)
   end
 
-  def parse_boolean(px, key) do
-    parse(px, key, BooleanParser)
+  def parse_boolean(set, key) do
+    parse(set, key, BooleanParser)
   end
 
-  def parse_date(px, key) do
-    parse(px, key, DateParser)
+  def parse_date(set, key) do
+    parse(set, key, DateParser)
   end
 
-  def parse_enum(px, key, allowed_values) do
-    parse(px, key, EnumParser, allowed_values)
+  def parse_enum(set, key, allowed_values) do
+    parse(set, key, EnumParser, allowed_values)
   end
 
-  def parse_integer(px, key) do
-    parse(px, key, IntegerParser)
+  def parse_integer(set, key) do
+    parse(set, key, IntegerParser)
   end
 
-  def rename(px, old_key, new_key) do
-    RenameProcessor.call(px, old_key, new_key)
+  def rename(set, old_key, new_key) do
+    RenameProcessor.call(set, old_key, new_key)
   end
 
-  def validate(px, key, validator, opts \\ []) do
-    ValidateProcessor.call(px, key, validator, opts)
+  def validate(set, key, validator, opts \\ []) do
+    ValidateProcessor.call(set, key, validator, opts)
   end
 
-  def validate_acceptance(px, key) do
-    validate(px, key, AcceptanceValidator)
+  def validate_acceptance(set, key) do
+    validate(set, key, AcceptanceValidator)
   end
 
-  def validate_boolean(px, key) do
-    validate(px, key, BooleanValidator)
+  def validate_boolean(set, key) do
+    validate(set, key, BooleanValidator)
   end
 
-  def validate_all(px, validator, opts \\ []) do
-    ValidateAllProcessor.call(px, validator, opts)
+  def validate_all(set, validator, opts \\ []) do
+    ValidateAllProcessor.call(set, validator, opts)
   end
 
-  def validate_exclusion(px, key, forbidden_values) do
-    validate(px, key, ExclusionValidator, forbidden_values)
+  def validate_exclusion(set, key, forbidden_values) do
+    validate(set, key, ExclusionValidator, forbidden_values)
   end
 
-  def validate_format(px, key, format) do
-    validate(px, key, FormatValidator, format)
+  def validate_format(set, key, format) do
+    validate(set, key, FormatValidator, format)
   end
 
-  def validate_inclusion(px, key, allowed_values) do
-    validate(px, key, InclusionValidator, allowed_values)
+  def validate_inclusion(set, key, allowed_values) do
+    validate(set, key, InclusionValidator, allowed_values)
   end
 
-  def validate_length(px, key, opts) do
-    validate(px, key, LengthValidator, opts)
+  def validate_length(set, key, opts) do
+    validate(set, key, LengthValidator, opts)
   end
 
-  def validate_number(px, key, opts \\ []) do
-    validate(px, key, NumberValidator, opts)
+  def validate_number(set, key, opts \\ []) do
+    validate(set, key, NumberValidator, opts)
   end
 
-  def validate_required(px, key) do
-    validate_all(px, RequiredValidator, key)
+  def validate_required(set, key) do
+    validate_all(set, RequiredValidator, key)
   end
 end

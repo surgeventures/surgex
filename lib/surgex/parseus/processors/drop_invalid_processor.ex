@@ -1,12 +1,12 @@
 defmodule Surgex.Parseus.DropInvalidProcessor do
   @moduledoc false
 
-  alias Surgex.Parseus
+  alias Surgex.Parseus.Set
 
-  def call(px = %Parseus{output: output, errors: errors}) do
+  def call(set = %Set{output: output, errors: errors}) do
     error_keys = Keyword.keys(errors)
     new_output = Keyword.drop(output, error_keys)
 
-    %{px | output: new_output}
+    %{set | output: new_output}
   end
 end
