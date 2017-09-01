@@ -117,15 +117,15 @@ defmodule Surgex.Parseus do
     NumberValidator,
     RequiredValidator,
 
-    CastProcessor,
     CastAllInProcessor,
     CastInProcessor,
-    InvalidKeyDropProcessor,
-    KeyDropProcessor,
-    KeyParserProcessor,
-    KeyRenameProcessor,
-    KeyValidationProcessor,
-    ValidationProcessor,
+    CastProcessor,
+    DropInvalidProcessor,
+    DropProcessor,
+    ParseProcessor,
+    RenameProcessor,
+    ValidateAllProcessor,
+    ValidateProcessor,
   }
 
   def add_error(px = %__MODULE__{}, key, error) do
@@ -149,11 +149,11 @@ defmodule Surgex.Parseus do
   end
 
   def drop(px, key) do
-    KeyDropProcessor.call(px, key)
+    DropProcessor.call(px, key)
   end
 
   def drop_invalid(px) do
-    InvalidKeyDropProcessor.call(px)
+    DropInvalidProcessor.call(px)
   end
 
   def get_input_key(%__MODULE__{mapping: mapping}, output_key) do
@@ -161,7 +161,7 @@ defmodule Surgex.Parseus do
   end
 
   def parse(px, key, parser, opts \\ []) do
-    KeyParserProcessor.call(px, key, parser, opts)
+    ParseProcessor.call(px, key, parser, opts)
   end
 
   def parse_boolean(px, key) do
@@ -181,11 +181,11 @@ defmodule Surgex.Parseus do
   end
 
   def rename(px, old_key, new_key) do
-    KeyRenameProcessor.call(px, old_key, new_key)
+    RenameProcessor.call(px, old_key, new_key)
   end
 
   def validate(px, key, validator, opts \\ []) do
-    KeyValidationProcessor.call(px, key, validator, opts)
+    ValidateProcessor.call(px, key, validator, opts)
   end
 
   def validate_acceptance(px, key) do
@@ -197,7 +197,7 @@ defmodule Surgex.Parseus do
   end
 
   def validate_all(px, validator, opts \\ []) do
-    ValidationProcessor.call(px, validator, opts)
+    ValidateAllProcessor.call(px, validator, opts)
   end
 
   def validate_exclusion(px, key, forbidden_values) do

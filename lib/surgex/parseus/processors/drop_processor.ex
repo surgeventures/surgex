@@ -1,4 +1,4 @@
-defmodule Surgex.Parseus.KeyDropProcessor do
+defmodule Surgex.Parseus.DropProcessor do
   @moduledoc false
 
   alias Surgex.Parseus

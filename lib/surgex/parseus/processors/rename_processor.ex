@@ -1,4 +1,4 @@
-defmodule Surgex.Parseus.KeyRenameProcessor do
+defmodule Surgex.Parseus.RenameProcessor do
   @moduledoc false
 
   alias Surgex.Parseus
