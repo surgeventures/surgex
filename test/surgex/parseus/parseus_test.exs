@@ -116,6 +116,7 @@ defmodule Surgex.ParseusTest do
       id: 1,
       name: "Mike",
     ]
+    assert get_in(output[:accounts], [Access.all(), :uid]) == [300, 400]
   end
 
   test "nested failure" do
