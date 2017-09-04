@@ -1,19 +1,17 @@
 defmodule Surgex.Parseus.ValidateAllProcessor do
   @moduledoc false
 
-  alias Surgex.Parseus.{Error, Set}
+  alias Surgex.Parseus.{
+    CallUtil,
+    Error,
+    Set,
+  }
 
   def call(set = %Set{output: output}, validator, opts) do
     validator
-    |> call_validator(output, opts)
+    |> CallUtil.call(output, opts)
     |> handle_result(set, validator)
   end
-
-  defp call_validator(validator, value, []), do: call_validator_with_args(validator, [value])
-  defp call_validator(validator, value, opts), do: call_validator_with_args(validator, [value, opts])
-
-  defp call_validator_with_args(validator, args) when is_atom(validator), do: apply(validator, :call, args)
-  defp call_validator_with_args(validator, args) when is_function(validator), do: apply(validator, args)
 
   defp handle_result(:ok, set, _) do
     set

@@ -3,6 +3,9 @@ defmodule Surgex.Parseus.CastProcessor do
 
   alias Surgex.Parseus.Set
 
+  def call(set, input_key) when not(is_list(input_key)) do
+    call(set, [input_key])
+  end
   def call(set = %Set{input: input, output: output, mapping: mapping}, input_keys) do
     {new_output, new_mapping} = reduce_input_keys(input_keys, input, output, mapping)
 

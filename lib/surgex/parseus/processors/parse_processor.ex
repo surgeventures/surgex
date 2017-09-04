@@ -1,7 +1,11 @@
 defmodule Surgex.Parseus.ParseProcessor do
   @moduledoc false
 
-  alias Surgex.Parseus.{Error, Set}
+  alias Surgex.Parseus.{
+    CallUtil,
+    Error,
+    Set,
+  }
 
   def call(set, keys, parser, opts) when is_list(keys) do
     Enum.reduce(keys, set, &call(&2, &1, parser, opts))
@@ -11,18 +15,12 @@ defmodule Surgex.Parseus.ParseProcessor do
          {:ok, old_value} <- Keyword.fetch(output, key)
     do
       parser
-      |> call_parser(old_value, opts)
+      |> CallUtil.call(old_value, opts)
       |> handle_result(set, key, parser)
     else
       _ -> set
     end
   end
-
-  defp call_parser(parser, value, []), do: call_parser_with_args(parser, [value])
-  defp call_parser(parser, value, opts), do: call_parser_with_args(parser, [value, opts])
-
-  defp call_parser_with_args(parser, args) when is_atom(parser), do: apply(parser, :call, args)
-  defp call_parser_with_args(parser, args) when is_function(parser), do: apply(parser, args)
 
   defp handle_result({:ok, new_value}, set = %Set{output: output}, key, _parser) do
     new_output = Keyword.put(output, key, new_value)

@@ -1,7 +1,6 @@
 defmodule Surgex.Parseus.LengthValidator do
   @moduledoc false
 
-  def call(input, opts \\ [])
   def call(input, opts) do
     with :ok <- validate_is(input, Keyword.get(opts, :is)),
          :ok <- validate_min(input, Keyword.get(opts, :min)),

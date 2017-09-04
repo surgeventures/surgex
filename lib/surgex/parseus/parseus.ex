@@ -96,9 +96,6 @@ defmodule Surgex.Parseus do
   """
 
   alias __MODULE__.{
-    Error,
-    Set,
-
     BooleanParser,
     DateParser,
     EnumParser,
@@ -113,106 +110,139 @@ defmodule Surgex.Parseus do
     NumberValidator,
     RequiredValidator,
 
+    AddErrorProcessor,
     CastAllInProcessor,
     CastInProcessor,
     CastProcessor,
     DropInvalidProcessor,
+    DropNilProcessor,
     DropProcessor,
+    FilterProcessor,
+    JoinProcessor,
+    MapProcessor,
     ParseProcessor,
     RenameProcessor,
     ValidateAllProcessor,
     ValidateProcessor,
+
+    GetInputPathUtil,
+    ResolveUtil,
+    ResolveTupleUtil,
   }
 
-  def add_error(set = %Set{}, key, error) do
-    update_in set.errors, fn errors -> [{key, Error.build(error)} | errors] end
+  def add_error(set, key, error) do
+    AddErrorProcessor.call(set, key, error)
   end
 
-  def cast(input, input_keys) do
-    CastProcessor.call(input, input_keys)
+  def cast(input, input_key_or_keys) do
+    CastProcessor.call(input, input_key_or_keys)
   end
 
-  def cast_all_in(input, input_keys, output_key, proc) do
-    CastAllInProcessor.call(input, input_keys, proc, output_key)
+  def cast_all_in(input, input_key_or_path, output_key, mod_or_func) do
+    CastAllInProcessor.call(input, input_key_or_path, output_key, mod_or_func)
   end
 
-  def cast_in(input, input_key, output_key \\ nil, proc) do
-    CastInProcessor.call(input, input_key, proc, output_key)
+  def cast_in(input, input_key_or_path, output_key \\ nil, mod_or_func) do
+    CastInProcessor.call(input, input_key_or_path, output_key, mod_or_func)
   end
 
-  def drop(set, key) do
-    DropProcessor.call(set, key)
+  def drop(set, key_or_keys) do
+    DropProcessor.call(set, key_or_keys)
   end
 
-  def drop_invalid(set) do
-    DropInvalidProcessor.call(set)
+  def drop_invalid(set, key_or_keys \\ nil) do
+    DropInvalidProcessor.call(set, key_or_keys)
   end
 
-  def get_input_key(%Set{mapping: mapping}, output_key) do
-    Keyword.fetch!(mapping, output_key)
+  def drop_nil(set, key_or_keys \\ nil) do
+    DropNilProcessor.call(set, key_or_keys)
   end
 
-  def parse(set, key, parser, opts \\ []) do
-    ParseProcessor.call(set, key, parser, opts)
+  def filter(set, key_or_keys \\ nil, mod_or_func) do
+    FilterProcessor.call(set, key_or_keys, mod_or_func)
   end
 
-  def parse_boolean(set, key) do
-    parse(set, key, BooleanParser)
+  def join(set, old_keys, new_key, opts \\ []) do
+    JoinProcessor.call(set, old_keys, new_key, opts)
   end
 
-  def parse_date(set, key) do
-    parse(set, key, DateParser)
+  def get_input_path(set, output_key_or_path) do
+    GetInputPathUtil.call(set.mapping, output_key_or_path)
   end
 
-  def parse_enum(set, key, allowed_values) do
-    parse(set, key, EnumParser, allowed_values)
+  def map(set, key_or_keys \\ nil, mod_or_func) do
+    MapProcessor.call(set, key_or_keys, mod_or_func)
   end
 
-  def parse_integer(set, key) do
-    parse(set, key, IntegerParser)
+  def parse(set, key_or_keys, mod_or_func, opts \\ []) do
+    ParseProcessor.call(set, key_or_keys, mod_or_func, opts)
+  end
+
+  def parse_boolean(set, key_or_keys) do
+    parse(set, key_or_keys, BooleanParser)
+  end
+
+  def parse_date(set, key_or_keys) do
+    parse(set, key_or_keys, DateParser)
+  end
+
+  def parse_enum(set, key_or_keys, allowed_values) do
+    parse(set, key_or_keys, EnumParser, allowed_values)
+  end
+
+  def parse_integer(set, key_or_keys) do
+    parse(set, key_or_keys, IntegerParser)
   end
 
   def rename(set, old_key, new_key) do
     RenameProcessor.call(set, old_key, new_key)
   end
 
-  def validate(set, key, validator, opts \\ []) do
-    ValidateProcessor.call(set, key, validator, opts)
+  def resolve(set) do
+    ResolveUtil.call(set)
   end
 
-  def validate_acceptance(set, key) do
-    validate(set, key, AcceptanceValidator)
+  def resolve_tuple(set, key_or_keys) do
+    ResolveTupleUtil.call(set, key_or_keys)
   end
 
-  def validate_boolean(set, key) do
-    validate(set, key, BooleanValidator)
+  def validate(set, key_or_keys, mod_or_func, opts \\ []) do
+    ValidateProcessor.call(set, key_or_keys, mod_or_func, opts)
+  end
+
+  def validate_acceptance(set, key_or_keys) do
+    validate(set, key_or_keys, AcceptanceValidator)
   end
 
   def validate_all(set, validator, opts \\ []) do
     ValidateAllProcessor.call(set, validator, opts)
   end
 
-  def validate_exclusion(set, key, forbidden_values) do
-    validate(set, key, ExclusionValidator, forbidden_values)
+  def validate_boolean(set, key_or_keys) do
+    validate(set, key_or_keys, BooleanValidator)
   end
 
-  def validate_format(set, key, format) do
-    validate(set, key, FormatValidator, format)
+  def validate_exclusion(set, key_or_keys, forbidden_values) do
+    validate(set, key_or_keys, ExclusionValidator, forbidden_values)
   end
 
-  def validate_inclusion(set, key, allowed_values) do
-    validate(set, key, InclusionValidator, allowed_values)
+  def validate_format(set, key_or_keys, format) do
+    validate(set, key_or_keys, FormatValidator, format)
   end
 
-  def validate_length(set, key, opts) do
-    validate(set, key, LengthValidator, opts)
+  def validate_inclusion(set, key_or_keys, allowed_values) do
+    validate(set, key_or_keys, InclusionValidator, allowed_values)
   end
 
-  def validate_number(set, key, opts \\ []) do
-    validate(set, key, NumberValidator, opts)
+  def validate_length(set, key_or_keys, opts) do
+    validate(set, key_or_keys, LengthValidator, opts)
   end
 
-  def validate_required(set, key) do
-    validate_all(set, RequiredValidator, key)
+  def validate_number(set, key_or_keys, opts \\ []) do
+    validate(set, key_or_keys, NumberValidator, opts)
+  end
+
+  def validate_required(set, key_or_keys) do
+    validate_all(set, RequiredValidator, key_or_keys)
   end
 end

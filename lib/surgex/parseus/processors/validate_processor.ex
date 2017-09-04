@@ -1,7 +1,11 @@
 defmodule Surgex.Parseus.ValidateProcessor do
   @moduledoc false
 
-  alias Surgex.Parseus.{Error, Set}
+  alias Surgex.Parseus.{
+    CallUtil,
+    Error,
+    Set,
+  }
 
   def call(set, keys, validator, opts) when is_list(keys) do
     Enum.reduce(keys, set, &call(&2, &1, validator, opts))
@@ -9,18 +13,12 @@ defmodule Surgex.Parseus.ValidateProcessor do
   def call(set = %Set{output: output}, key, validator, opts) do
     with {:ok, old_value} <- Keyword.fetch(output, key) do
       validator
-      |> call_validator(old_value, opts)
+      |> CallUtil.call(old_value, opts)
       |> handle_result(set, key, validator)
     else
       _ -> set
     end
   end
-
-  defp call_validator(validator, value, []), do: call_validator_with_args(validator, [value])
-  defp call_validator(validator, value, opts), do: call_validator_with_args(validator, [value, opts])
-
-  defp call_validator_with_args(validator, args) when is_atom(validator), do: apply(validator, :call, args)
-  defp call_validator_with_args(validator, args) when is_function(validator), do: apply(validator, args)
 
   defp handle_result(:ok, set, _, _) do
     set

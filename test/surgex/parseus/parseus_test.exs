@@ -10,18 +10,18 @@ defmodule Surgex.ParseusTest do
     "sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id " <>
     "est laborum."
 
-  test "basic success" do
-    input = %{
-      "name" => "Mike",
-      "email" => "mike@example.com",
-      "type" => "admin",
-      "license-agreement" => "1",
-      "age" => "21",
-      "birth-date" => "1950-02-15",
-      "notes" => "Please don't send me e-mails!",
-    }
+  @basic_valid_input %{
+    "name" => "Mike",
+    "email" => "mike@example.com",
+    "type" => "admin",
+    "license-agreement" => "1",
+    "age" => "21",
+    "birth-date" => "1950-02-15",
+    "notes" => "Please don't send me e-mails!",
+  }
 
-    assert %{output: output, errors: []} = parse_basic(input)
+  test "basic success" do
+    assert set = %{output: output, errors: []} = parse_basic(@basic_valid_input)
     assert sort(output) == [
       age: 21,
       birth_date: ~D[1950-02-15],
@@ -30,20 +30,23 @@ defmodule Surgex.ParseusTest do
       notes: "Please don't send me e-mails!",
       type: :admin,
     ]
+
+    assert {:ok, _} = resolve(set)
+    assert resolve_tuple(set, [:name, :age]) == {:ok, "Mike", 21}
   end
 
-  test "basic failure" do
-    input = %{
-      "email" => "mike",
-      "type" => "something-else",
-      "license-agreement" => "0",
-      "extra-field" => "abc",
-      "age" => "14",
-      "birth-date" => "123",
-      "notes" => @long_text,
-    }
+  @basic_invalid_input %{
+    "email" => "mike",
+    "type" => "something-else",
+    "license-agreement" => "0",
+    "extra-field" => "abc",
+    "age" => "14",
+    "birth-date" => "123",
+    "notes" => @long_text,
+  }
 
-    assert set = %{output: output, errors: errors} = parse_basic(input)
+  test "basic failure" do
+    assert set = %{output: output, errors: errors} = parse_basic(@basic_invalid_input)
     assert sort(output) == []
     assert sort(errors) == [
       age: %Error{
@@ -60,50 +63,73 @@ defmodule Surgex.ParseusTest do
       type: %Error{source: :enum_parser}
     ]
 
-    assert get_input_key(set, :agreement) == "license-agreement"
+    assert get_input_path(set, :agreement) == ["license-agreement"]
   end
 
-  test "nested success" do
-    input = %{
-      data: %{
-        type: "users",
-        id: 1,
-        attributes: %{
-          "name" => "Mike"
+  defp parse_basic(input) do
+    input
+    |> cast(["name", "email", "type", "license-agreement", "age", "birth-date", "notes", "missing"])
+    |> rename(:license_agreement, :agreement)
+    |> rename(:missing, :other)
+    |> validate_required([:name, :email, :type, :agreement])
+    |> validate_length(:name, max: 50)
+    |> validate_format(:email, ~r/^.*@example\.com$/)
+    |> validate_length(:email, max: 100)
+    |> parse_enum([:type, :non_existing], ["regular", "admin", "super-admin"])
+    |> validate_inclusion(:type, [:regular, :admin])
+    |> parse_boolean(:agreement)
+    |> validate_boolean(:agreement)
+    |> validate_acceptance(:agreement)
+    |> drop(:agreement)
+    |> parse_integer(:age)
+    |> validate_number(:age, type: :integer, greater_than_or_equal_to: 18, less_than: 123)
+    |> parse_date(:birth_date)
+    |> validate_length(:notes, max: 100)
+    |> validate_exclusion(:notes, [@long_text])
+    |> drop_invalid()
+  end
+
+  @nested_valid_input %{
+    data: %{
+      type: "users",
+      id: 1,
+      attributes: %{
+        "name" => "Mike"
+      },
+      relationships: %{
+        "avatar" => %{
+          data: %{
+            type: "user-avatars",
+            id: 2,
+            attributes: %{
+              "url" => "http://example.com/avatar.jpg"
+            }
+          }
         },
-        relationships: %{
-          "avatar" => %{
-            data: %{
-              type: "user-avatars",
-              id: 2,
+        "accounts" => %{
+          data: [
+            %{
+              type: "user-accounts",
               attributes: %{
-                "url" => "http://example.com/avatar.jpg"
+                "provider" => "facebook",
+                "uid" => 300
+              }
+            },
+            %{
+              type: "user-accounts",
+              attributes: %{
+                "provider" => "twitter",
+                "uid" => 400
               }
             }
-          },
-          "accounts" => %{
-            data: [
-              %{
-                type: "user-accounts",
-                attributes: %{
-                  "provider" => "facebook",
-                  "uid" => 300
-                }
-              },
-              %{
-                type: "user-accounts",
-                attributes: %{
-                  "provider" => "twitter",
-                  "uid" => 400
-                }
-              }
-            ]
-          }
+          ]
         }
       }
     }
+  }
 
-    assert %{output: output, errors: []} = parse_nested(input)
+  test "nested success" do
+    assert %{output: output, errors: []} = parse_nested(@nested_valid_input)
     assert sort(output) == [
       accounts: [
         [provider: "facebook", uid: 300],
@@ -119,46 +145,114 @@ defmodule Surgex.ParseusTest do
     assert get_in(output[:accounts], [Access.all(), :uid]) == [300, 400]
   end
 
-  test "nested failure" do
-    input = %{
-      data: %{
-        id: -1,
-        attributes: %{
-          "name" => @long_text
-        },
-      }
-    }
+  @nested_invalid_blank_input %{}
 
-    assert set = %{output: output, errors: errors} = parse_nested(input)
+  test "nested failure with missing nested data" do
+    assert set = %{output: output, errors: errors} = parse_nested(@nested_invalid_blank_input)
     assert sort(output) == []
     assert sort(errors) == [
+      avatar: %Error{source: :required_validator},
+      id: %Error{source: :required_validator},
+      name: %Error{source: :required_validator},
+    ]
+
+    assert get_input_path(set, :id) == [:data, :id]
+    assert get_input_path(set, :name) == [:data, :attributes, "name"]
+  end
+
+  @nested_invalid_partial_data %{
+    data: %{
+      id: -1,
+      attributes: %{
+        "name" => @long_text
+      },
+      relationships: %{
+        "avatar" => %{
+          data: %{
+
+          }
+        }
+      }
+    }
+  }
+
+  test "nested failure with partly present nested data" do
+    assert set = %{output: output, errors: errors} = parse_nested(@nested_invalid_partial_data)
+    assert sort(output) == []
+    assert sort(errors) == [
+      avatar: [
+        id: %Error{source: :required_validator}
+      ],
       id: %Error{source: :number_validator, reason: :not_greater_than, info: [min: 0]},
       name: %Error{source: :length_validator, reason: :above_max, info: [max: 50]},
     ]
-    assert get_input_key(set, :id) == [:data, :id]
-    assert get_input_key(set, :name) == [:data, :attributes, "name"]
+
+    assert get_input_path(set, :avatar) == [:data, :relationships, "avatar", :data]
+    assert get_input_path(set, :id) == [:data, :id]
+    assert get_input_path(set, :name) == [:data, :attributes, "name"]
   end
 
-  defp parse_basic(input) do
-    input
-    |> cast(["name", "email", "type", "license-agreement", "age", "birth-date", "notes"])
-    |> rename(:license_agreement, :agreement)
-    |> validate_required([:name, :email, :type, :agreement])
-    |> validate_length(:name, max: 50)
-    |> validate_format(:email, ~r/^.*@example\.com$/)
-    |> validate_length(:email, max: 100)
-    |> parse_enum(:type, ["regular", "admin", "super-admin"])
-    |> validate_inclusion(:type, [:regular, :admin])
-    |> parse_boolean(:agreement)
-    |> validate_boolean(:agreement)
-    |> validate_acceptance(:agreement)
-    |> drop(:agreement)
-    |> parse_integer(:age)
-    |> validate_number(:age, type: :integer, greater_than_or_equal_to: 18, less_than: 123)
-    |> parse_date(:birth_date)
-    |> validate_length(:notes, max: 100)
-    |> validate_exclusion(:notes, [@long_text])
-    |> drop_invalid()
+  @nested_invalid_array_data %{
+    data: %{
+      id: 1,
+      attributes: %{
+        "name" => "Mike"
+      },
+      relationships: %{
+        "avatar" => %{
+          data: %{
+            id: 2
+          }
+        },
+        "accounts" => %{
+          data: [
+            %{
+              type: "wrong",
+              attributes: %{
+                "provider" => "facebook",
+              }
+            },
+            %{
+              type: "user-accounts",
+              attributes: %{
+                "provider" => "twitter",
+                "uid" => 300
+              }
+            },
+            %{
+              attributes: %{
+                provider: "invalid",
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+
+  test "nested failure in array" do
+    assert set = %{output: output, errors: errors} = parse_nested(@nested_invalid_array_data)
+    assert sort(output) == [
+      avatar: [id: 2],
+      id: 1,
+      name: "Mike",
+    ]
+    assert sort(errors) == [
+      accounts: [
+        {0,
+          type: %Error{info: [allowed_values: ["user-accounts"]], source: :inclusion_validator}
+        },
+        {2,
+          provider: %Error{source: :required_validator}
+        }
+      ]
+    ]
+
+    assert get_input_path(set, :accounts) == [:data, :relationships, "accounts", :data]
+    assert get_input_path(set, [{:accounts, :at, 0}, :type]) ==
+      [:data, :relationships, "accounts", :data, {:at, 0}, :type]
+    assert get_input_path(set, [{:accounts, :at, 2}, :provider]) ==
+      [:data, :relationships, "accounts", :data, {:at, 2}, :attributes, "provider"]
   end
 
   defp parse_nested(input) do
@@ -173,16 +267,17 @@ defmodule Surgex.ParseusTest do
     |> validate_required([:id])
     |> validate_number(:id, greater_than: 0)
     |> validate_inclusion(:type, ["users"])
-    |> drop(:type)
+    |> drop([:type])
     |> cast_in(:attributes, &parse_nested_attrs/1)
     |> cast_in([:relationships, "avatar", :data], :avatar, &parse_nested_avatar/1)
-    |> cast_all_in([:relationships, "accounts", :data, Access.all()], :accounts,
-         &parse_nested_account/1)
+    |> validate_required(:avatar)
+    |> cast_all_in([:relationships, "accounts", :data], :accounts, &parse_nested_account/1)
   end
 
   defp parse_nested_attrs(input) do
     input
     |> cast(["name"])
+    |> validate_required(:name)
     |> validate_length(:name, max: 50)
   end
 
@@ -218,8 +313,338 @@ defmodule Surgex.ParseusTest do
     |> validate_number(:uid)
   end
 
-  def sort(struct = %{__struct__: _}), do: struct
-  def sort(enum) when is_list(enum) or is_map(enum) do
+  describe "add_error/2" do
+    test "with single key" do
+      %{errors: errors} =
+        %{"name" => nil, "email" => "a@b.c"}
+        |> cast(~w{name email other})
+        |> add_error(:email, :taken)
+        |> add_error(:email, {:really_taken, alternatives: "a1234@b.c"})
+        |> add_error(:email, Error.build(:seriously_taken))
+
+      assert sort(errors) == [
+        email: %Error{reason: :seriously_taken},
+        email: %Error{reason: :taken},
+        email: %Error{info: [alternatives: "a1234@b.c"], reason: :really_taken}
+      ]
+    end
+  end
+
+  describe "cast_all_in/4" do
+    test "single key, raw input" do
+      %{output: output} = cast_all_in([
+        a: [
+          [b: 1],
+          [b: 2]
+        ]
+      ], :a, :a, &cast(&1, :b))
+
+      assert sort(output) == [a: [
+        [b: 1],
+        [b: 2]
+      ]]
+    end
+
+    test "misc error in path" do
+      assert_raise(RuntimeError, "some error", fn ->
+        cast_all_in([
+          a: [
+            [b: 1],
+            [b: 2]
+          ]
+        ], [fn _, _, _ -> raise("some error") end], :a, &(&1))
+      end)
+    end
+  end
+
+  describe "drop_invalid/2" do
+    test "with single key" do
+      assert %{output: [name: nil]} =
+        %{"name" => nil, "email" => "a@b.c"}
+        |> cast(~w{name email other})
+        |> add_error(:name, :just_bad)
+        |> add_error(:email, :taken)
+        |> drop_invalid(:email)
+    end
+  end
+
+  describe "drop_nil/2" do
+    test "with all keys" do
+      assert %{output: [email: "a@b.c"]} =
+        %{"name" => nil, "email" => "a@b.c"}
+        |> cast(~w{name email other})
+        |> drop_nil()
+    end
+
+    test "with single key" do
+      assert %{output: [email: "a@b.c"]} =
+        %{"name" => nil, "email" => "a@b.c"}
+        |> cast(~w{name email other})
+        |> drop_nil(:name)
+    end
+
+    test "with multiple keys" do
+      assert %{output: [email: "a@b.c"]} =
+        %{"name" => nil, "email" => "a@b.c"}
+        |> cast(~w{name email other})
+        |> drop_nil(~w{name email}a)
+    end
+  end
+
+  describe "filter/3" do
+    test "with all keys" do
+      assert {:ok, nil, "mike@example.com", nil} =
+        @basic_valid_input
+        |> cast(~w{name email other})
+        |> filter(&String.match?(&1, ~r/@/))
+        |> resolve_tuple(~w{name email other}a)
+    end
+
+    test "with single key" do
+      assert {:ok, "Mike", "mike@example.com", nil} =
+        @basic_valid_input
+        |> cast(~w{name email other})
+        |> filter(:email, &String.match?(&1, ~r/@/))
+        |> resolve_tuple(~w{name email other}a)
+    end
+
+    test "with single missing key" do
+      assert {:ok, "Mike", "mike@example.com", nil} =
+        @basic_valid_input
+        |> cast(~w{name email other})
+        |> filter(:other, &String.match?(&1, ~r/@/))
+        |> resolve_tuple(~w{name email other}a)
+    end
+
+    test "with multiple keys" do
+      assert {:ok, nil, "mike@example.com", nil} =
+        @basic_valid_input
+        |> cast(~w{name email other})
+        |> filter(~w{name email}a, &String.match?(&1, ~r/@/))
+        |> resolve_tuple(~w{name email other}a)
+    end
+  end
+
+  describe "join/4" do
+    test "defaults" do
+      assert set = %{output: output} =
+        @basic_valid_input
+        |> cast(~w{name email})
+        |> join(~w{name email}a, :name_and_email)
+
+      assert output == [
+        name_and_email: ["Mike", "mike@example.com"]
+      ]
+
+      assert get_input_path(set, :name_and_email) == ["email"]
+    end
+
+    test "all_or_nothing = true" do
+      assert %{output: output} =
+        @basic_valid_input
+        |> cast(~w{name other})
+        |> join(~w{name other}a, :name_and_email)
+
+      assert sort(output) == []
+    end
+
+    test "all_or_nothing = false" do
+      assert %{output: output} =
+        @basic_valid_input
+        |> cast(~w{name other})
+        |> join(~w{name other}a, :name_and_email, all_or_nothing: false)
+
+      assert output == [
+        name_and_email: ["Mike", nil]
+      ]
+    end
+
+    test "all_or_nothing = false, drop_missing = true" do
+      assert %{output: output} =
+        @basic_valid_input
+        |> cast(~w{name other})
+        |> join(~w{name other}a, :name_and_email, all_or_nothing: false, drop_missing: true)
+
+      assert output == [
+        name_and_email: ["Mike"]
+      ]
+    end
+  end
+
+  describe "map/3" do
+    test "with all keys" do
+      assert {:ok, "Mik?", "mik?@?xampl?.com", nil} =
+        @basic_valid_input
+        |> cast(~w{name email other})
+        |> map(&String.replace(&1, "e", "?"))
+        |> resolve_tuple(~w{name email other}a)
+    end
+
+    test "with single key" do
+      assert {:ok, "Mik?", "mike@example.com", nil} =
+        @basic_valid_input
+        |> cast(~w{name email other})
+        |> map(:name, &String.replace(&1, "e", "?"))
+        |> resolve_tuple(~w{name email other}a)
+    end
+
+    test "with multiple keys" do
+      assert {:ok, "Mik?", "mike@example.com", nil} =
+        @basic_valid_input
+        |> cast(~w{name email other})
+        |> map(~w{name other}a, &String.replace(&1, "e", "?"))
+        |> resolve_tuple(~w{name email other}a)
+    end
+  end
+
+  describe "parse/4" do
+    test "with parser that returns {error, reason}" do
+      assert %{output: [], errors: [name: %Error{reason: :some_reason}]} =
+        @basic_valid_input
+        |> cast("name")
+        |> parse(:name, fn _ -> {:error, :some_reason} end)
+    end
+
+    test "with parser that returns {error, reason, info}" do
+      assert %{output: [], errors: [name: %Error{reason: :some_reason, info: [x: 1]}]} =
+        @basic_valid_input
+        |> cast("name")
+        |> parse(:name, fn _ -> {:error, :some_reason, x: 1} end)
+    end
+  end
+
+  describe "validate/4" do
+    test "with multiple keys" do
+      assert {:error, %{errors: [name: %{reason: :some_reason}]}} =
+        @basic_valid_input
+        |> cast(~w{name email other})
+        |> validate(~w{name email}a, fn input ->
+             if String.match?(input, ~r/@/) do
+               :ok
+             else
+               {:error, :some_reason}
+             end
+           end)
+        |> resolve_tuple(:name)
+    end
+  end
+
+  describe "validate_all/3" do
+    test "with validator that returns all possible errors" do
+      %{errors: errors} =
+        @basic_valid_input
+        |> cast("name")
+        |> validate_all(fn _ -> :error end)
+        |> validate_all(fn _ -> {:error, :name, :reason_1} end)
+        |> validate_all(fn _ -> {:error, :name, :reason_2, x: 1} end)
+        |> validate_all(fn _ -> {:error, [{:name, :reason_3}, {:name, :reason_4, x: 2}]} end)
+
+      assert sort(errors) == [
+        name: %Error{reason: :reason_1},
+        name: %Error{reason: :reason_3},
+        name: %Error{info: [x: 1], reason: :reason_2},
+        name: %Error{info: [x: 2], reason: :reason_4},
+        nil: %Error{}
+      ]
+    end
+  end
+
+  describe "validate_length/3" do
+    test "is" do
+      assert {:ok, "Mike"} =
+        @basic_valid_input
+        |> cast("name")
+        |> validate_length(:name, is: 4)
+        |> resolve_tuple(:name)
+
+      assert {:error, _} =
+        @basic_valid_input
+        |> cast("name")
+        |> validate_length(:name, is: 5)
+        |> resolve_tuple(:name)
+    end
+
+    test "min" do
+      assert {:ok, "Mike"} =
+        @basic_valid_input
+        |> cast("name")
+        |> validate_length(:name, min: 4)
+        |> resolve_tuple(:name)
+
+      assert {:error, _} =
+        @basic_valid_input
+        |> cast("name")
+        |> validate_length(:name, min: 5)
+        |> resolve_tuple(:name)
+    end
+
+    test "max" do
+      assert {:ok, "Mike"} =
+        @basic_valid_input
+        |> cast("name")
+        |> validate_length(:name, max: 4)
+        |> resolve_tuple(:name)
+
+      assert {:error, _} =
+        @basic_valid_input
+        |> cast("name")
+        |> validate_length(:name, max: 3)
+        |> resolve_tuple(:name)
+    end
+  end
+
+  describe "validate_number/3" do
+    test "equal_to" do
+      assert {:ok, 21} =
+        @basic_valid_input
+        |> cast("age")
+        |> parse_integer(:age)
+        |> validate_number(:age, equal_to: 21)
+        |> resolve_tuple(:age)
+
+      assert {:error, _} =
+        @basic_valid_input
+        |> cast("age")
+        |> parse_integer(:age)
+        |> validate_number(:age, equal_to: 22)
+        |> resolve_tuple(:age)
+    end
+
+    test "less_than" do
+      assert {:ok, 21} =
+        @basic_valid_input
+        |> cast("age")
+        |> parse_integer(:age)
+        |> validate_number(:age, less_than: 22)
+        |> resolve_tuple(:age)
+
+      assert {:error, _} =
+        @basic_valid_input
+        |> cast("age")
+        |> parse_integer(:age)
+        |> validate_number(:age, less_than: 21)
+        |> resolve_tuple(:age)
+    end
+
+    test "less_than_or_equal_to" do
+      assert {:ok, 21} =
+        @basic_valid_input
+        |> cast("age")
+        |> parse_integer(:age)
+        |> validate_number(:age, less_than_or_equal_to: 21)
+        |> resolve_tuple(:age)
+
+      assert {:error, _} =
+        @basic_valid_input
+        |> cast("age")
+        |> parse_integer(:age)
+        |> validate_number(:age, less_than_or_equal_to: 20)
+        |> resolve_tuple(:age)
+    end
+  end
+
+  defp sort(struct = %{__struct__: _}), do: struct
+  defp sort(enum) when is_list(enum) or is_map(enum) do
     enum
     |> Enum.sort
     |> Enum.map(fn
@@ -227,5 +652,5 @@ defmodule Surgex.ParseusTest do
          value -> sort(value)
        end)
   end
-  def sort(any), do: any
+  defp sort(any), do: any
 end
