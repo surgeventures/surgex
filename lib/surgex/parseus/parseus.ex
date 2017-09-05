@@ -99,6 +99,7 @@ defmodule Surgex.Parseus do
     BooleanParser,
     DateParser,
     EnumParser,
+    FloatParser,
     IntegerParser,
 
     AcceptanceValidator,
@@ -158,7 +159,7 @@ defmodule Surgex.Parseus do
     DropNilProcessor.call(set, key_or_keys)
   end
 
-  def filter(set, key_or_keys \\ nil, mod_or_func) do
+  def filter(set, key_or_keys, mod_or_func) do
     FilterProcessor.call(set, key_or_keys, mod_or_func)
   end
 
@@ -170,7 +171,7 @@ defmodule Surgex.Parseus do
     GetInputPathUtil.call(set.mapping, output_key_or_path)
   end
 
-  def map(set, key_or_keys \\ nil, mod_or_func) do
+  def map(set, key_or_keys, mod_or_func) do
     MapProcessor.call(set, key_or_keys, mod_or_func)
   end
 
@@ -188,6 +189,10 @@ defmodule Surgex.Parseus do
 
   def parse_enum(set, key_or_keys, allowed_values) do
     parse(set, key_or_keys, EnumParser, allowed_values)
+  end
+
+  def parse_float(set, key_or_keys) do
+    parse(set, key_or_keys, FloatParser)
   end
 
   def parse_integer(set, key_or_keys) do

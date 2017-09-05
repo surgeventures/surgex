@@ -392,14 +392,6 @@ defmodule Surgex.ParseusTest do
   end
 
   describe "filter/3" do
-    test "with all keys" do
-      assert {:ok, nil, "mike@example.com", nil} =
-        @basic_valid_input
-        |> cast(~w{name email other})
-        |> filter(&String.match?(&1, ~r/@/))
-        |> resolve_tuple(~w{name email other}a)
-    end
-
     test "with single key" do
       assert {:ok, "Mike", "mike@example.com", nil} =
         @basic_valid_input
@@ -472,14 +464,6 @@ defmodule Surgex.ParseusTest do
   end
 
   describe "map/3" do
-    test "with all keys" do
-      assert {:ok, "Mik?", "mik?@?xampl?.com", nil} =
-        @basic_valid_input
-        |> cast(~w{name email other})
-        |> map(&String.replace(&1, "e", "?"))
-        |> resolve_tuple(~w{name email other}a)
-    end
-
     test "with single key" do
       assert {:ok, "Mik?", "mike@example.com", nil} =
         @basic_valid_input
@@ -510,6 +494,16 @@ defmodule Surgex.ParseusTest do
         @basic_valid_input
         |> cast("name")
         |> parse(:name, fn _ -> {:error, :some_reason, x: 1} end)
+    end
+  end
+
+  describe "parse_float/2" do
+    test "with float" do
+      assert {:ok, 1.23} =
+        [price: "1.23"]
+        |> cast(:price)
+        |> parse_float(:price)
+        |> resolve_tuple(:price)
     end
   end
 

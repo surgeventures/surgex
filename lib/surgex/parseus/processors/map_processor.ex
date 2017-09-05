@@ -6,7 +6,6 @@ defmodule Surgex.Parseus.MapProcessor do
     Set,
   }
 
-  def call(set = %Set{output: output}, nil, mapper), do: call(set, Keyword.keys(output), mapper)
   def call(set, keys, mapper) when is_list(keys) do
     Enum.reduce(keys, set, &call(&2, &1, mapper))
   end

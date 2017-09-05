@@ -6,7 +6,6 @@ defmodule Surgex.Parseus.FilterProcessor do
     Set,
   }
 
-  def call(set = %Set{output: output}, nil, filterer), do: call(set, Keyword.keys(output), filterer)
   def call(set, keys, filterer) when is_list(keys) do
     Enum.reduce(keys, set, &call(&2, &1, filterer))
   end
