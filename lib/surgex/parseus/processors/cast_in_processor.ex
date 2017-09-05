@@ -3,6 +3,7 @@ defmodule Surgex.Parseus.CastInProcessor do
 
   alias Surgex.Parseus.{
     CallUtil,
+    GetInUtil,
     Set,
   }
 
@@ -10,7 +11,7 @@ defmodule Surgex.Parseus.CastInProcessor do
     call(set, [input_key], output_key, proc)
   end
   def call(set = %Set{input: input}, input_keys, nil, proc) do
-    value = get_in(input, input_keys) || %{}
+    value = GetInUtil.call(input, input_keys) || %{}
     new_px = CallUtil.call(proc, value)
     new_output = new_px.output ++ set.output
     new_errors = new_px.errors ++ set.errors
@@ -19,7 +20,7 @@ defmodule Surgex.Parseus.CastInProcessor do
     %{set | output: new_output, errors: new_errors, mapping: new_mapping}
   end
   def call(set = %Set{input: input}, input_keys, output_key, proc) do
-    with value when not(is_nil(value)) <- get_in(input, input_keys) do
+    with value when not(is_nil(value)) <- GetInUtil.call(input, input_keys) do
       new_px = CallUtil.call(proc, value)
       new_output = [{output_key, new_px.output} | set.output]
       new_errors = case new_px.errors do

@@ -3,6 +3,7 @@ defmodule Surgex.Parseus.CastAllInProcessor do
 
   alias Surgex.Parseus.{
     CallUtil,
+    GetInUtil,
     Set,
   }
 
@@ -29,7 +30,7 @@ defmodule Surgex.Parseus.CastAllInProcessor do
   end
 
   defp fetch_all_in(input, input_keys) do
-    {:ok, get_in(input, input_keys)}
+    {:ok, GetInUtil.call(input, input_keys)}
   rescue
     exception in RuntimeError ->
       case exception.message do
