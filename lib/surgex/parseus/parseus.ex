@@ -134,8 +134,8 @@ defmodule Surgex.Parseus do
     RequiredValidator,
   }
 
-  def add_error(set, key, error) do
-    AddErrorProcessor.call(set, key, error)
+  def add_error(set, output_key_or_path, error) do
+    AddErrorProcessor.call(set, output_key_or_path, error)
   end
 
   def cast(input, input_key_or_keys) do

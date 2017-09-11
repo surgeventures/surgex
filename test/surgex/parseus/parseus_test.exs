@@ -405,7 +405,7 @@ defmodule Surgex.ParseusTest do
   end
 
   describe "add_error/2" do
-    test "with single key" do
+    test "with single key path" do
       %{errors: errors} =
         %{"name" => nil, "email" => "a@b.c"}
         |> cast(~w{name email other})
@@ -417,6 +417,43 @@ defmodule Surgex.ParseusTest do
         email: %Error{reason: :seriously_taken},
         email: %Error{reason: :taken},
         email: %Error{info: [alternatives: "a1234@b.c"], reason: :really_taken}
+      ]
+    end
+
+    test "with multiple keys path" do
+      %{errors: errors} =
+        %{
+          "nested-anon" => %{"a" => 1},
+          "nested-named" => %{"b" => 2},
+          "nested-array" => [
+            %{"c" => 3}
+          ]
+        }
+        |> cast_in("nested-anon", &cast(&1, "a"))
+        |> cast_in("nested-named", :nested_named, &cast(&1, "b"))
+        |> cast_all_in("nested-array", :nested_array, &cast(&1, "c"))
+        |> add_error([:a], :error_1)
+        |> add_error([:nested_named, :b], :error_2)
+        |> add_error([:nested_array, {:at, 0}, :c], :error_3)
+        |> add_error([:nested_array, {:at, 0}, :c], :error_8)
+        |> add_error([:nested_array, {:at, 1}, :c], :error_4)
+        |> add_error([:nested_array, {:at, 0}, :d], :error_5)
+        |> add_error([:missing_nested, :a], :error_6)
+        |> add_error([:missing_nested_array, {:at, 0}, :a], :error_7)
+
+      assert sort(errors) == [
+        a: %Error{reason: :error_1},
+        missing_nested: [a: %Error{reason: :error_6}],
+        missing_nested_array: [
+          {:at, 0, [a: %Error{reason: :error_7}]}
+        ],
+        nested_array: [
+          {:at, 0, [c: %Error{reason: :error_3}, c: %Error{reason: :error_8}, d: %Error{reason: :error_5}]},
+          {:at, 1, [c: %Error{reason: :error_4}]}
+        ],
+        nested_named: [
+          b: %Error{reason: :error_2}
+        ]
       ]
     end
   end
