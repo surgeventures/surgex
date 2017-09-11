@@ -11,13 +11,17 @@ defmodule Surgex.Parseus.CastInProcessor do
     call(set, [input_key], output_key, proc)
   end
   def call(set = %Set{input: input}, input_keys, nil, proc) do
-    value = GetInUtil.call(input, input_keys) || %{}
-    new_px = CallUtil.call(proc, value)
-    new_output = new_px.output ++ set.output
-    new_errors = new_px.errors ++ set.errors
-    new_mapping = nest_mapping(new_px.mapping, input_keys) ++ set.mapping
+    with value when not(is_nil(value)) <- GetInUtil.call(input, input_keys) do
+      new_px = CallUtil.call(proc, value)
+      new_output = new_px.output ++ set.output
+      new_errors = new_px.errors ++ set.errors
+      new_mapping = nest_mapping(new_px.mapping, input_keys) ++ set.mapping
 
-    %{set | output: new_output, errors: new_errors, mapping: new_mapping}
+      %{set | output: new_output, errors: new_errors, mapping: new_mapping}
+    else
+      _ ->
+        set
+    end
   end
   def call(set = %Set{input: input}, input_keys, output_key, proc) do
     with value when not(is_nil(value)) <- GetInUtil.call(input, input_keys) do
@@ -29,13 +33,11 @@ defmodule Surgex.Parseus.CastInProcessor do
       end
 
       new_mapping = [{output_key, {input_keys, new_px.mapping}} | set.mapping]
-
       %{set | output: new_output, errors: new_errors, mapping: new_mapping}
     else
       _ ->
         new_mapping = [{output_key, {input_keys, nil}} | set.mapping]
-
-         %{set | mapping: new_mapping}
+        %{set | mapping: new_mapping}
     end
   end
   def call(input, input_keys, output_key, proc) do

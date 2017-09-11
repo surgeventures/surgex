@@ -8,34 +8,26 @@ defmodule Surgex.Parseus.GetInputPathUtil do
   defp traverse_path([], _mapping, result), do: result
   defp traverse_path([key, {:at, index} | rest], mapping, result) do
     {base, :at, nested_mapping} = Keyword.fetch!(mapping, key)
-
-    traverse_path(
-      rest,
-      nested_mapping,
-      result ++ to_list(base) ++ [{:at, index}]
-    )
+    traverse_path(rest, nested_mapping, result ++ to_list(base) ++ [{:at, index}])
   end
   defp traverse_path([key | rest], mapping, result) do
-    case Keyword.fetch!(mapping, key) do
-      {base, :at, nested_mapping} when is_list(nested_mapping) ->
-        traverse_path(
-          rest,
-          nested_mapping,
-          result ++ to_list(base)
-        )
-      {base, nested_mapping} when is_list(nested_mapping) ->
-        traverse_path(
-          rest,
-          nested_mapping,
-          result ++ to_list(base)
-        )
-      path ->
-        traverse_path(
-          rest,
-          nil,
-          result ++ to_list(path)
-        )
+    case Keyword.fetch(mapping, key) do
+      {:ok, value} ->
+        {next_mapping, next_result_addon} = cast_mapping_value(value)
+        traverse_path(rest, next_mapping, result ++ to_list(next_result_addon))
+      :error ->
+        result ++ [error: :unknown]
     end
+  end
+
+  defp cast_mapping_value({base, :at, nested_mapping}) when is_list(nested_mapping) do
+    {nested_mapping, base}
+  end
+  defp cast_mapping_value({base, nested_mapping}) when is_list(nested_mapping) do
+    {nested_mapping, base}
+  end
+  defp cast_mapping_value(path) do
+    {nil, path}
   end
 
   defp to_list(input) when is_list(input), do: input

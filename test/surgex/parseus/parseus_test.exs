@@ -208,13 +208,10 @@ defmodule Surgex.ParseusTest do
     assert set = %{output: output, errors: errors} = parse_nested(@nested_invalid_blank_input)
     assert sort(output) == []
     assert sort(errors) == [
-      avatar: %Error{source: :required_validator},
       id: %Error{source: :required_validator},
-      name: %Error{source: :required_validator},
     ]
 
-    assert get_input_path(set, :id) == [:data, :id]
-    assert get_input_path(set, :name) == [:data, :attributes, "name"]
+    assert get_input_path(set, :id) == [{:error, :unknown}]
   end
 
   @nested_invalid_partial_data %{
@@ -254,6 +251,27 @@ defmodule Surgex.ParseusTest do
     assert get_input_path(set, [:avatar, :id]) == [:data, :relationships, "avatar", :data, :id]
     assert get_input_path(set, :id) == [:data, :id]
     assert get_input_path(set, :name) == [:data, :attributes, "name"]
+  end
+
+  @nested_invalid_missing_avatar %{
+    data: %{
+      id: -1,
+      attributes: %{
+        "name" => @long_text
+      },
+      relationships: %{
+      }
+    }
+  }
+
+  test "nested failure with missing avatar" do
+    assert %{output: output, errors: errors} = parse_nested(@nested_invalid_missing_avatar)
+    assert sort(output) == []
+    assert sort(errors) == [
+      avatar: %Error{source: :required_validator},
+      id: %Error{info: [min: 0], reason: :not_greater_than, source: :number_validator},
+      name: %Error{info: [max: 50], reason: :above_max, source: :length_validator}
+    ]
   end
 
   @nested_invalid_array_data %{
@@ -330,6 +348,7 @@ defmodule Surgex.ParseusTest do
   defp parse_nested(input) do
     input
     |> cast_in(:data, &parse_nested_data/1)
+    |> validate_required([:id])
     |> drop_invalid()
   end
 
