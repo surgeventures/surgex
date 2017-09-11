@@ -1,7 +1,16 @@
+defmodule Surgex.ParseusTest.SomeStruct do
+  defstruct [:some_field]
+end
+
+defmodule Surgex.ParseusTest.OtherStruct do
+  defstruct [:other_field]
+end
+
 defmodule Surgex.ParseusTest do
   use ExUnit.Case
   import Surgex.Parseus
   alias Surgex.Parseus.Error
+  alias Surgex.ParseusTest.{SomeStruct, OtherStruct}
 
   @long_text "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor " <>
     "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud" <>
@@ -89,29 +98,52 @@ defmodule Surgex.ParseusTest do
     |> drop_invalid()
   end
 
-  @struct_valid_input %KeyError{
-    key: %KeyError{
-      key: "value"
+  @struct_valid_input %SomeStruct{
+    some_field: %OtherStruct{
+      other_field: "value"
     }
   }
 
   test "struct success" do
     assert %{output: output, errors: []} = parse_struct(@struct_valid_input)
     assert sort(output) == [
-      inner: [
-        key: "value"
+      some: [
+        other: :value
       ]
     ]
   end
 
+  @struct_invalid_input %SomeStruct{
+    some_field: %OtherStruct{
+      other_field: "wrong_value"
+    }
+  }
+
+  test "struct failure" do
+    assert set = %{output: output, errors: errors} = parse_struct(@struct_invalid_input)
+    assert sort(output) == []
+    assert sort(errors) == [
+      some: [other: %Error{source: :enum_parser}]
+    ]
+
+    assert sort(flatten_errors(set)) == [
+      {[:some, :other], %Error{source: :enum_parser}}
+    ]
+
+    assert get_input_path(set, [:some, :other]) == [{:key, :some_field}, {:key, :other_field}]
+  end
+
   defp parse_struct(input) do
     input
-    |> cast_in({:key, :key}, :inner, &parse_struct_inner/1)
+    |> cast_in({:key, :some_field}, :some, &parse_struct_inner/1)
     |> drop_invalid()
   end
 
   defp parse_struct_inner(input) do
-    cast(input, {:key, :key})
+    input
+    |> cast({:key, :other_field})
+    |> rename(:other_field, :other)
+    |> parse_enum(:other, ~w(value))
   end
 
   @nested_valid_input %{
@@ -212,7 +244,14 @@ defmodule Surgex.ParseusTest do
       name: %Error{source: :length_validator, reason: :above_max, info: [max: 50]},
     ]
 
+    assert sort(flatten_errors(set)) == [
+      {[:avatar, :id], %Error{source: :required_validator}},
+      {[:id], %Error{info: [min: 0], source: :number_validator, reason: :not_greater_than}},
+      {[:name], %Error{info: [max: 50], source: :length_validator, reason: :above_max}},
+    ]
+
     assert get_input_path(set, :avatar) == [:data, :relationships, "avatar", :data]
+    assert get_input_path(set, [:avatar, :id]) == [:data, :relationships, "avatar", :data, :id]
     assert get_input_path(set, :id) == [:data, :id]
     assert get_input_path(set, :name) == [:data, :attributes, "name"]
   end
@@ -273,7 +312,15 @@ defmodule Surgex.ParseusTest do
       ]
     ]
 
-    assert get_input_path(set, :accounts) == [:data, :relationships, "accounts", :data]
+    assert sort(flatten_errors(set)) == [
+      {[:accounts, {:at, 0}, :type],
+        %Error{info: [allowed_values: ["user-accounts"]], source: :inclusion_validator}},
+      {[:accounts, {:at, 2}, :provider],
+        %Error{info: [], source: :required_validator}}
+    ]
+
+    assert get_input_path(set, :accounts) ==
+      [:data, :relationships, "accounts", :data]
     assert get_input_path(set, [{:accounts, :at, 0}, :type]) ==
       [:data, :relationships, "accounts", :data, {:at, 0}, :type]
     assert get_input_path(set, [{:accounts, :at, 2}, :provider]) ==

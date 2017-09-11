@@ -119,6 +119,7 @@ defmodule Surgex.Parseus do
     ValidateAllProcessor,
     ValidateProcessor,
 
+    FlattenErrorsUtil,
     GetInputPathUtil,
     ResolveUtil,
     ResolveTupleUtil,
@@ -165,12 +166,16 @@ defmodule Surgex.Parseus do
     FilterProcessor.call(set, key_or_keys, mod_or_func)
   end
 
+  def flatten_errors(set) do
+    FlattenErrorsUtil.call(set)
+  end
+
   def join(set, old_keys, new_key, opts \\ []) do
     JoinProcessor.call(set, old_keys, new_key, opts)
   end
 
   def get_input_path(set, output_key_or_path) do
-    GetInputPathUtil.call(set.mapping, output_key_or_path)
+    GetInputPathUtil.call(set, output_key_or_path)
   end
 
   def map(set, key_or_keys, mod_or_func) do
