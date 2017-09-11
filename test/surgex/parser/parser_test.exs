@@ -172,6 +172,52 @@ defmodule Surgex.ParserTest do
       ]}
     end
 
+    test "valid doc with nested resource" do
+      doc = put_in @valid_doc.data.relationships["image"],
+        %Resource{id: "1", attributes: %{"name" => "image-name"}}
+      nested_parser = fn resource ->
+        Parser.parse resource,
+          id: [:id, :required],
+          attributes: %{
+            name: [:string, :required]
+          }
+      end
+
+      parsers = put_in @doc_parsers[:relationships][:image],
+        [{:resource, nested_parser}, :required]
+
+      parser_output = Parser.parse doc, parsers
+
+      assert parser_output == {:ok, [
+        image: [name: "image-name", id: 1],
+        avatar: 456,
+        last_name: nil,
+        first_name: "Jack",
+        id: 123
+      ]}
+    end
+
+    test "invalid doc with nested resource" do
+      doc = put_in @valid_doc.data.relationships["image"],
+        %Resource{id: "abc", attributes: %{"name" => ""}}
+      nested_parser = fn resource ->
+        Parser.parse resource,
+          id: [:id, :required],
+          attributes: %{
+            name: [:string, :required]
+          }
+      end
+
+      parsers = put_in @doc_parsers[:relationships][:image],
+        [{:resource, nested_parser}, :required]
+
+      parser_output = Parser.parse doc, parsers
+      assert parser_output == {:error, :invalid_pointers, [
+        invalid_integer: "/data/relationships/image/id",
+        required: "/data/relationships/image/attributes/name"
+      ]}
+    end
+
     test "nil input" do
       parser_output = Parser.parse nil, []
 
