@@ -321,9 +321,9 @@ defmodule Surgex.ParseusTest do
 
     assert get_input_path(set, :accounts) ==
       [:data, :relationships, "accounts", :data]
-    assert get_input_path(set, [{:accounts, :at, 0}, :type]) ==
+    assert get_input_path(set, [:accounts, {:at, 0}, :type]) ==
       [:data, :relationships, "accounts", :data, {:at, 0}, :type]
-    assert get_input_path(set, [{:accounts, :at, 2}, :provider]) ==
+    assert get_input_path(set, [:accounts, {:at, 2}, :provider]) ==
       [:data, :relationships, "accounts", :data, {:at, 2}, :attributes, "provider"]
   end
 
