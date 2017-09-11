@@ -96,20 +96,13 @@ defmodule Surgex.Parseus do
   """
 
   alias __MODULE__.{
+    BlankStringToNilMapper,
+
     BooleanParser,
     DateParser,
     EnumParser,
     FloatParser,
     IntegerParser,
-
-    AcceptanceValidator,
-    BooleanValidator,
-    ExclusionValidator,
-    FormatValidator,
-    InclusionValidator,
-    LengthValidator,
-    NumberValidator,
-    RequiredValidator,
 
     AddErrorProcessor,
     CastAllInProcessor,
@@ -129,6 +122,15 @@ defmodule Surgex.Parseus do
     GetInputPathUtil,
     ResolveUtil,
     ResolveTupleUtil,
+
+    AcceptanceValidator,
+    BooleanValidator,
+    ExclusionValidator,
+    FormatValidator,
+    InclusionValidator,
+    LengthValidator,
+    NumberValidator,
+    RequiredValidator,
   }
 
   def add_error(set, key, error) do
@@ -173,6 +175,10 @@ defmodule Surgex.Parseus do
 
   def map(set, key_or_keys, mod_or_func) do
     MapProcessor.call(set, key_or_keys, mod_or_func)
+  end
+
+  def map_blank_string_to_nil(set, key_or_keys) do
+    map(set, key_or_keys, BlankStringToNilMapper)
   end
 
   def parse(set, key_or_keys, mod_or_func, opts \\ []) do

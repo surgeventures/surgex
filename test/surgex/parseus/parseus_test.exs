@@ -481,6 +481,24 @@ defmodule Surgex.ParseusTest do
     end
   end
 
+  describe "map_blank_string_to_nil" do
+    test "with single key" do
+      assert {:ok, nil, ""} =
+        [name: "", other: ""]
+        |> cast(~w{name other}a)
+        |> map_blank_string_to_nil(:name)
+        |> resolve_tuple(~w{name other}a)
+    end
+
+    test "with multiple keys" do
+      assert {:ok, nil, nil, "another"} =
+        [name: "", other: "", another: "another"]
+        |> cast(~w{name other another}a)
+        |> map_blank_string_to_nil(~w{name other another}a)
+        |> resolve_tuple(~w{name other another}a)
+    end
+  end
+
   describe "parse/4" do
     test "with parser that returns {error, reason}" do
       assert %{output: [], errors: [name: %Error{reason: :some_reason}]} =
