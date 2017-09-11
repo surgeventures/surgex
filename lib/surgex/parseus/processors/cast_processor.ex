@@ -1,6 +1,8 @@
 defmodule Surgex.Parseus.CastProcessor do
   @moduledoc false
 
+  @nil_value Surgex.Parseus.CastProcessor.NotFound
+
   alias Surgex.Parseus.Set
 
   def call(set, input_key) when not(is_list(input_key)) do
@@ -20,7 +22,7 @@ defmodule Surgex.Parseus.CastProcessor do
       output_key = make_key(input_key)
       new_mapping = Keyword.put(mapping, output_key, input_key)
 
-      case Access.fetch(input, input_key) do
+      case fetch(input, input_key) do
         {:ok, value} ->
           new_output = Keyword.put(output, output_key, value)
           {new_output, new_mapping}
@@ -30,6 +32,15 @@ defmodule Surgex.Parseus.CastProcessor do
     end)
   end
 
+  defp fetch(input, {:key, input_key}) do
+    case get_in(input, [Access.key(input_key, @nil_value)]) do
+      @nil_value -> :error
+      value -> {:ok, value}
+    end
+  end
+  defp fetch(input, input_key), do: Access.fetch(input, input_key)
+
+  defp make_key({:key, input}) when is_atom(input), do: input
   defp make_key(input) when is_atom(input), do: input
   defp make_key(input) when is_binary(input) do
     input

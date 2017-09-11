@@ -53,7 +53,7 @@ defmodule Surgex.Parseus.CastAllInProcessor do
     new_output = [new_px.output | output]
     new_errors = case new_px.errors do
       [] -> errors
-      _ -> [{index, new_px.errors} | errors]
+      _ -> [{:at, index, new_px.errors} | errors]
     end
     new_mapping = new_px.mapping
 

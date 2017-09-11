@@ -89,6 +89,31 @@ defmodule Surgex.ParseusTest do
     |> drop_invalid()
   end
 
+  @struct_valid_input %KeyError{
+    key: %KeyError{
+      key: "value"
+    }
+  }
+
+  test "struct success" do
+    assert %{output: output, errors: []} = parse_struct(@struct_valid_input)
+    assert sort(output) == [
+      inner: [
+        key: "value"
+      ]
+    ]
+  end
+
+  defp parse_struct(input) do
+    input
+    |> cast_in({:key, :key}, :inner, &parse_struct_inner/1)
+    |> drop_invalid()
+  end
+
+  defp parse_struct_inner(input) do
+    cast(input, {:key, :key})
+  end
+
   @nested_valid_input %{
     data: %{
       type: "users",
@@ -239,10 +264,10 @@ defmodule Surgex.ParseusTest do
     ]
     assert sort(errors) == [
       accounts: [
-        {0,
+        {:at, 0,
           type: %Error{info: [allowed_values: ["user-accounts"]], source: :inclusion_validator}
         },
-        {2,
+        {:at, 2,
           provider: %Error{source: :required_validator}
         }
       ]
