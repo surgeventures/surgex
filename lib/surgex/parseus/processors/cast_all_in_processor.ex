@@ -15,7 +15,7 @@ defmodule Surgex.Parseus.CastAllInProcessor do
       {nested_output, nested_errors, nested_mapping} = reduce_nested_values(values, proc)
       new_output = [{output_key, nested_output} | set.output]
       new_errors = case nested_errors do
-        [] -> set.errors
+        empty when empty == %{} -> set.errors
         _ -> [{output_key, nested_errors} | set.errors]
       end
       new_mapping = [{output_key, {input_keys, :at, nested_mapping}} | set.mapping]
@@ -43,7 +43,7 @@ defmodule Surgex.Parseus.CastAllInProcessor do
     {output, errors, mapping} =
       values
       |> Enum.with_index()
-      |> Enum.reduce({[], [], []}, &reduce_nested_value(&1, &2, proc))
+      |> Enum.reduce({[], %{}, []}, &reduce_nested_value(&1, &2, proc))
 
     {Enum.reverse(output), errors, mapping}
   end
@@ -53,7 +53,7 @@ defmodule Surgex.Parseus.CastAllInProcessor do
     new_output = [new_px.output | output]
     new_errors = case new_px.errors do
       [] -> errors
-      _ -> [{:at, index, new_px.errors} | errors]
+      _ -> Map.put(errors, index, new_px.errors)
     end
     new_mapping = new_px.mapping
 

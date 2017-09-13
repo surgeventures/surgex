@@ -12,25 +12,23 @@ defmodule Surgex.Parseus.AddErrorProcessor do
   defp to_list(input) when is_list(input), do: input
   defp to_list(input), do: [input]
 
-  defp put_error(target, [{:at, index} | rest], error) do
-    target_map =
-      target
-      |> Enum.map(fn {:at, index, errors} -> {index, errors} end)
-      |> Map.new
-
-    nested_target = target_map[{:at, index}] || []
-    nested_errors = put_error(nested_target, rest, error)
-    new_target_map = Map.put(target_map, index, nested_errors)
-    new_target = Enum.map(new_target_map, fn {index, errors} -> {:at, index, errors} end)
-    new_target
+  defp put_error(target, [{:at, index} | rest], error) when is_list(target) do
+    put_error(Map.new(target), [{:at, index} | rest], error)
+  end
+  defp put_error(target, [{:at, index} | rest], error) when is_map(target) do
+    target
+    |> Map.put_new(index, [])
+    |> Map.update(index, [], &put_error(&1, rest, error))
   end
   defp put_error(target, [key], error) do
     [{key, error} | target]
   end
   defp put_error(target, [key | rest], error) do
-    nested_target = target[key] || []
-    nested_errors = put_error(nested_target, rest, error)
-
-    [{key, nested_errors} | target]
+    target
+    |> Keyword.put_new(key, [])
+    |> Keyword.update!(key, &put_error(&1, rest, error))
   end
 end
+
+
+

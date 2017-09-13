@@ -320,14 +320,14 @@ defmodule Surgex.ParseusTest do
       name: "Mike",
     ]
     assert sort(errors) == [
-      accounts: [
-        {:at, 0,
+      accounts: %{
+        0 => [
           type: %Error{info: [allowed_values: ["user-accounts"]], source: :inclusion_validator}
-        },
-        {:at, 2,
+        ],
+        2 => [
           provider: %Error{source: :required_validator}
-        }
-      ]
+        ]
+      }
     ]
 
     assert sort(flatten_errors(set)) == [
@@ -444,13 +444,16 @@ defmodule Surgex.ParseusTest do
       assert sort(errors) == [
         a: %Error{reason: :error_1},
         missing_nested: [a: %Error{reason: :error_6}],
-        missing_nested_array: [
-          {:at, 0, [a: %Error{reason: :error_7}]}
-        ],
-        nested_array: [
-          {:at, 0, [c: %Error{reason: :error_3}, c: %Error{reason: :error_8}, d: %Error{reason: :error_5}]},
-          {:at, 1, [c: %Error{reason: :error_4}]}
-        ],
+        missing_nested_array: %{
+          0 => [a: %Error{reason: :error_7}]
+        },
+        nested_array: %{
+          0 => [
+            c: %Error{reason: :error_3}, c: %Error{reason: :error_8},
+            d: %Error{reason: :error_5}
+          ],
+          1 => [c: %Error{reason: :error_4}]
+        },
         nested_named: [
           b: %Error{reason: :error_2}
         ]
@@ -784,7 +787,13 @@ defmodule Surgex.ParseusTest do
   end
 
   defp sort(struct = %{__struct__: _}), do: struct
-  defp sort(enum) when is_list(enum) or is_map(enum) do
+  defp sort(map = %{}) do
+    map
+    |> Map.to_list
+    |> sort
+    |> Map.new
+  end
+  defp sort(enum) when is_list(enum) do
     enum
     |> Enum.sort
     |> Enum.map(fn
