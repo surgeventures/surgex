@@ -7,6 +7,7 @@ defmodule Surgex.ParserTest do
   @param_parsers [
     id: [:integer, :required],
     uuid: [:string, :required],
+    price: [:float, :required],
     first_name: [:string, &RequiredParser.call/1],
     last_name: :string,
     phone: :string,
@@ -16,6 +17,7 @@ defmodule Surgex.ParserTest do
   @valid_params %{
     "id" => "123",
     "uuid" => "asdf",
+    "price" => "10.5",
     "first-name" => "Jack",
     "last-name" => "",
     "include" => "comments"
@@ -23,6 +25,7 @@ defmodule Surgex.ParserTest do
 
   @invalid_params %{
     "id" => "abc",
+    "price" => "qwerty",
     "first-name" => "",
     "other-param" => "x",
     "include" => "invalid"
@@ -82,6 +85,7 @@ defmodule Surgex.ParserTest do
         include: [:comments],
         last_name: nil,
         first_name: "Jack",
+        price: 10.5,
         uuid: "asdf",
         id: 123,
       ]}
@@ -93,6 +97,7 @@ defmodule Surgex.ParserTest do
       assert parser_output == {:error, :invalid_parameters, [
         invalid_relationship_path: "include",
         required: "first-name",
+        invalid_float: "price",
         required: "uuid",
         invalid_integer: "id",
         unknown: "other-param",
@@ -229,7 +234,7 @@ defmodule Surgex.ParserTest do
     test "valid params" do
       parser_output = Parser.flat_parse @valid_params, @param_parsers
 
-      assert parser_output == {:ok, 123, "asdf", "Jack", nil, nil, [:comments]}
+      assert parser_output == {:ok, 123, "asdf", 10.5, "Jack", nil, nil, [:comments]}
     end
 
     test "invalid params" do
@@ -238,6 +243,7 @@ defmodule Surgex.ParserTest do
       assert parser_output == {:error, :invalid_parameters, [
         invalid_relationship_path: "include",
         required: "first-name",
+        invalid_float: "price",
         required: "uuid",
         invalid_integer: "id",
         unknown: "other-param",

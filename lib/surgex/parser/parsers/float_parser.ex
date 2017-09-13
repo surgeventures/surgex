@@ -3,6 +3,12 @@ defmodule Surgex.Parser.FloatParser do
 
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, nil}
+  def call(input, opts) when is_float(input) do
+    min = Keyword.get(opts, :min)
+    max = Keyword.get(opts, :max)
+
+    validate_range(input, min, max)
+  end
   def call(input, opts) when is_binary(input) do
     min = Keyword.get(opts, :min)
     max = Keyword.get(opts, :max)
