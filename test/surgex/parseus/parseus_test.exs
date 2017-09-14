@@ -36,6 +36,7 @@ defmodule Surgex.ParseusTest do
       birth_date: ~D[1950-02-15],
       email: "mike@example.com",
       name: "Mike",
+      name_copy: "Mike",
       notes: "Please don't send me e-mails!",
       type: :admin,
     ]
@@ -80,8 +81,10 @@ defmodule Surgex.ParseusTest do
     |> cast(["name", "email", "type", "license-agreement", "age", "birth-date", "notes", "missing"])
     |> rename(:license_agreement, :agreement)
     |> rename(:missing, :other)
+    |> fork(:other, :other_copy)
     |> validate_required([:name, :email, :type, :agreement])
     |> validate_length(:name, max: 50)
+    |> fork(:name, :name_copy)
     |> validate_format(:email, ~r/^.*@example\.com$/)
     |> validate_length(:email, max: 100)
     |> parse_enum([:type, :non_existing], ["regular", "admin", "super-admin"])

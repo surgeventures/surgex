@@ -112,6 +112,7 @@ defmodule Surgex.Parseus do
     DropNilProcessor,
     DropProcessor,
     FilterProcessor,
+    ForkProcessor,
     JoinProcessor,
     MapProcessor,
     ParseProcessor,
@@ -168,6 +169,10 @@ defmodule Surgex.Parseus do
 
   def flatten_errors(set) do
     FlattenErrorsUtil.call(set)
+  end
+
+  def fork(set, source_key, target_key) do
+    ForkProcessor.call(set, source_key, target_key)
   end
 
   def join(set, old_keys, new_key, opts \\ []) do
