@@ -9,6 +9,8 @@ defmodule Surgex.Parser.BooleanParserTest do
   test "valid input" do
     assert BooleanParser.call("0") == {:ok, false}
     assert BooleanParser.call("1") == {:ok, true}
+    assert BooleanParser.call(false) == {:ok, false}
+    assert BooleanParser.call(true) == {:ok, true}
   end
 
   test "invalid input" do
