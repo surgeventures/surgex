@@ -7,6 +7,7 @@ defmodule Surgex.Parser.FloatParserTest do
   end
 
   test "valid input" do
+    assert FloatParser.call(12.34) == {:ok, 12.34}
     assert FloatParser.call("1") == {:ok, 1.0}
     assert FloatParser.call("1.5") == {:ok, 1.5}
     assert FloatParser.call("1.5", min: 1.5, max: 1.5) == {:ok, 1.5}
