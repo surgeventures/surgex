@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.15.0
+
+- Extended `Surgex.Parser.FloatParser` with support for floats as input
+- Extended `Surgex.Parser.BooleanParser` with support for booleans as input
+
 ## 2.14.0
 
 - Extended `Surgex.Parser.FloatParser` with `min` and `max` options
