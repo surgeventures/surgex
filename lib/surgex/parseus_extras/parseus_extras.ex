@@ -6,24 +6,24 @@ defmodule Surgex.ParseusExtras do
   import Surgex.Parseus
   alias __MODULE__.{
     EmailValidator,
-    IdParser,
-    IdListParser,
-    PageParser,
+    IdValidator,
+    IdListValidator,
+    PageValidator,
   }
-
-  def parse_id(set, key_or_keys) do
-    parse(set, key_or_keys, IdParser)
-  end
-
-  def parse_id_list(set, key_or_keys) do
-    parse(set, key_or_keys, IdListParser)
-  end
-
-  def parse_page(set, key_or_keys) do
-    parse(set, key_or_keys, PageParser)
-  end
 
   def validate_email(set, key_or_keys) do
     validate(set, key_or_keys, EmailValidator)
+  end
+
+  def validate_id(set, key_or_keys) do
+    validate(set, key_or_keys, IdValidator)
+  end
+
+  def validate_id_list(set, key_or_keys) do
+    validate(set, key_or_keys, IdListValidator)
+  end
+
+  def validate_page(set, key_or_keys) do
+    validate(set, key_or_keys, PageValidator)
   end
 end

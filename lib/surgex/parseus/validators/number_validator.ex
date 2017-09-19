@@ -3,8 +3,7 @@ defmodule Surgex.Parseus.NumberValidator do
 
   def call(input, opts \\ [])
   def call(input, opts) do
-    with :ok <- validate_type(input, Keyword.get(opts, :type)),
-         :ok <- validate_eq(input, Keyword.get(opts, :equal_to)),
+    with :ok <- validate_eq(input, Keyword.get(opts, :equal_to)),
          :ok <- validate_gt(input, Keyword.get(opts, :greater_than)),
          :ok <- validate_ge(input, Keyword.get(opts, :greater_than_or_equal_to)),
          :ok <- validate_lt(input, Keyword.get(opts, :less_than)),
@@ -13,12 +12,6 @@ defmodule Surgex.Parseus.NumberValidator do
       :ok
     end
   end
-
-  defp validate_type(input, nil) when is_integer(input), do: :ok
-  defp validate_type(input, nil) when is_float(input), do: :ok
-  defp validate_type(input, :integer) when is_integer(input), do: :ok
-  defp validate_type(input, :float) when is_float(input), do: :ok
-  defp validate_type(_, _), do: {:error, :invalid_type}
 
   defp validate_eq(_input, nil), do: :ok
   defp validate_eq(input, eq) when input == eq, do: :ok

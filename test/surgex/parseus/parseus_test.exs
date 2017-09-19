@@ -659,6 +659,40 @@ defmodule Surgex.ParseusTest do
     end
   end
 
+  describe "parse_list/3" do
+    test "default" do
+      assert {:ok, ["1", "2"]} =
+        [ids: "1,2"]
+        |> cast(:ids)
+        |> parse_list(:ids)
+        |> resolve_tuple(:ids)
+    end
+
+    test "with custom delimiter" do
+      assert {:ok, ["1", "2,3"]} =
+        [ids: "1;2,3"]
+        |> cast(:ids)
+        |> parse_list(:ids, delimiter: ";")
+        |> resolve_tuple(:ids)
+    end
+
+    test "with item parser" do
+      assert {:ok, [1, 2]} =
+        [ids: "1,2"]
+        |> cast(:ids)
+        |> parse_list(:ids, item_parser: Surgex.Parseus.IntegerParser)
+        |> resolve_tuple(:ids)
+    end
+
+    test "with item parser that fails" do
+      assert {:error, _} =
+        [ids: "1,a"]
+        |> cast(:ids)
+        |> parse_list(:ids, item_parser: Surgex.Parseus.IntegerParser)
+        |> resolve_tuple(:ids)
+    end
+  end
+
   describe "validate/4" do
     test "with multiple keys" do
       assert {:error, %{errors: [name: %{reason: :some_reason}]}} =
@@ -786,6 +820,54 @@ defmodule Surgex.ParseusTest do
         |> parse_integer(:age)
         |> validate_number(:age, less_than_or_equal_to: 20)
         |> resolve_tuple(:age)
+    end
+  end
+
+  describe "validate_type/3" do
+    test "single" do
+      assert {:ok, "Mike"} =
+        @basic_valid_input
+        |> cast("name")
+        |> validate_type(:name, :binary)
+        |> resolve_tuple(:name)
+
+      assert {:error, _} =
+        @basic_valid_input
+        |> cast("name")
+        |> validate_type(:name, :atom)
+        |> resolve_tuple(:name)
+
+      assert {:ok, %SomeStruct{}} =
+        [struct: %SomeStruct{}]
+        |> cast(:struct)
+        |> validate_type(:struct, SomeStruct)
+        |> resolve_tuple(:struct)
+
+      assert {:error, _} =
+        [struct: %OtherStruct{}]
+        |> cast(:struct)
+        |> validate_type(:struct, SomeStruct)
+        |> resolve_tuple(:struct)
+    end
+
+    test "multiple" do
+      assert {:ok, 1} =
+        [id: 1]
+        |> cast(:id)
+        |> validate_type(:id, [:integer, :float])
+        |> resolve_tuple(:id)
+
+      assert {:ok, 1.23} =
+        [id: 1.23]
+        |> cast(:id)
+        |> validate_type(:id, [:integer, :float])
+        |> resolve_tuple(:id)
+
+      assert {:ok, %SomeStruct{}} =
+        [struct: %SomeStruct{}]
+        |> cast(:struct)
+        |> validate_type(:struct, [SomeStruct, OtherStruct])
+        |> resolve_tuple(:struct)
     end
   end
 

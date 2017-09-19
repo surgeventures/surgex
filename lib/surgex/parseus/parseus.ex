@@ -103,6 +103,7 @@ defmodule Surgex.Parseus do
     EnumParser,
     FloatParser,
     IntegerParser,
+    ListParser,
 
     AddErrorProcessor,
     CastAllInProcessor,
@@ -133,6 +134,7 @@ defmodule Surgex.Parseus do
     LengthValidator,
     NumberValidator,
     RequiredValidator,
+    TypeValidator,
   }
 
   def add_error(set, output_key_or_path, error) do
@@ -215,6 +217,10 @@ defmodule Surgex.Parseus do
     parse(set, key_or_keys, IntegerParser)
   end
 
+  def parse_list(set, key_or_keys, opts \\ []) do
+    parse(set, key_or_keys, ListParser, opts)
+  end
+
   def rename(set, old_key, new_key) do
     RenameProcessor.call(set, old_key, new_key)
   end
@@ -265,5 +271,9 @@ defmodule Surgex.Parseus do
 
   def validate_required(set, key_or_keys) do
     validate_all(set, RequiredValidator, key_or_keys)
+  end
+
+  def validate_type(set, key_or_keys, type_or_types) do
+    validate(set, key_or_keys, TypeValidator, type_or_types)
   end
 end
