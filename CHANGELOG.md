@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.16.0
+
+- Extended `Surgex.Parser.FloatParser` with support for integers as input
+
 ## 2.15.0
 
 - Extended `Surgex.Parser.FloatParser` with support for floats as input
