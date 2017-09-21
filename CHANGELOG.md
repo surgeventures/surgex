@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.17.0
+
+- Extended `Surgex.DataPipe.TableSync` with `delete_scope` option
+- Fixed `Surgex.DataPipe.TableSync` to properly use Ecto's query params
+
 ## 2.16.0
 
 - Extended `Surgex.Parser.FloatParser` with support for integers as input
