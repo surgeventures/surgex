@@ -50,13 +50,15 @@ defmodule Surgex.DataPipe.TableSync do
 
   defp do_sync(repo, table, columns, query, opts) do
     delete_query_sql = "id NOT IN (SELECT id FROM upserts)"
-    params = Keyword.get(opts, :params, [])
-    {scoped_query, scoped_params, scoped_delete_query_sql} =
-      parse_scope(opts, query, params, delete_query_sql)
-
+    input_scope = Keyword.get(opts, :scope)
+    delete_scope = Keyword.get(opts, :delete_scope)
+    scoped_query = apply_query_scope(query, input_scope)
+    scoped_delete_query_sql = apply_delete_sql_scope(delete_query_sql, delete_scope || input_scope)
     columns_sql = list_to_sql(columns)
-    scoped_query_sql = query_to_sql(repo, scoped_query)
-    on_conflict = parse_on_conflict(opts, columns)
+    {scoped_query_sql, params} = query_to_sql(repo, scoped_query)
+    on_conflict = parse_on_conflict(
+      Keyword.get(opts, :on_conflict), columns, Keyword.get(opts, :conflict_target))
+
     sql = (
       "WITH upserts AS (" <>
         "INSERT INTO #{table} (#{columns_sql}) (#{scoped_query_sql}) #{on_conflict} RETURNING id" <>
@@ -66,46 +68,36 @@ defmodule Surgex.DataPipe.TableSync do
         "(SELECT COUNT(id) FROM upserts), (SELECT COUNT(id) FROM deletions)"
     )
 
-    %{rows: [[upserts, deletions]]} = apply(repo, :query!, [sql, scoped_params])
+    %{rows: [[upserts, deletions]]} = apply(repo, :query!, [sql, params])
 
     {upserts, deletions}
   end
 
-  # Takes existing selection Ecto query, its params and deletion SQL and modifies them in case the
-  # :scope option was given. In such case, both the resulting selection query and deletion SQL will
-  # be filtered to only target items within specified scope.
-  defp parse_scope(opts, query, params, delete_sql) do
-    case Keyword.get(opts, :scope) do
-      nil ->
-        {query, params, delete_sql}
-      scope ->
-        {
-          where(query, ^scope),
-          params ++ Keyword.values(scope),
-          delete_sql <> (
-            scope
-            |> Enum.map(fn {col, val} -> " AND #{col} = #{val}" end)
-            |> Enum.join()
-          )
-        }
-    end
+  defp apply_query_scope(query, nil), do: query
+  defp apply_query_scope(query = %{}, scope) when is_list(scope), do: where(query, ^scope)
+
+  defp apply_delete_sql_scope(delete_sql, nil), do: delete_sql
+  defp apply_delete_sql_scope(delete_sql, scope) when is_binary(scope) do
+    delete_sql <> " AND #{scope}"
+  end
+  defp apply_delete_sql_scope(delete_sql, scope) when is_list(scope) do
+    delete_sql <> (
+      scope
+      |> Enum.map(fn {col, val} -> " AND #{col} = #{val}" end)
+      |> Enum.join()
+    )
   end
 
-  defp parse_on_conflict(opts, columns) do
-    case Keyword.fetch(opts, :on_conflict) do
-      {:ok, :replace_all} ->
-        targets = Keyword.fetch!(opts, :conflict_target)
-        setters = Enum.map(columns, fn col -> "#{col} = excluded.#{col}" end)
-        "ON CONFLICT (#{list_to_sql(targets)}) DO UPDATE SET #{list_to_sql(setters)}"
-      :error ->
-        nil
-    end
+  defp parse_on_conflict(nil, _, _), do: nil
+  defp parse_on_conflict(:replace_all, columns, conflict_target) do
+    setters = Enum.map(columns, fn col -> "#{col} = excluded.#{col}" end)
+
+    "ON CONFLICT (#{list_to_sql(conflict_target)}) DO UPDATE SET #{list_to_sql(setters)}"
   end
 
-  defp query_to_sql(_repo, sql) when is_binary(sql), do: sql
+  defp query_to_sql(_repo, sql) when is_binary(sql), do: {sql, []}
   defp query_to_sql(repo, query) do
-    {sql, _} = SQL.to_sql(:all, repo, query)
-    sql
+    SQL.to_sql(:all, repo, query)
   end
 
   defp list_to_sql(list), do: Enum.join(list, ", ")
