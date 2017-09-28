@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.18.0
+
+- Added `Surgex.Parser.ListParser`
+
 ## 2.17.0
 
 - Extended `Surgex.DataPipe.TableSync` with `delete_scope` option
