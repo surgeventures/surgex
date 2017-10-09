@@ -34,10 +34,10 @@ defmodule Surgex.RPC.AMQPAdapter do
     queue = Config.get!(opts, :queue)
     timeout = Config.get(opts, :timeout, 15_000)
 
-    make_amqp_request(request_payload, url, queue, timeout)
+    make_amqp_call(request_payload, url, queue, timeout)
   end
 
-  defp make_amqp_request(request, url, queue, timeout) do
+  defp make_amqp_call(request, url, queue, timeout) do
     {:ok, connection} = Connection.open(url)
     {:ok, channel} = Channel.open(connection)
 
@@ -73,5 +73,20 @@ defmodule Surgex.RPC.AMQPAdapter do
       timeout || :infinity ->
         raise TransportError, adapter: __MODULE__, context: {:timeout, timeout}
     end
+  end
+
+  @doc false
+  def push(request_payload, opts) do
+    url = Config.get!(opts, :url)
+    queue = Config.get!(opts, :queue)
+
+    make_amqp_push(request_payload, url, queue)
+  end
+
+  defp make_amqp_push(request, url, queue) do
+    {:ok, connection} = Connection.open(url)
+    {:ok, channel} = Channel.open(connection)
+
+    Basic.publish(channel, "", queue, request)
   end
 end

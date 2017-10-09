@@ -124,11 +124,15 @@ defmodule Surgex.RPC.Client do
       import Surgex.RPC.Client, only: [transport: 1, transport: 2, proto: 1, service: 1]
 
       def call(request_struct) do
-        do_call(request_struct, :call)
+        apply_client(request_struct, :call)
       end
 
       def call!(request_struct) do
-        do_call(request_struct, :call!)
+        apply_client(request_struct, :call!)
+      end
+
+      def push(request_struct) do
+        apply_client(request_struct, :push)
       end
 
       def __proto_root__ do
@@ -150,7 +154,7 @@ defmodule Surgex.RPC.Client do
       def __service_mod__(request_mod)
       def __service_mod__(nil), do: nil
 
-      defp do_call(request_struct = %{__struct__: request_mod}, method) do
+      defp apply_client(request_struct = %{__struct__: request_mod}, method) do
         transport_opts = __transport_opts__()
         service_mod = __service_mod__(request_mod)
         service_opts = service_mod.__service_opts__()
@@ -283,11 +287,11 @@ defmodule Surgex.RPC.Client do
   end
 
   @doc """
-  Makes a remote call with specific request struct, service opts and transport opts.
+  Makes a blocking remote call with specific request struct, service opts and transport opts.
 
-  This is a base client function that all remote calls end up going through. It can be used to make
-  an RPC call without the custom client module. Client modules that `use Surgex.RPC.Client` fill all
-  arguments except the request struct and offer a `call/1` equivalent of this function.
+  This is a base blocking client function that all remote calls end up going through. It can be used
+  to make an RPC call without the custom client module. Client modules that `use Surgex.RPC.Client`
+  fill all arguments except the request struct and offer a `call/1` equivalent of this function.
   """
   def call(request_struct, service_opts, transport_opts) do
     service_name = Keyword.fetch!(service_opts, :service_name)
@@ -295,11 +299,13 @@ defmodule Surgex.RPC.Client do
     response_mod = Keyword.fetch!(service_opts, :response_mod)
     mock_mod = Keyword.fetch!(service_opts, :mock_mod)
 
+    unless mod_defined?(response_mod), do: raise "Called to non-responding service"
+
     request_buf = request_mod.encode(request_struct)
 
     result =
-      call_mock(request_buf, request_mod, response_mod, mock_mod) ||
-      call_adapter(service_name, request_buf, transport_opts)
+      call_via_mock(request_buf, request_mod, response_mod, mock_mod)
+      || call_via_adapter(service_name, request_buf, transport_opts)
 
     case result do
       {:ok, response_buf} ->
@@ -321,7 +327,7 @@ defmodule Surgex.RPC.Client do
     |> handle_non_failing_response()
   end
 
-  defp call_mock(request_buf, request_mod, response_mod, mock_mod) do
+  defp call_via_mock(request_buf, request_mod, response_mod, mock_mod) do
     if Application.get_env(:surgex, :rpc_mocking_enabled) do
       Processor.call(mock_mod, request_buf, request_mod, response_mod)
     end
@@ -329,17 +335,13 @@ defmodule Surgex.RPC.Client do
     error -> raise TransportError, adapter: :mock, context: error
   end
 
-  defp call_adapter(service_name, request_buf, opts) do
+  defp call_via_adapter(service_name, request_buf, opts) do
     {adapter, adapter_opts} = Keyword.pop(opts, :adapter)
     request_payload = RequestPayload.encode(service_name, request_buf)
-    response_payload = case adapter do
-      :http ->
-        HTTPAdapter.call(request_payload, adapter_opts)
-      :amqp ->
-        AMQPAdapter.call(request_payload, adapter_opts)
-      adapter_mod ->
-        adapter_mod.call(request_payload, adapter_opts)
-    end
+    response_payload =
+      adapter
+      |> resolve_adapter()
+      |> apply(:call, [request_payload, adapter_opts])
 
     ResponsePayload.decode(response_payload)
   end
@@ -348,4 +350,56 @@ defmodule Surgex.RPC.Client do
   defp handle_non_failing_response({:error, errors}) do
     raise CallError, errors: errors
   end
+
+  @doc """
+  Makes a non-blocking remote push with specific request struct, service opts and transport opts.
+
+  This is a base non-blocking client function that all remote pushes end up going through. It can be
+  used to make an RPC push without the custom client module. Client modules that `use
+  Surgex.RPC.Client` fill all arguments except the request struct and offer a `push/1` equivalent of
+  this function.
+  """
+  def push(request_struct, service_opts, transport_opts) do
+    service_name = Keyword.fetch!(service_opts, :service_name)
+    request_mod = Keyword.fetch!(service_opts, :request_mod)
+    response_mod = Keyword.fetch!(service_opts, :response_mod)
+    mock_mod = Keyword.fetch!(service_opts, :mock_mod)
+
+    if mod_defined?(response_mod), do: raise "Pushed to responding service"
+
+    request_buf = request_mod.encode(request_struct)
+
+    push_via_mock(request_buf, request_mod, mock_mod)
+    || push_via_adapter(service_name, request_buf, transport_opts)
+
+    :ok
+  end
+
+  defp push_via_mock(request_buf, request_mod, mock_mod) do
+    if Application.get_env(:surgex, :rpc_mocking_enabled) && mod_defined?(mock_mod) do
+      Processor.call(mock_mod, request_buf, request_mod)
+    end
+  rescue
+    error -> raise TransportError, adapter: :mock, context: error
+  end
+
+  defp mod_defined?(mod) do
+    case Code.ensure_loaded(mod) do
+      {:module, _} -> true
+      _ -> false
+    end
+  end
+
+  defp push_via_adapter(service_name, request_buf, opts) do
+    {adapter, adapter_opts} = Keyword.pop(opts, :adapter)
+    request_payload = RequestPayload.encode(service_name, request_buf)
+
+    adapter
+    |> resolve_adapter()
+    |> apply(:push, [request_payload, adapter_opts])
+  end
+
+  defp resolve_adapter(:http), do: HTTPAdapter
+  defp resolve_adapter(:amqp), do: AMQPAdapter
+  defp resolve_adapter(adapter_mod), do: adapter_mod
 end

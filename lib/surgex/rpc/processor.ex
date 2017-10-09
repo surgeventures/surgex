@@ -1,13 +1,13 @@
 defmodule Surgex.RPC.Processor do
   @moduledoc false
 
+  def call(service_mod, request_buf, request_mod) do
+    request_buf
+    |> request_mod.decode()
+    |> service_mod.call()
+  end
   def call(service_mod, request_buf, request_mod, response_mod) do
-    service_result =
-      request_buf
-      |> request_mod.decode()
-      |> service_mod.call()
-
-    case service_result do
+    case call(service_mod, request_buf, request_mod) do
       :ok ->
         {:ok, response_mod.encode(response_mod.new())}
       {:ok, response_struct} ->
