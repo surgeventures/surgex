@@ -65,7 +65,7 @@ defmodule Surgex.RPC.AMQPAdapter do
 
   defp wait_for_response(correlation_id, timeout) do
     receive do
-      {:basic_deliver, "service_error", %{correlation_id: ^correlation_id}} ->
+      {:basic_deliver, "ESRV", %{correlation_id: ^correlation_id}} ->
         raise TransportError, adapter: __MODULE__, context: :service_error
       {:basic_deliver, payload, %{correlation_id: ^correlation_id}} ->
         payload

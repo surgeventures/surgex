@@ -45,7 +45,7 @@ defmodule Surgex.RPC.Server do
 
   """
 
-  alias Surgex.RPC.{Processor, RequestPayload}
+  alias Surgex.RPC.{Processor, RequestPayload, ResponsePayload}
 
   defmacro __using__(_) do
     server_mod = __CALLER__.module
@@ -77,23 +77,45 @@ defmodule Surgex.RPC.Server do
         service_mod = Keyword.fetch!(service_opts, :service_mod)
         request_mod = Keyword.fetch!(service_opts, :request_mod)
         response_mod = Keyword.fetch!(service_opts, :response_mod)
+        request_type = detect_request_type(response_mod)
 
-        case Code.ensure_loaded(response_mod) do
-          {:module, _} ->
-            raise("Not implemented")
-          _ -> nil
-            with_log(:push, service_name, fn ->
+        case request_type do
+          :call ->
+            response = log_process(request_type, service_name, fn ->
+              Processor.call(service_mod, request_buf, request_mod, response_mod)
+            end)
+            response_payload = ResponsePayload.encode(response)
+            {:ok, response_payload}
+
+          :push ->
+            log_process(:push, service_name, fn ->
               Processor.call(service_mod, request_buf, request_mod)
             end)
+            :ok
         end
       end
 
-      defp with_log(kind, service_name, process_func) do
+      defp detect_request_type(response_mod) do
+        case Code.ensure_loaded(response_mod) do
+          {:module, _} -> :call
+          _ -> :push
+        end
+      end
+
+      defp log_process(kind, service_name, process_func) do
         Logger.info(fn -> "Processing RPC #{kind}: #{service_name}" end)
+
         start_time = :os.system_time(:millisecond)
         result = process_func.()
         duration_ms = :os.system_time(:millisecond) - start_time
-        Logger.info(fn -> "Processed in #{duration_ms}ms" end)
+        status_text = case {kind, result} do
+          {:push, _} -> "Processed"
+          {:call, {:ok, _}} -> "Resolved"
+          {:call, _} -> "Rejected"
+        end
+
+        Logger.info(fn -> "#{status_text} in #{duration_ms}ms" end)
+
         result
       end
 
@@ -121,8 +143,11 @@ defmodule Surgex.RPC.Server do
         def handle_info({:basic_consume_ok, _meta}, chan), do: {:noreply, chan}
         def handle_info({:basic_cancel, _meta}, chan), do: {:stop, :normal, chan}
         def handle_info({:basic_cancel_ok, _meta}, chan), do: {:noreply, chan}
-        def handle_info({:basic_deliver, payload, %{delivery_tag: tag}}, chan) do
-          spawn fn -> consume(chan, tag, payload) end
+        def handle_info({:basic_deliver, payload, meta}, chan) do
+          spawn fn ->
+            consume(chan, meta, payload)
+          end
+
           {:noreply, chan}
         end
         def handle_info({:DOWN, _, :process, _pid, _reason}, _) do
@@ -166,10 +191,31 @@ defmodule Surgex.RPC.Server do
           end
         end
 
-        defp consume(channel, tag, payload) do
-          __server_mod__().process(payload)
+        defp consume(chan, meta, payload) do
+          {process_result, error, stacktrace} = try do
+            {__server_mod__().process(payload), nil, nil}
+          rescue
+            error ->
+              stacktrace = System.stacktrace
+              {{:ok, "ESRV"}, error, stacktrace}
+          end
 
-          Basic.ack(channel, tag)
+          case process_result do
+            :ok ->
+              nil
+            {:ok, response} ->
+              %{
+                correlation_id: correlation_id,
+                reply_to: reply_to
+              } = meta
+
+              Basic.publish(chan, "", reply_to, response, correlation_id: correlation_id)
+          end
+
+          %{delivery_tag: tag} = meta
+          Basic.ack(chan, tag)
+
+          if error, do: reraise(error, stacktrace)
         end
       end
     end

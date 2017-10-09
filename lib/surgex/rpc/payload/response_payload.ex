@@ -1,6 +1,34 @@
 defmodule Surgex.RPC.ResponsePayload do
   @moduledoc false
 
+  def encode({:ok, response}) do
+    Poison.encode!(%{"response_buf_b64" => Base.encode64(response)})
+  end
+  def encode({:error, errors}) do
+    Poison.encode!(%{"errors" => encode_errors(errors)})
+  end
+
+  defp encode_errors(errors) do
+    Enum.map(errors, &encode_error/1)
+  end
+
+  defp encode_error({reason, pointer}) do
+    %{
+      "reason" => encode_error_reason(reason),
+      "pointer" => encode_error_pointer(pointer)
+    }
+  end
+
+  defp encode_error_reason(atom) when is_atom(atom), do: ":#{atom}"
+  defp encode_error_reason(binary) when is_binary(binary), do: binary
+
+  defp encode_error_pointer(pointer) when is_list(pointer) do
+    Enum.map(pointer, &encode_error_pointer_item/1)
+  end
+  defp encode_error_pointer(_), do: nil
+
+  defp encode_error_pointer_item({type, key}), do: [to_string(type), key]
+
   def decode(payload) do
     case Poison.decode!(payload) do
       %{"errors" => errors} when is_list(errors) ->
