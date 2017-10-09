@@ -108,6 +108,7 @@ defmodule Surgex.RPC.Client do
 
   alias Surgex.Config
   alias Surgex.RPC.{
+    AMQPAdapter,
     CallError,
     HTTPAdapter,
     Processor,
@@ -334,6 +335,8 @@ defmodule Surgex.RPC.Client do
     response_payload = case adapter do
       :http ->
         HTTPAdapter.call(request_payload, adapter_opts)
+      :amqp ->
+        AMQPAdapter.call(request_payload, adapter_opts)
       adapter_mod ->
         adapter_mod.call(request_payload, adapter_opts)
     end

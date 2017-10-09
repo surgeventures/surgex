@@ -25,20 +25,12 @@ defmodule Surgex.RPC.HTTPAdapter do
 
   """
 
-  alias Surgex.Config
-  alias Surgex.RPC.TransportError
+  alias Surgex.RPC.{Config, TransportError}
 
   @doc false
   def call(request_payload, opts) do
-    url =
-      opts
-      |> Keyword.fetch!(:url)
-      |> Config.parse()
-
-    secret =
-      opts
-      |> Keyword.fetch!(:secret)
-      |> Config.parse()
+    url = Config.get!(opts, :url)
+    secret = Config.get!(opts, :secret)
 
     headers = build_headers(secret)
     response_body = make_http_request(url, request_payload, headers)
