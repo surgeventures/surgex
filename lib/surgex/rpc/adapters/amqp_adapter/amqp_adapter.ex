@@ -56,14 +56,12 @@ defmodule Surgex.RPC.AMQPAdapter do
   defp make_amqp_call(request, client_name, queue, timeout) do
     channel = GenServer.call(client_name, :get_channel)
     response_queue = GenServer.call(client_name, :get_response_queue)
-
-    Basic.consume(channel, response_queue, nil, no_ack: true)
-
     correlation_id = generate_request_id()
     opts = put_expiration([
       reply_to: response_queue,
       correlation_id: correlation_id], timeout)
 
+    Basic.consume(channel, response_queue, nil, no_ack: true)
     Basic.publish(channel, "", queue, request, opts)
 
     wait_for_response(correlation_id, timeout)
