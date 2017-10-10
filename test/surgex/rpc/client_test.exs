@@ -15,7 +15,7 @@ defmodule Surgex.RPC.SampleClientWithCustomAdapter do
 
   service proto: [from: Path.expand("./proto/empty.proto", __DIR__)],
           service_name: "create_user",
-          service_mod: __MODULE__.EmptyService,
+          proto_mod: __MODULE__.EmptyService,
           request_mod: __MODULE__.EmptyService.Request,
           response_mod: __MODULE__.EmptyService.Response,
           mock_mod: __MODULE__.EmptyService.Mock
@@ -206,7 +206,7 @@ defmodule Surgex.RPC.ClientTest do
 
       request = %SampleClientWithCustomAdapter.Empty.Request{}
 
-      assert_raise RuntimeError, "Dummy adapter (opts: [x: \"y\"])", fn ->
+      assert_raise RuntimeError, ~r/Dummy adapter/, fn ->
         SampleClientWithCustomAdapter.call!(request)
       end
     after
@@ -222,7 +222,7 @@ defmodule Surgex.RPC.ClientTest do
 
       request = %SampleClientWithCustomAdapter.EmptyService.Request{}
 
-      assert_raise RuntimeError, "Dummy adapter (opts: [x: \"y\"])", fn ->
+      assert_raise RuntimeError, ~r/Dummy adapter/, fn ->
         SampleClientWithCustomAdapter.call!(request)
       end
     after
