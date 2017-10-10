@@ -1,4 +1,4 @@
-defmodule Surgex.RPC.ServiceRoutingDSL do
+defmodule Surgex.RPC.Router do
   @moduledoc """
   Macros for defining a list of services later routed by RPC clients/servers.
   """
@@ -8,7 +8,7 @@ defmodule Surgex.RPC.ServiceRoutingDSL do
   @doc false
   defmacro __using__(_) do
     quote do
-      import Surgex.RPC.ServiceRoutingDSL
+      import Surgex.RPC.Router
 
       def __transport_opts__ do
         dsl_opts = try do

@@ -7,44 +7,44 @@ defmodule Surgex.RPC.AMQPAdapter.Server do
   alias AMQP.{Basic, Channel, Connection, Queue}
   alias Surgex.RPC.Config
 
-  def __server_mod__ do
-    nil
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts, [])
   end
 
-  def __transport_opts__ do
-    []
+  def init(opts) do
+    chan = connect(opts)
+    {:ok, {chan, opts}}
   end
 
-  def start_link(_opts \\ []), do: GenServer.start_link(__MODULE__, [], [])
-
-  def init(_opts), do: connect()
-
-  def handle_info({:basic_consume_ok, _meta}, chan), do: {:noreply, chan}
-  def handle_info({:basic_cancel, _meta}, chan), do: {:stop, :normal, chan}
-  def handle_info({:basic_cancel_ok, _meta}, chan), do: {:noreply, chan}
-  def handle_info({:basic_deliver, payload, meta}, chan) do
-    spawn fn -> consume(chan, meta, payload) end
-    {:noreply, chan}
+  def handle_info({:basic_consume_ok, _meta}, state), do: {:noreply, state}
+  def handle_info({:basic_cancel, _meta}, state), do: {:stop, :normal, state}
+  def handle_info({:basic_cancel_ok, _meta}, state), do: {:noreply, state}
+  def handle_info({:basic_deliver, payload, meta}, state = {chan, opts}) do
+    spawn fn -> consume(chan, opts, meta, payload) end
+    {:noreply, state}
   end
-  def handle_info({:DOWN, _, :process, _pid, _reason}, _) do
-    {:ok, chan} = connect()
-    {:noreply, chan}
+  def handle_info({:DOWN, _, :process, _pid, _reason}, {_, opts}) do
+    chan = connect(opts)
+    {:noreply, {chan, opts}}
   end
 
-  defp connect do
-    url = Config.get!(__transport_opts__(), :url)
-    queue = Config.get!(__transport_opts__(), :queue)
+  defp connect(opts) do
+    url = Config.get!(opts, :url)
+    queue = Config.get!(opts, :queue)
+    reconnect_int = Config.get(opts, :reconnect_interval, 5_000)
+    concurrency = Config.get(opts, :concurrency, 5)
 
     case init_conn_chan_queue(url, queue) do
       {:ok, conn, chan} ->
         Process.monitor(conn.pid)
+        Basic.consume(chan, queue)
+        Basic.qos(chan, prefetch_count: concurrency)
         Logger.debug(fn -> "Connected to #{url}, serving RPC calls from #{queue}" end)
-        {:ok, _consumer_tag} = Basic.consume(chan, queue)
-        {:ok, chan}
+        chan
       :error ->
-        Logger.error(fn -> "Connection to #{url} failed, reconnecting in 5s" end)
-        :timer.sleep(5_000)
-        connect()
+        Logger.error(fn -> "Connection to #{url} failed, reconnecting in #{reconnect_int}ms" end)
+        :timer.sleep(reconnect_int)
+        connect(opts)
     end
   end
 
@@ -52,7 +52,6 @@ defmodule Surgex.RPC.AMQPAdapter.Server do
     case Connection.open(url) do
       {:ok, conn} ->
         {:ok, chan} = Channel.open(conn)
-        Basic.qos(chan, prefetch_count: 1)
         Queue.declare(chan, queue)
         {:ok, conn, chan}
       {:error, _} ->
@@ -60,8 +59,10 @@ defmodule Surgex.RPC.AMQPAdapter.Server do
     end
   end
 
-  defp consume(chan, meta, payload) do
-    {response, error} = try_process(payload)
+  defp consume(chan, opts, meta, payload) do
+    server_mod = Keyword.fetch!(opts, :server_mod)
+
+    {response, error} = try_process(payload, server_mod)
     respond(response, chan, meta)
     Basic.ack(chan, meta.delivery_tag)
 
@@ -71,8 +72,8 @@ defmodule Surgex.RPC.AMQPAdapter.Server do
     end
   end
 
-  defp try_process(payload) do
-    response = __server_mod__().process(payload)
+  defp try_process(payload, server_mod) do
+    response = server_mod.process(payload)
     {response, nil}
   rescue
     exception ->

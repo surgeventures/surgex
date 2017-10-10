@@ -107,18 +107,17 @@ defmodule Surgex.RPC.Client do
   """
 
   alias Surgex.RPC.{
-    AMQPAdapter,
     CallError,
-    HTTPAdapter,
     Processor,
     RequestPayload,
     ResponsePayload,
+    Transport,
     TransportError,
   }
 
   defmacro __using__(_) do
     quote do
-      use Surgex.RPC.ServiceRoutingDSL
+      use Surgex.RPC.Router
 
       def call(request_struct) do
         apply_client(request_struct, :call)
@@ -195,7 +194,7 @@ defmodule Surgex.RPC.Client do
     request_payload = RequestPayload.encode(service_name, request_buf)
     response_payload =
       adapter
-      |> resolve_adapter()
+      |> Transport.resolve()
       |> apply(:call, [request_payload, adapter_opts])
 
     ResponsePayload.decode(response_payload)
@@ -250,11 +249,7 @@ defmodule Surgex.RPC.Client do
     request_payload = RequestPayload.encode(service_name, request_buf)
 
     adapter
-    |> resolve_adapter()
+    |> Transport.resolve()
     |> apply(:push, [request_payload, adapter_opts])
   end
-
-  defp resolve_adapter(:http), do: HTTPAdapter
-  defp resolve_adapter(:amqp), do: AMQPAdapter
-  defp resolve_adapter(adapter_mod), do: adapter_mod
 end

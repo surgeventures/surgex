@@ -2,6 +2,14 @@ defmodule Surgex.RPC.HTTPAdapter do
   @moduledoc """
   Transports RPC calls through HTTP requests protected with a secret header.
 
+  > **DEPRECATED:** The HTTP adapter doesn't support the push flow and it doesn't have a server
+  > component. While both of these could be implemented - with push client implemented via spawn and
+  > without caring about spawned process failures or server temporary downtime and the server
+  > component implemented either as Plug module or stand-alone cowboy server - all of these
+  > functionalities are a better fit for the `Surgex.RPC.AMQPAdapter` and hence that's the
+  > recommended transport method for these. The HTTP adapter in its current shape can only play a
+  > role of a call flow client for the RPC server implemented in other languages.
+
   ## Usage
 
   In order to use this adapter in your client, use the following code:
