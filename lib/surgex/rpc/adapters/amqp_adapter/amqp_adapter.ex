@@ -6,13 +6,28 @@ defmodule Surgex.RPC.AMQPAdapter do
 
   In order to use this adapter in your client, use the following code:
 
-      defmodule MyProject.MyRPC do
+      defmodule MyProject.RemoteRPC do
         use Surgex.RPC.Client
 
         transport :amqp,
           url: "amqp://example.com",
+          queue: "remote_rpc",
+          timeout: 15_000,
+          reconnect_interval: 1_000
+
+        # ...
+      end
+
+  In order to use this adapter in your server, use the following code:
+
+      defmodule MyProject.MyRPC do
+        use Surgex.RPC.Server
+
+        transport :amqp,
+          url: "amqp://example.com",
           queue: "my_rpc",
-          timeout: 15_000
+          concurrency: 5,
+          reconnect_interval: 5_000
 
         # ...
       end
@@ -21,27 +36,27 @@ defmodule Surgex.RPC.AMQPAdapter do
 
       config :my_project, MyProject.MyRPC,
         transport: [adapter: :amqp,
-                    url: {:system, "MY_RPC_AMQP_URL"}]
+                    url: {:system, "MY_RPC_AMQP_URL"},
+                    queue: {:system, "MY_RPC_AMQP_QUEUE"}]
 
   """
 
-  alias AMQP.{Basic, Channel, Connection, Queue}
-  alias Surgex.RPC.{Config, TransportError}
+  alias AMQP.{Basic, Channel, Connection}
+  alias Surgex.RPC.{TransportError, Utils}
 
   @doc false
   def call(request_payload, opts) do
-    url = Config.get!(opts, :url)
-    queue = Config.get!(opts, :queue)
-    timeout = Config.get(opts, :timeout, 15_000)
+    client_name = Keyword.fetch!(opts, :client_name)
+    queue = Utils.get_config!(opts, :queue)
+    timeout = Utils.get_config(opts, :timeout, 15_000)
 
-    make_amqp_call(request_payload, url, queue, timeout)
+    make_amqp_call(request_payload, client_name, queue, timeout)
   end
 
-  defp make_amqp_call(request, url, queue, timeout) do
-    {:ok, connection} = Connection.open(url)
-    {:ok, channel} = Channel.open(connection)
+  defp make_amqp_call(request, client_name, queue, timeout) do
+    channel = GenServer.call(client_name, :get_channel)
+    response_queue = GenServer.call(client_name, :get_response_queue)
 
-    {:ok, %{queue: response_queue}} = Queue.declare(channel, "", exclusive: true)
     Basic.consume(channel, response_queue, nil, no_ack: true)
 
     correlation_id = generate_request_id()
@@ -77,8 +92,8 @@ defmodule Surgex.RPC.AMQPAdapter do
 
   @doc false
   def push(request_payload, opts) do
-    url = Config.get!(opts, :url)
-    queue = Config.get!(opts, :queue)
+    url = Utils.get_config!(opts, :url)
+    queue = Utils.get_config!(opts, :queue)
 
     make_amqp_push(request_payload, url, queue)
   end

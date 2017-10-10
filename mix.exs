@@ -66,6 +66,7 @@ defmodule Surgex.Mixfile do
 
   defp optional_deps do
     [
+      {:amqp, "~> 0.2.0"},
       {:ecto, "~> 2.1.4"},
       {:ex_marshal, "~> 0.0.8"},
       {:ex_phone_number, "~> 0.1.1"},

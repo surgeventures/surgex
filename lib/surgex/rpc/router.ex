@@ -32,6 +32,7 @@ defmodule Surgex.RPC.Router do
 
   The following adapters are supported:
 
+  - `Surgex.RPC.AMQPAdapter`
   - `Surgex.RPC.HTTPAdapter`
 
   You may also use your own adapter module by passing it as first argument.
@@ -80,13 +81,13 @@ defmodule Surgex.RPC.Router do
 
   - `proto`: options passed to `Protobuf`, usually `[from: "some/proto/file.proto"]`
   - `service_name`: string identifier of the service; defaults to proto file's root name
-  - `service_mod`: base module that hosts the proto structures; defaults to camelized service name
-    nested in the client module
-  - `request_mod`: request struct module; defaults to `Request` structure nested in the service
+  - `proto_mod`: base module that hosts the proto structures; defaults to camelized service name
+    nested in the client/server module
+  - `request_mod`: request struct module; defaults to `Request` structure nested in `proto_mod`
     module
-  - `response_mod`: response struct module; defaults to `Response` structure nested in the service
-    module
-  - `mock_mod`: mock module; defaults to service module suffixed with `Mock`
+  - `response_mod`: response struct module; defaults to `Response` structure nested in `proto_mod`
+  - `service_mod`: mock module; defaults to `proto_mod` suffixed with `Service`
+  - `mock_mod`: mock module; defaults to `proto_mod` suffixed with `Mock`
 
   """
   # credo:disable-for-next-line /ABCSize|CyclomaticComplexity/
@@ -148,6 +149,10 @@ defmodule Surgex.RPC.Router do
       def __service_opts__(unquote(service_name)), do: unquote(service_opts)
 
       defmodule unquote(proto_mod) do
+        @moduledoc """
+        Holds proto structures for the `#{unquote(service_name)}` service.
+        """
+
         use Protobuf, unquote(proto)
 
         def __service_opts__, do: unquote(service_opts)

@@ -1,44 +1,46 @@
 defmodule Surgex.RPC.HTTPAdapter do
   @moduledoc """
-  Transports RPC calls through HTTP requests protected with a secret header.
+  Transports RPC calls through HTTP requests protected by secret header.
 
   > **DEPRECATED:** The HTTP adapter doesn't support the push flow and it doesn't have a server
-  > component. While both of these could be implemented - with push client implemented via spawn and
-  > without caring about spawned process failures or server temporary downtime and the server
-  > component implemented either as Plug module or stand-alone cowboy server - all of these
-  > functionalities are a better fit for the `Surgex.RPC.AMQPAdapter` and hence that's the
-  > recommended transport method for these. The HTTP adapter in its current shape can only play a
-  > role of a call flow client for the RPC server implemented in other languages.
+  > component, which means it can only play a role of a call flow client for the RPC server
+  > implemented in other languages.
+  >
+  > While both of these could be implemented (with push client implemented via spawn and without
+  > caring about spawned process failures or server temporary downtime and the server component
+  > implemented either as Plug module or stand-alone cowboy server), all of these functionalities
+  > are a better fit for the `Surgex.RPC.AMQPAdapter` and hence that's the recommended transport
+  > method in such cases.
 
   ## Usage
 
   In order to use this adapter in your client, use the following code:
 
-      defmodule MyProject.MyRPC do
+      defmodule MyProject.RemoteRPC do
         use Surgex.RPC.Client
 
         transport :http,
           url: "https://app.example.com/rpc",
-          secret: "my-rpc-secret"
+          secret: "remote-rpc-secret"
 
         # ...
       end
 
   You can also configure the adapter per environment in your Mix config as follows:
 
-      config :my_project, MyProject.MyRPC,
+      config :my_project, MyProject.RemoteRPC,
         transport: [adapter: :http,
-                    url: {:system, "MY_RPC_URL"},
-                    secret: {:system, "MY_RPC_SECRET"}]
+                    url: {:system, "REMOTE_RPC_URL"},
+                    secret: {:system, "REMOTE_RPC_SECRET"}]
 
   """
 
-  alias Surgex.RPC.{Config, TransportError}
+  alias Surgex.RPC.{TransportError, Utils}
 
   @doc false
   def call(request_payload, opts) do
-    url = Config.get!(opts, :url)
-    secret = Config.get!(opts, :secret)
+    url = Utils.get_config!(opts, :url)
+    secret = Utils.get_config!(opts, :secret)
 
     headers = build_headers(secret)
     response_body = make_http_request(url, request_payload, headers)

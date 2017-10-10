@@ -5,7 +5,7 @@ defmodule Surgex.RPC.AMQPAdapter.Server do
   use GenServer
   require Logger
   alias AMQP.{Basic, Channel, Connection, Queue}
-  alias Surgex.RPC.Config
+  alias Surgex.RPC.Utils
 
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, [])
@@ -29,10 +29,10 @@ defmodule Surgex.RPC.AMQPAdapter.Server do
   end
 
   defp connect(opts) do
-    url = Config.get!(opts, :url)
-    queue = Config.get!(opts, :queue)
-    reconnect_int = Config.get(opts, :reconnect_interval, 5_000)
-    concurrency = Config.get(opts, :concurrency, 5)
+    url = Utils.get_config!(opts, :url)
+    queue = Utils.get_config!(opts, :queue)
+    reconnect_int = Utils.get_config(opts, :reconnect_interval, 5_000)
+    concurrency = Utils.get_config(opts, :concurrency, 5)
 
     case init_conn_chan_queue(url, queue) do
       {:ok, conn, chan} ->
