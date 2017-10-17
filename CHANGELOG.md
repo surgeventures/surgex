@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.19.0
+
+- Added `Surgex.DataPipe.RepoProxy`
+
 ## 2.18.0
 
 - Added `Surgex.Parser.ListParser`
