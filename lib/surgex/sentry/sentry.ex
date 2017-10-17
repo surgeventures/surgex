@@ -76,7 +76,7 @@ defmodule Surgex.Sentry do
       use Sentry.Plug, body_scrubber: &Surgex.Sentry.scrub_params/1
 
   """
-  def scrub_params(%Plug.Conn{params: params}), do: scrub_map(params)
+  def scrub_params(%{__struct__: Plug.Conn, params: params}), do: scrub_map(params)
 
   defp scrub_map(map = %{}) do
     map

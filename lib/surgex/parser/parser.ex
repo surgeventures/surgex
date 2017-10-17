@@ -54,19 +54,17 @@ defmodule Surgex.Parser do
     which the first failure stops the whole pipe; for example `[:integer, :required]`
   """
 
-  use Jabbax.Document
-
   @doc """
   Parses controller action input (parameters, documents) with a given set of parsers.
 
   Returns a keyword list with parsed options.
   """
   def parse(input, parsers)
-  def parse(resource = %Resource{}, parsers) do
+  def parse(resource = %{__struct__: Jabbax.Document.Resource}, parsers) do
     resource
     |> parse_resource(parsers)
   end
-  def parse(doc = %Document{}, parsers) do
+  def parse(doc = %{__struct__: Jabbax.Document}, parsers) do
     doc
     |> parse_doc(parsers)
   end
@@ -83,7 +81,7 @@ defmodule Surgex.Parser do
   tuple instead of a `[key1: value1, key2: value2, ...]` keyword list.
   """
   def flat_parse(input, parsers)
-  def flat_parse(doc = %Document{}, parsers) do
+  def flat_parse(doc = %{__struct__: Jabbax.Document}, parsers) do
     with {:ok, list} <- parse_doc(doc, parsers, include_missing: true) do
       output =
         list
