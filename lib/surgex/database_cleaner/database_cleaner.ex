@@ -114,4 +114,3 @@ case Code.ensure_loaded(Ecto) do
   _ ->
     nil
 end
-

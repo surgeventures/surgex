@@ -3,7 +3,7 @@ defmodule Surgex.Mixfile do
 
   def project do
     [app: :surgex,
-     version: "2.19.0",
+     version: "2.20.0",
      elixir: "~> 1.4",
      elixirc_paths: elixirc_paths(Mix.env),
      build_embedded: Mix.env == :prod,
@@ -79,9 +79,8 @@ defmodule Surgex.Mixfile do
 
   defp check_alias do
     [
-      "deps.get",
-      "clean",
       "test",
+      "credo --strict",
     ]
   end
 

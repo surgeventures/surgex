@@ -48,10 +48,14 @@ defmodule Surgex.DataPipe.FollowerSync do
   Waits for a given slave repo's sync up to specific remote master's lsn.
   """
   def call(repo, lsn) do
-    if enabled?(repo) do
-      wait_for_sync(repo, lsn)
-    else
-      :ok
+    cond do
+      !enabled?(repo) ->
+        :ok
+      !lsn_valid?(lsn) ->
+        Logger.warn("Invalid LSN: #{inspect lsn}")
+        {:error, :invalid_lsn}
+      true ->
+        wait_for_sync(repo, lsn)
     end
   end
 
@@ -73,7 +77,7 @@ defmodule Surgex.DataPipe.FollowerSync do
         :ok
 
       elapsed_time >= timeout ->
-        Logger.error(fn -> "Follower sync timeout after #{timeout}ms: #{last_lsn} < #{lsn}" end)
+        Logger.warn(fn -> "Follower sync timeout after #{timeout}ms: #{last_lsn} < #{lsn}" end)
         {:error, :timeout}
 
       true ->
@@ -85,10 +89,15 @@ defmodule Surgex.DataPipe.FollowerSync do
   defp select_last_replay_lsn(repo) do
     case apply(repo, :query!, ["SELECT pg_last_xlog_replay_location()::varchar"]) do
       %{rows: [[lsn]]} when is_binary(lsn) ->
-        {:ok, lsn}
+        if lsn_valid?(lsn) do
+          {:ok, lsn}
+        else
+          Logger.warn(fn -> "Invalid replay LSN: #{inspect lsn}" end)
+          {:error, :invalid_replay_lsn}
+        end
       _ ->
-        Logger.error(fn -> "Unable to fetch pg_last_xlog_replay_location" end)
-        {:error, :no_replay_location}
+        Logger.warn(fn -> "No replay LSN (consider setting follower_sync_enabled: false)" end)
+        {:error, :no_replay_lsn}
     end
   end
 
@@ -108,6 +117,15 @@ defmodule Surgex.DataPipe.FollowerSync do
         Application.get_env(:surgex, key, default)
       repo_value ->
         repo_value
+    end
+  end
+
+  @lsn_regex ~r/^[0-9A-F]{1,8}\/[0-9A-F]{8}$/
+
+  def lsn_valid?(lsn) do
+    case is_binary(lsn) && Regex.run(@lsn_regex, lsn) do
+      [_] -> true
+      _ -> false
     end
   end
 end

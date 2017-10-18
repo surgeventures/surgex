@@ -3,6 +3,8 @@ defmodule Surgex.DataPipe.RepoProxy do
   Proxies repo calls to appropriate repos depending on replication needs.
   """
 
+  alias Mix.Project
+
   @read_funcs [
     aggregate: 3, aggregate: 4,
     all: 1, all: 2,
@@ -86,7 +88,7 @@ defmodule Surgex.DataPipe.RepoProxy do
       end
 
       defp get_config(key, default \\ nil) do
-        Mix.Project.config[:app]
+        Project.config[:app]
         |> Application.get_env(__MODULE__, [])
         |> Keyword.get(key, default)
       end

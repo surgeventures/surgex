@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.20.0
+
+- Refine error handling in `Surgex.DataPipe.FollowerSync`
+
 ## 2.19.0
 
 - Added `Surgex.DataPipe.RepoProxy`

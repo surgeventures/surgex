@@ -55,7 +55,8 @@ case Code.ensure_loaded(Ecto) do
         input_scope = Keyword.get(opts, :scope)
         delete_scope = Keyword.get(opts, :delete_scope)
         scoped_query = apply_query_scope(query, input_scope)
-        scoped_delete_query_sql = apply_delete_sql_scope(delete_query_sql, delete_scope || input_scope)
+        scoped_delete_query_sql = apply_delete_sql_scope(
+          delete_query_sql, delete_scope || input_scope)
         columns_sql = list_to_sql(columns)
         {scoped_query_sql, params} = query_to_sql(repo, scoped_query)
         on_conflict = parse_on_conflict(
