@@ -120,7 +120,7 @@ defmodule Surgex.DataPipe.FollowerSync do
     end
   end
 
-  @lsn_regex ~r/^[0-9A-F]{1,8}\/[0-9A-F]{8}$/
+  @lsn_regex ~r/^[0-9A-F]{1,8}\/[0-9A-F]{1,8}$/
 
   def lsn_valid?(lsn) do
     case is_binary(lsn) && Regex.run(@lsn_regex, lsn) do
