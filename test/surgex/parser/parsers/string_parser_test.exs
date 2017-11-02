@@ -8,6 +8,7 @@ defmodule Surgex.Parser.StringParserTest do
 
   test "valid input" do
     assert StringParser.call("") == {:ok, nil}
+    assert StringParser.call("", :allow_empty) == {:ok, ""}
     assert StringParser.call("abc") == {:ok, "abc"}
   end
 end
