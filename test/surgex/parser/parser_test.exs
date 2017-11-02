@@ -12,6 +12,7 @@ defmodule Surgex.ParserTest do
     last_name: :string,
     phone: :string,
     include: [{:include, [:comments]}, :required],
+    address: [{:string, :allow_empty}]
   ]
 
   @valid_params %{
@@ -20,7 +21,8 @@ defmodule Surgex.ParserTest do
     "price" => "10.5",
     "first-name" => "Jack",
     "last-name" => "",
-    "include" => "comments"
+    "include" => "comments",
+    "address" => ""
   }
 
   @invalid_params %{
@@ -82,6 +84,7 @@ defmodule Surgex.ParserTest do
       parser_output = Parser.parse @valid_params, @param_parsers
 
       assert parser_output == {:ok, [
+        address: "",
         include: [:comments],
         last_name: nil,
         first_name: "Jack",
@@ -234,7 +237,7 @@ defmodule Surgex.ParserTest do
     test "valid params" do
       parser_output = Parser.flat_parse @valid_params, @param_parsers
 
-      assert parser_output == {:ok, 123, "asdf", 10.5, "Jack", nil, nil, [:comments]}
+      assert parser_output == {:ok, 123, "asdf", 10.5, "Jack", nil, nil, [:comments], ""}
     end
 
     test "invalid params" do
