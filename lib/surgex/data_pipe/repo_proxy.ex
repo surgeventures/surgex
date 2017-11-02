@@ -1,9 +1,11 @@
 defmodule Surgex.DataPipe.RepoProxy do
   @moduledoc """
-  Proxies calls to multiple repos depending on replication needs.
+  Proxies repo calls depending on replication needs.
   """
 
   defmodule Registry do
+    @moduledoc false
+
     use GenServer
 
     def start_link(opts) do

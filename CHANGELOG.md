@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.21.0
+
+- Extended `Surgex.DataPipe.RepoProxy` with registry and follower sync
+
 ## 2.20.1
 
 - Fixed LSN check in `Surgex.DataPipe.FollowerSync`
