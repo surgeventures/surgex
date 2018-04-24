@@ -9,11 +9,21 @@ defmodule Surgex.Parser.IncludeParser do
   @doc false
   def call(nil, _spec), do: {:ok, []}
   def call("", _spec), do: {:ok, []}
-  def call(input, [allowed_path]) when is_binary(input) do
-    if input == Atom.to_string(allowed_path) do
-      {:ok, [allowed_path]}
-    else
-      {:error, :invalid_relationship_path}
+
+  def call(input, allowed_paths) when is_binary(input) do
+    paths = String.split(input, ",")
+    allowed_paths = Enum.map(allowed_paths, &convert_to_string/1)
+
+    validate_relationship_path(paths, allowed_paths)
+  end
+
+  defp convert_to_string(path) when is_binary(path), do: path
+  defp convert_to_string(path) when is_atom(path), do: Atom.to_string(path)
+
+  defp validate_relationship_path(paths, allowed_paths) do
+    case Enum.all?(paths, &Enum.member?(allowed_paths, &1)) do
+      true -> {:ok, Enum.map(paths, &String.to_atom/1)}
+      false -> {:error, :invalid_relationship_path}
     end
   end
 
@@ -30,13 +40,16 @@ defmodule Surgex.Parser.IncludeParser do
     case Keyword.pop(opts, key) do
       {nil, _} ->
         {:ok, opts}
+
       {value_list, rem_opts} when is_list(value_list) ->
         new_opts =
           value_list
           |> Enum.map(fn value -> {String.to_atom("#{key}_#{value}"), true} end)
           |> Keyword.merge(rem_opts)
+
         {:ok, new_opts}
     end
   end
+
   def flatten(input, _key), do: input
 end

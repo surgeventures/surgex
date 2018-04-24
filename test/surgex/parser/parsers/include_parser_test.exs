@@ -10,17 +10,27 @@ defmodule Surgex.Parser.IncludeParserTest do
     test "valid input" do
       assert IncludeParser.call("", [:user]) == {:ok, []}
       assert IncludeParser.call("user", [:user]) == {:ok, [:user]}
+      assert IncludeParser.call("user", [:user, :"user.ledger-account"]) == {:ok, [:user]}
+      assert IncludeParser.call("user", ["user", "user.ledger-account"]) == {:ok, [:user]}
+
+      assert IncludeParser.call("user,user.ledger-account", [:user, :"user.ledger-account"]) ==
+               {:ok, [:user, :"user.ledger-account"]}
+
+      assert IncludeParser.call("user,user.ledger-account", ["user", "user.ledger-account"]) ==
+               {:ok, [:user, :"user.ledger-account"]}
     end
 
     test "invalid input" do
       assert IncludeParser.call("other", [:user]) == {:error, :invalid_relationship_path}
+
+      assert IncludeParser.call("other,user.ledger-account", [:user, :"user.ledger-account"]) ==
+               {:error, :invalid_relationship_path}
     end
   end
 
   describe "flatten/2" do
     test "valid input" do
-      assert IncludeParser.flatten({:ok, include: [:user]}, :include) ==
-        {:ok, include_user: true}
+      assert IncludeParser.flatten({:ok, include: [:user]}, :include) == {:ok, include_user: true}
     end
 
     test "invalid input" do
