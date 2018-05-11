@@ -9,28 +9,28 @@ defmodule Surgex.Parser.ResourceArrayParser do
 
     case validate_length(list, min, max) do
       {:ok, list} -> parse_array(list, item_parser)
-      {:error, :too_short} -> {:error, :too_short}
-      {:error, :too_long} -> {:error, :too_long}
+      {:error, :not_enough} -> {:error, :not_enough}
+      {:error, :too_many} -> {:error, :too_many}
     end
   end
 
   defp validate_length(list, nil, nil), do: {:ok, list}
   defp validate_length(list, nil, max) do
     case length(list) > max do
-      true -> {:error, :too_long}
+      true -> {:error, :too_many}
       false -> {:ok, list}
     end
   end
   defp validate_length(list, min, nil) do
     case length(list) < min do
-      true -> {:error, :too_short}
+      true -> {:error, :not_enough}
       false -> {:ok, list}
     end
   end
   defp validate_length(list, min, max) do
     case {length(list) < min, length(list) > max} do
-      {true, _} -> {:error, :too_short}
-      {false, true} -> {:error, :too_long}
+      {true, _} -> {:error, :not_enough}
+      {false, true} -> {:error, :too_many}
       {false, false} -> {:ok, list}
     end
   end
