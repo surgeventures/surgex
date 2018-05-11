@@ -9,28 +9,29 @@ defmodule Surgex.Parser.ResourceArrayParser do
 
     case validate_length(list, min, max) do
       {:ok, list} -> parse_array(list, item_parser)
-      {:error, :invalid_length} -> {:error, :invalid_length}
+      {:error, :too_short} -> {:error, :too_short}
+      {:error, :too_long} -> {:error, :too_long}
     end
   end
 
   defp validate_length(list, nil, nil), do: {:ok, list}
   defp validate_length(list, nil, max) do
     case length(list) > max do
-      true -> {:error, :invalid_length}
+      true -> {:error, :too_long}
       false -> {:ok, list}
     end
   end
   defp validate_length(list, min, nil) do
     case length(list) < min do
-      true -> {:error, :invalid_length}
+      true -> {:error, :too_short}
       false -> {:ok, list}
     end
   end
   defp validate_length(list, min, max) do
-    valid_range = min..max
-    case Enum.member?(valid_range, length(list)) do
-      true -> {:ok, list}
-      false -> {:error, :invalid_length}
+    case {length(list) < min, length(list) > max} do
+      {true, _} -> {:error, :too_short}
+      {false, true} -> {:error, :too_long}
+      {false, false} -> {:ok, list}
     end
   end
 
