@@ -11,7 +11,7 @@ defmodule Surgex.Parser.ResourceArrayParserTest do
       assert %{id: id} = resource
 
       {:ok, [id: id]}
-    end) == {:ok, [[id: "123"], [id: "456"]]}
+    end, min: 1, max: 2) == {:ok, [[id: "123"], [id: "456"]]}
   end
 
   test "invalid input" do
@@ -20,5 +20,20 @@ defmodule Surgex.Parser.ResourceArrayParserTest do
 
       {:error, :invalid_pointers, [id: "id"]}
     end) == {:error, [id: "0/id", id: "1/id"]}
+  end
+
+  test "min out of range" do
+    assert ResourceArrayParser.call([%{id: "123"}], fn _ -> nil end, min: 2) ==
+    {:error, :invalid_length}
+  end
+
+  test "max out of range" do
+    assert ResourceArrayParser.call([%{id: "123"}, %{id: "456"}], fn _ -> nil end, max: 1) ==
+    {:error, :invalid_length}
+  end
+
+  test "invalid length" do
+    assert ResourceArrayParser.call([%{id: "123"}, %{id: "456"}, %{id: "789"}], fn _ -> nil end,
+      min: 1, max: 2) == {:error, :invalid_length}
   end
 end

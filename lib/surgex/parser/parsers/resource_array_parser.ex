@@ -1,8 +1,40 @@
 defmodule Surgex.Parser.ResourceArrayParser do
   @moduledoc false
 
-  def call(nil, _item_parser), do: {:ok, nil}
-  def call(list, item_parser) when is_list(list) do
+  def call(list, item_parser, opts \\ [])
+  def call(nil, _item_parser, _opts), do: {:ok, nil}
+  def call(list, item_parser, opts) when is_list(list) do
+    min = Keyword.get(opts, :min)
+    max = Keyword.get(opts, :max)
+
+    case validate_length(list, min, max) do
+      {:ok, list} -> parse_array(list, item_parser)
+      {:error, :invalid_length} -> {:error, :invalid_length}
+    end
+  end
+
+  defp validate_length(list, nil, nil), do: {:ok, list}
+  defp validate_length(list, nil, max) do
+    case length(list) > max do
+      true -> {:error, :invalid_length}
+      false -> {:ok, list}
+    end
+  end
+  defp validate_length(list, min, nil) do
+    case length(list) < min do
+      true -> {:error, :invalid_length}
+      false -> {:ok, list}
+    end
+  end
+  defp validate_length(list, min, max) do
+    valid_range = min..max
+    case Enum.member?(valid_range, length(list)) do
+      true -> {:ok, list}
+      false -> {:error, :invalid_length}
+    end
+  end
+
+  defp parse_array(list, item_parser) do
     list
     |> Enum.map(item_parser)
     |> Stream.with_index()
