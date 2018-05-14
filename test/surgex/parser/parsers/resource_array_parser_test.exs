@@ -24,21 +24,21 @@ defmodule Surgex.Parser.ResourceArrayParserTest do
 
   test "min out of range" do
     assert ResourceArrayParser.call([%{id: "123"}], fn _ -> nil end, min: 2) ==
-    {:error, :not_enough}
+    {:error, :too_short}
   end
 
   test "max out of range" do
     assert ResourceArrayParser.call([%{id: "123"}, %{id: "456"}], fn _ -> nil end, max: 1) ==
-    {:error, :too_many}
+    {:error, :too_long}
   end
 
   test "min and max present, array too short" do
     assert ResourceArrayParser.call([%{id: "123"}, %{id: "456"}], fn _ -> nil end,
-      min: 3, max: 4) == {:error, :not_enough}
+      min: 3, max: 4) == {:error, :too_short}
   end
 
   test "min and max present, array too long" do
     assert ResourceArrayParser.call([%{id: "123"}, %{id: "456"}, %{id: "789"}], fn _ -> nil end,
-      min: 1, max: 2) == {:error, :too_many}
+      min: 1, max: 2) == {:error, :too_long}
   end
 end
