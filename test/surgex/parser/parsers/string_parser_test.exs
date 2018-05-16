@@ -9,6 +9,7 @@ defmodule Surgex.Parser.StringParserTest do
   test "valid input" do
     assert StringParser.call("") == {:ok, nil}
     assert StringParser.call("abc") == {:ok, "abc"}
+    assert StringParser.call("  abc  ") == {:ok, "  abc  "}
   end
 
   test "min" do
@@ -17,6 +18,7 @@ defmodule Surgex.Parser.StringParserTest do
     assert StringParser.call("", opt) == {:error, :too_short}
     assert StringParser.call("abc", opt) == {:error, :too_short}
     assert StringParser.call("abcd", opt) == {:ok, "abcd"}
+    assert StringParser.call("  abcd  ", opt) == {:ok, "  abcd  "}
     assert StringParser.call("abcde", opt) == {:ok, "abcde"}
   end
 
