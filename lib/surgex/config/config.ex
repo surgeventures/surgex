@@ -2,6 +2,9 @@ defmodule Surgex.Config do
   @moduledoc """
   Application config getter, aka. `Application.get_env` on steroids.
 
+  **WARNING**: This module is deprecated and will be removed in next major release. Please use
+  https://github.com/surgeventures/confix instead.
+
   This getter embodies the usage of `{:system, "ENV_VAR_NAME"}` convention for managing configs via
   system env vars on environments like Heroku. This convention is further extended here to allow
   type casting and falling back to defaults in such tuples.

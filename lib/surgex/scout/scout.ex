@@ -1,6 +1,9 @@
 defmodule Surgex.Scout do
   @moduledoc """
   Extensions to the official Scout package.
+
+  **WARNING**: This module is deprecated and will be removed in next major release. Please use
+  https://github.com/surgeventures/confix instead.
   """
 
   alias Surgex.Config

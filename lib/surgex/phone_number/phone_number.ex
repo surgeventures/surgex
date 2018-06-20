@@ -1,6 +1,9 @@
 defmodule Surgex.PhoneNumber do
   @moduledoc """
   An `Ecto.Type` implementation of E164-compilant phone numbers.
+
+  **WARNING**: This module is deprecated and will be removed in next major release. Please use
+  https://github.com/surgeventures/ecto-phone-number instead.
   """
 
   @behaviour Ecto.Type

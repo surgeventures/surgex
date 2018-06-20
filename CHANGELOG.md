@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.23.0
+
+- Added `Surgex.DataPipe.PostgresSystemUtils`
+- Fixed `Surgex.DataPipe` to support PostgreSQL 10
+- Reformatted code with Elixir Formatter
+- Deprecated `Surgex.{Config, DeviseSession, PhoneNumber, RPC, Scout}` modules
+
+## 2.22.0
+
+- Extended `Surgex.Parser.StringParser` with `trim`, `min` and `max` options
+- Extended `Surgex.Parser.ResourceArrayParser` with `min` and `max` options
+- Extended `Surgex.Parser.IncludeParser` with support for multiple includes
+
 ## 2.21.0
 
 - Extended `Surgex.DataPipe.RepoProxy` with registry and follower sync

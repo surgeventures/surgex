@@ -2,6 +2,10 @@ defmodule Surgex.DataPipe.FollowerSyncTest.RepoMock do
   def query!("SELECT pg_last_xlog_replay_location()::varchar") do
     %{rows: [["0/00000001"]]}
   end
+
+  def query!("SELECT version()") do
+    %{rows: [["PostgreSQL 9.6.2"]]}
+  end
 end
 
 defmodule Surgex.DataPipe.FollowerSyncTest.RepoWithUsingMock do
@@ -10,11 +14,19 @@ defmodule Surgex.DataPipe.FollowerSyncTest.RepoWithUsingMock do
   def query!("SELECT pg_last_xlog_replay_location()::varchar") do
     %{rows: [["0/00000001"]]}
   end
+
+  def query!("SELECT version()") do
+    %{rows: [["PostgreSQL 9.6.2"]]}
+  end
 end
 
 defmodule Surgex.DataPipe.FollowerSyncTest.RepoWithoutLogMock do
-  def query!("SELECT pg_last_xlog_replay_location()::varchar") do
+  def query!("SELECT pg_last_wal_replay_lsn()::varchar") do
     nil
+  end
+
+  def query!("SELECT version()") do
+    %{rows: [["PostgreSQL 10.4"]]}
   end
 end
 

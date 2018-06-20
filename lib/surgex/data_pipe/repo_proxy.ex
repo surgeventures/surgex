@@ -217,7 +217,7 @@ defmodule Surgex.DataPipe.RepoProxy do
         def acquire_sync do
           with process_repo when not is_nil(process_repo) <- get_process_repo(),
                [master_repo] when master_repo != process_repo <- get_repos(:write),
-               %{rows: [[lsn]]} = master_repo.query!("SELECT pg_current_xlog_location()::varchar") do
+               {:ok, lsn} <- PostgresSystemUtils.get_current_wal_lsn(master_repo) do
             FollowerSync.call(process_repo, lsn)
           else
             _ -> :ok
