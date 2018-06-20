@@ -21,7 +21,7 @@ defmodule Surgex.Parser.SortParserTest do
   describe "flatten/2" do
     test "valid input" do
       assert SortParser.flatten({:ok, sort: {:asc, :col}}, :sort) ==
-        {:ok, sort_by: :col, sort_direction: :asc}
+               {:ok, sort_by: :col, sort_direction: :asc}
     end
 
     test "invalid input" do

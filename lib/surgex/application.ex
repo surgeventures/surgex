@@ -6,10 +6,12 @@ defmodule Surgex.Application do
   use Application
   use GenServer
   require Logger
+
   alias Surgex.{
     Scout,
-    Sentry,
+    Sentry
   }
+
   alias Surgex.Config.Patch
 
   @doc false

@@ -9,10 +9,12 @@ defmodule Surgex.Parser.SortParser do
 
   @doc false
   def call(nil, _allowed_columns), do: {:ok, nil}
+
   def call(input, allowed_columns) when is_binary(input) do
     case input do
       "-" <> column ->
         validate_allowed_columns(column, allowed_columns, :desc)
+
       column ->
         validate_allowed_columns(column, allowed_columns, :asc)
     end
@@ -29,11 +31,10 @@ defmodule Surgex.Parser.SortParser do
   end
 
   defp atomize_maybe_dasherized(string) do
-    atomize(string) || (
+    atomize(string) ||
       string
       |> String.replace("-", "_")
       |> atomize
-    )
   end
 
   defp atomize(string) do
@@ -55,11 +56,13 @@ defmodule Surgex.Parser.SortParser do
     case Keyword.pop(opts, key) do
       {nil, _} ->
         {:ok, opts}
+
       {{direction, column}, rem_opts} ->
         final_opts = Keyword.merge(rem_opts, sort_by: column, sort_direction: direction)
 
         {:ok, final_opts}
     end
   end
+
   def flatten(input, _key), do: input
 end

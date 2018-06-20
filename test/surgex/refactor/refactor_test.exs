@@ -9,19 +9,22 @@ defmodule Surgex.RefactorTest do
 
     File.write(
       "test/samples/valid_xyz_mod.ex",
-      "defmodule Surgex.Refactor.MapFilenamesTest.ValidXYZMod, do: nil")
+      "defmodule Surgex.Refactor.MapFilenamesTest.ValidXYZMod, do: nil"
+    )
 
     File.write(
       "test/samples/wrong_xyz_mod.ex",
-      "defmodule Surgex.Refactor.MapFilenamesTest.InvalidXYZMod, do: nil")
+      "defmodule Surgex.Refactor.MapFilenamesTest.InvalidXYZMod, do: nil"
+    )
   end
 
   test "expands recursively when no path is given" do
-    result = capture_io(fn ->
-      Refactor.call([
-        "map_filenames",
-      ])
-    end)
+    result =
+      capture_io(fn ->
+        Refactor.call([
+          "map_filenames"
+        ])
+      end)
 
     assert result =~ ~r(wrong_xyz_mod.ex)
 
@@ -29,12 +32,13 @@ defmodule Surgex.RefactorTest do
   end
 
   test "handles wrong path" do
-    result = capture_io(fn ->
-      Refactor.call([
-        "map_filenames",
-        "wrong_path",
-      ])
-    end)
+    result =
+      capture_io(fn ->
+        Refactor.call([
+          "map_filenames",
+          "wrong_path"
+        ])
+      end)
 
     assert result =~ ~r/No files found/
 
@@ -42,12 +46,13 @@ defmodule Surgex.RefactorTest do
   end
 
   test "map filenames without fixing them" do
-    result = capture_io(fn ->
-      Refactor.call([
-        "map_filenames",
-        "test/samples",
-      ])
-    end)
+    result =
+      capture_io(fn ->
+        Refactor.call([
+          "map_filenames",
+          "test/samples"
+        ])
+      end)
 
     assert result =~ ~r/You're in a simulation mode, pass the --fix option to apply the action./
     assert result =~ ~r(/wrong_xyz_mod.ex => test/.*/invalid_xyz_mod.ex)
@@ -60,13 +65,14 @@ defmodule Surgex.RefactorTest do
   end
 
   test "map filenames with fixing them" do
-    result = capture_io(fn ->
-      Refactor.call([
-        "map_filenames",
-        "test/samples",
-        "--fix",
-      ])
-    end)
+    result =
+      capture_io(fn ->
+        Refactor.call([
+          "map_filenames",
+          "test/samples",
+          "--fix"
+        ])
+      end)
 
     refute result =~ ~r/You're in a simulation mode, pass the --fix option to apply the action./
     assert result =~ ~r(/wrong_xyz_mod.ex => test/.*/invalid_xyz_mod.ex)

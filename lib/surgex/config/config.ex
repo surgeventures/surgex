@@ -2,6 +2,9 @@ defmodule Surgex.Config do
   @moduledoc """
   Application config getter, aka. `Application.get_env` on steroids.
 
+  **WARNING**: This module is deprecated and will be removed in next major release. Please use
+  https://github.com/surgeventures/confix instead.
+
   This getter embodies the usage of `{:system, "ENV_VAR_NAME"}` convention for managing configs via
   system env vars on environments like Heroku. This convention is further extended here to allow
   type casting and falling back to defaults in such tuples.
@@ -54,6 +57,7 @@ defmodule Surgex.Config do
     |> Keyword.fetch(key)
     |> parse_fetch
   end
+
   @doc """
   Gets the config value for specified key.
 
@@ -88,6 +92,7 @@ defmodule Surgex.Config do
 
   """
   def parse({:system, env}), do: get_env(env)
+
   def parse({:system, env, opts}) do
     type = Keyword.get(opts, :type)
     default = Keyword.get(opts, :default)
@@ -97,9 +102,11 @@ defmodule Surgex.Config do
     |> apply_type(type)
     |> apply_default(default)
   end
+
   def parse(value), do: value
 
   defp get_env(env) when is_binary(env), do: System.get_env(env)
+
   defp get_env(envs) when is_list(envs) do
     Enum.find_value(envs, &get_env/1)
   end
@@ -108,12 +115,14 @@ defmodule Surgex.Config do
   defp apply_type("1", :boolean), do: true
   defp apply_type("0", :boolean), do: false
   defp apply_type(_, :boolean), do: nil
+
   defp apply_type(value, :integer) when is_binary(value) do
     case Integer.parse(value) do
       {integer, ""} -> integer
       _ -> nil
     end
   end
+
   defp apply_type(_, :integer), do: nil
 
   defp apply_default(value, nil), do: value

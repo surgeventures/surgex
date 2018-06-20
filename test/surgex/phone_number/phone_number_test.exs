@@ -21,9 +21,9 @@ defmodule Surgex.PhoneNumberTest do
 
     test "inspects invalid phone numbers" do
       assert inspect(@phone_number_with_invalid_type) ==
-        "#Surgex.PhoneNumber<#{@phone_number_string_e164}>"
-      assert inspect(@phone_number_with_invalid_digits) ==
-        "#Surgex.PhoneNumber<48100000000>"
+               "#Surgex.PhoneNumber<#{@phone_number_string_e164}>"
+
+      assert inspect(@phone_number_with_invalid_digits) == "#Surgex.PhoneNumber<48100000000>"
     end
   end
 

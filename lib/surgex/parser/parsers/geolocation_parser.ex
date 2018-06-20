@@ -4,10 +4,12 @@ defmodule Surgex.Parser.GeolocationParser do
   alias Surgex.Parser.{FloatParser, Geolocation}
 
   def call(nil), do: {:ok, nil}
+
   def call(input) when is_binary(input) do
     case String.split(input, ",") do
       [lat_string, lng_string] ->
         parse_lat_lng_strings(lat_string, lng_string)
+
       _split_result ->
         {:error, :invalid_geolocation_tuple}
     end
@@ -20,8 +22,7 @@ defmodule Surgex.Parser.GeolocationParser do
   defp parse_lat_lng_strings(lat_string, lng_string) do
     with {:ok, lat} <- FloatParser.call(lat_string),
          {:ok, lng} <- FloatParser.call(lng_string),
-         true <- valid_location?(lat, lng)
-    do
+         true <- valid_location?(lat, lng) do
       {:ok, %Geolocation{latitude: lat, longitude: lng}}
     else
       false -> {:error, :invalid_geolocation}

@@ -3,10 +3,11 @@ defmodule Surgex.DataCase do
 
   use ExUnit.CaseTemplate
   alias Ecto.Adapters.SQL.Sandbox
+
   alias Surgex.{
     DatabaseCleaner,
     ForeignRepo,
-    Repo,
+    Repo
   }
 
   using do

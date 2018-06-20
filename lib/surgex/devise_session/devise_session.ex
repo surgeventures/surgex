@@ -2,6 +2,9 @@ defmodule Surgex.DeviseSession do
   @moduledoc """
   Configures Ruby on Rails + Devise session in Plug.
 
+  **WARNING**: This module is deprecated and will be removed in next major release. Please use
+  https://github.com/surgeventures/plug-devise-session instead.
+
   ## Usage
 
   Add the following to your application's endpoint (or replace an existing call to `Plug.Session`):
@@ -52,7 +55,7 @@ defmodule Surgex.DeviseSession do
     signing_salt: "signed encrypted cookie",
     key_iterations: 1000,
     key_length: 64,
-    key_digest: :sha,
+    key_digest: :sha
   ]
 
   def init(opts) do

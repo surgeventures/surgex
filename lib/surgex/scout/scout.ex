@@ -1,6 +1,9 @@
 defmodule Surgex.Scout do
   @moduledoc """
   Extensions to the official Scout package.
+
+  **WARNING**: This module is deprecated and will be removed in next major release. Please use
+  https://github.com/surgeventures/confix instead.
   """
 
   alias Surgex.Config
@@ -27,9 +30,9 @@ defmodule Surgex.Scout do
 
     api_key = get_api_key()
 
-    Logger.info fn ->
-      "Patching Scout config (api_key: #{inspect api_key})"
-    end
+    Logger.info(fn ->
+      "Patching Scout config (api_key: #{inspect(api_key)})"
+    end)
 
     Mix.Config.persist(scout_apm: [key: api_key])
   end

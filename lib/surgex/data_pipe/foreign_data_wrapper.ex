@@ -26,7 +26,7 @@ case Code.ensure_loaded(Ecto) do
       Links source repo to a given foreign repo.
       """
       def init(source_repo, foreign_repo) do
-        local_name = source_repo |> Module.split |> List.last
+        local_name = source_repo |> Module.split() |> List.last()
         server = schema = build_foreign_alias(foreign_repo)
         config = foreign_repo.config
 
@@ -45,11 +45,14 @@ case Code.ensure_loaded(Ecto) do
           "IMPORT FOREIGN SCHEMA public FROM SERVER #{server} INTO #{schema}"
         ]
 
-        {:ok, _} = apply(source_repo, :transaction, [fn ->
-          Enum.each(script, fn command ->
-            SQL.query!(source_repo, command)
-          end)
-        end])
+        {:ok, _} =
+          apply(source_repo, :transaction, [
+            fn ->
+              Enum.each(script, fn command ->
+                SQL.query!(source_repo, command)
+              end)
+            end
+          ])
       end
 
       @doc """
@@ -61,6 +64,7 @@ case Code.ensure_loaded(Ecto) do
       def prefix(query = %{}, foreign_repo) do
         Map.put(query, :prefix, build_foreign_alias(foreign_repo))
       end
+
       def prefix(schema, foreign_repo) do
         import Ecto.Query, only: [from: 1]
 
@@ -91,15 +95,15 @@ case Code.ensure_loaded(Ecto) do
 
         case opts_string do
           "" -> ""
-          _  -> " OPTIONS (#{opts_string})"
+          _ -> " OPTIONS (#{opts_string})"
         end
       end
 
       defp build_foreign_alias(repo) do
         repo
-        |> Module.split
-        |> List.last
-        |> Macro.underscore
+        |> Module.split()
+        |> List.last()
+        |> Macro.underscore()
       end
     end
 

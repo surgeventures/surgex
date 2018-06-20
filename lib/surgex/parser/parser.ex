@@ -60,18 +60,22 @@ defmodule Surgex.Parser do
   Returns a keyword list with parsed options.
   """
   def parse(input, parsers)
+
   def parse(resource = %{__struct__: Jabbax.Document.Resource}, parsers) do
     resource
     |> parse_resource(parsers)
   end
+
   def parse(doc = %{__struct__: Jabbax.Document}, parsers) do
     doc
     |> parse_doc(parsers)
   end
+
   def parse(params = %{}, parsers) do
     params
     |> parse_params(parsers)
   end
+
   def parse(nil, _parsers), do: {:error, :empty_input}
 
   @doc """
@@ -81,26 +85,29 @@ defmodule Surgex.Parser do
   tuple instead of a `[key1: value1, key2: value2, ...]` keyword list.
   """
   def flat_parse(input, parsers)
+
   def flat_parse(doc = %{__struct__: Jabbax.Document}, parsers) do
     with {:ok, list} <- parse_doc(doc, parsers, include_missing: true) do
       output =
         list
-        |> Keyword.values
-        |> Enum.reverse
+        |> Keyword.values()
+        |> Enum.reverse()
 
       List.to_tuple([:ok | output])
     end
   end
+
   def flat_parse(params = %{}, parsers) do
     with {:ok, list} <- parse_params(params, parsers, include_missing: true) do
       output =
         list
-        |> Keyword.values
-        |> Enum.reverse
+        |> Keyword.values()
+        |> Enum.reverse()
 
       List.to_tuple([:ok | output])
     end
   end
+
   def flat_parse(nil, _parsers), do: {:error, :empty_input}
 
   @doc """
@@ -117,16 +124,18 @@ defmodule Surgex.Parser do
   """
   def map_parsed_options(parser_result, mapping) do
     with {:ok, opts} <- parser_result do
-      updated_opts = Enum.reduce(mapping, opts, fn {source, target}, current_opts ->
-        case Keyword.fetch(current_opts, source) do
-          {:ok, value} ->
-            current_opts
-            |> Keyword.delete(source)
-            |> Keyword.put(target, value)
-          :error ->
-            current_opts
-        end
-      end)
+      updated_opts =
+        Enum.reduce(mapping, opts, fn {source, target}, current_opts ->
+          case Keyword.fetch(current_opts, source) do
+            {:ok, value} ->
+              current_opts
+              |> Keyword.delete(source)
+              |> Keyword.put(target, value)
+
+            :error ->
+              current_opts
+          end
+        end)
 
       {:ok, updated_opts}
     end
@@ -140,19 +149,23 @@ defmodule Surgex.Parser do
   end
 
   defp parse_doc(doc, parsers, opts \\ [])
+
   defp parse_doc(%{data: resource = %{}}, parsers, opts) do
     resource
     |> parse_resource(parsers, opts)
     |> prefix_error_pointers("/data/")
   end
+
   defp parse_doc(_doc, _parsers, _opts) do
     {:error, :invalid_pointers, [required: "/data"]}
   end
 
   defp parse_resource(resource, parsers, opts \\ []) do
     {root_output, root_errors} = parse_resource_root(resource, parsers, opts)
+
     {attribute_output, attribute_errors} =
       parse_resource_nested(resource, parsers, :attributes, opts)
+
     {relationship_output, relationship_errors} =
       parse_resource_nested(resource, parsers, :relationships, opts)
 
@@ -190,6 +203,7 @@ defmodule Surgex.Parser do
       {:error, reason, prefix_error_pointers(pointers, prefix)}
     end
   end
+
   defp prefix_error_pointers(errors, prefix) when is_list(errors) do
     Enum.map(errors, &prefix_error_pointer(&1, prefix))
   end
@@ -221,15 +235,20 @@ defmodule Surgex.Parser do
           final_output = Keyword.put_new(output, output_key, nil)
           {remaining_map, final_output, errors}
         end
+
       {:ok, parser_output} ->
         final_output = Keyword.put_new(output, output_key, parser_output)
         {remaining_map, final_output, errors}
+
       {:error, new_errors} when is_list(new_errors) ->
-        prefixed_new_errors = Enum.map(new_errors, fn {reason, pointer} ->
-          {reason, "#{used_key}/#{pointer}"}
-        end)
+        prefixed_new_errors =
+          Enum.map(new_errors, fn {reason, pointer} ->
+            {reason, "#{used_key}/#{pointer}"}
+          end)
+
         final_errors = prefixed_new_errors ++ errors
         {remaining_map, output, final_errors}
+
       {:error, reason} ->
         final_errors = [{reason, used_key} | errors]
         {remaining_map, output, final_errors}
@@ -241,6 +260,7 @@ defmodule Surgex.Parser do
   end
 
   defp parse_in_sequence_each(_next_parser, {:error, reason}), do: {:error, reason}
+
   defp parse_in_sequence_each(next_parser, {:ok, prev_output}) do
     call_parser(next_parser, prev_output)
   end
@@ -248,13 +268,14 @@ defmodule Surgex.Parser do
   defp call_parser(parsers, input) when is_list(parsers), do: parse_in_sequence(input, parsers)
   defp call_parser(parser, input) when is_function(parser), do: parser.(input)
   defp call_parser(parser, input) when is_atom(parser), do: call_parser({parser}, input)
+
   defp call_parser(parser_tuple, input) when is_tuple(parser_tuple) do
     [parser_name | parser_args] = Tuple.to_list(parser_tuple)
 
     parser_camelized =
       parser_name
-      |> Atom.to_string
-      |> Macro.camelize
+      |> Atom.to_string()
+      |> Macro.camelize()
 
     parser_module = String.to_existing_atom("Elixir.Surgex.Parser.#{parser_camelized}Parser")
 
@@ -262,9 +283,11 @@ defmodule Surgex.Parser do
   end
 
   defp pop(map, key, stringify)
+
   defp pop(map, key, false) do
     {Map.pop(map, key), key}
   end
+
   defp pop(map, key, true) do
     key_string = Atom.to_string(key)
 

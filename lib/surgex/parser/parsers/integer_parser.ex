@@ -3,12 +3,14 @@ defmodule Surgex.Parser.IntegerParser do
 
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, nil}
+
   def call(input, opts) when is_integer(input) do
     min = Keyword.get(opts, :min)
     max = Keyword.get(opts, :max)
 
     validate_range(input, min, max)
   end
+
   def call(input, opts) when is_binary(input) do
     min = Keyword.get(opts, :min)
     max = Keyword.get(opts, :max)
@@ -16,6 +18,7 @@ defmodule Surgex.Parser.IntegerParser do
     case Integer.parse(input) do
       {int, ""} ->
         validate_range(int, min, max)
+
       _ ->
         {:error, :invalid_integer}
     end
@@ -25,6 +28,7 @@ defmodule Surgex.Parser.IntegerParser do
     case input do
       int when (is_integer(min) and int < min) or (is_integer(max) and int > max) ->
         {:error, :out_of_range}
+
       int ->
         {:ok, int}
     end

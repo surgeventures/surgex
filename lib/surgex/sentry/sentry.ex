@@ -31,21 +31,24 @@ defmodule Surgex.Sentry do
     env = get_env()
     release = get_release()
 
-    Logger.info fn ->
-      "Patching Sentry config (environment: #{inspect env}, release: #{inspect release})"
-    end
+    Logger.info(fn ->
+      "Patching Sentry config (environment: #{inspect(env)}, release: #{inspect(release)})"
+    end)
 
-    Mix.Config.persist(sentry: [
-      release: release,
-      environment_name: env,
-      included_environments: [env]
-    ])
+    Mix.Config.persist(
+      sentry: [
+        release: release,
+        environment_name: env,
+        included_environments: [env]
+      ]
+    )
   end
 
   defp get_env do
     case Application.get_env(:surgex, :sentry_environment, :mix_env) do
       :mix_env ->
         Mix.env()
+
       value ->
         Surgex.Config.parse(value)
     end
@@ -54,7 +57,8 @@ defmodule Surgex.Sentry do
   defp get_release do
     case Application.get_env(:surgex, :sentry_release, :mix_version) do
       :mix_version ->
-        Project.config[:version]
+        Project.config()[:version]
+
       value ->
         Config.parse(value)
     end

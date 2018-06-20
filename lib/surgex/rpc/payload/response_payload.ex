@@ -5,6 +5,7 @@ defmodule Surgex.RPC.ResponsePayload do
     case Poison.decode!(payload) do
       %{"errors" => errors} when is_list(errors) ->
         {:error, decode_errors(errors)}
+
       %{"response_buf_b64" => response_buf_b64} ->
         {:ok, Base.decode64!(response_buf_b64)}
     end
@@ -25,6 +26,7 @@ defmodule Surgex.RPC.ResponsePayload do
   defp decode_error_pointer(%{"pointer" => pointer}) when is_list(pointer) do
     Enum.map(pointer, &decode_error_pointer_item/1)
   end
+
   defp decode_error_pointer(_), do: nil
 
   defp decode_error_pointer_item(["struct", key]), do: {:struct, key}

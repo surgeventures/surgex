@@ -10,13 +10,17 @@ defmodule Surgex.Refactor do
   end
 
   defp parse_args(args) do
-    parse_result = OptionParser.parse(args,
-      switches: [fix: :boolean])
+    parse_result =
+      OptionParser.parse(
+        args,
+        switches: [fix: :boolean]
+      )
 
-    {opts, task, paths} = case parse_result do
-      {opts, [task | paths], _} -> {opts, task, paths}
-      _ -> raise(ArgumentError, "No refactor task")
-    end
+    {opts, task, paths} =
+      case parse_result do
+        {opts, [task | paths], _} -> {opts, task, paths}
+        _ -> raise(ArgumentError, "No refactor task")
+      end
 
     unless Keyword.get(opts, :fix, false) do
       IO.puts("You're in a simulation mode, pass the --fix option to apply the action.")
@@ -42,21 +46,27 @@ defmodule Surgex.Refactor do
   end
 
   defp expand_paths([]), do: expand_paths(["."])
+
   defp expand_paths(paths) when is_list(paths) do
     paths
     |> Enum.map(&expand_paths/1)
-    |> Enum.concat
+    |> Enum.concat()
   end
+
   defp expand_paths(path) do
     cond do
-      File.regular?(path) -> [path]
+      File.regular?(path) ->
+        [path]
+
       File.dir?(path) ->
         path
-        |> File.ls!
+        |> File.ls!()
         |> Enum.map(&Path.join(path, &1))
         |> Enum.map(&expand_paths/1)
-        |> Enum.concat
-      true -> []
+        |> Enum.concat()
+
+      true ->
+        []
     end
   end
 end

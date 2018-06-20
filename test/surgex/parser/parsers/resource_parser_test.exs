@@ -8,17 +8,17 @@ defmodule Surgex.Parser.ResourceParserTest do
 
   test "valid input" do
     assert ResourceParser.call(%{id: "123"}, fn resource ->
-      assert %{id: id} = resource
+             assert %{id: id} = resource
 
-      {:ok, [id: id]}
-    end) == {:ok, [id: "123"]}
+             {:ok, [id: id]}
+           end) == {:ok, [id: "123"]}
   end
 
   test "invalid input" do
     assert ResourceParser.call(%{id: "123"}, fn resource ->
-      assert %{id: _} = resource
+             assert %{id: _} = resource
 
-      {:error, :invalid_pointers, [id: "id"]}
-    end) == {:error, [id: "id"]}
+             {:error, :invalid_pointers, [id: "id"]}
+           end) == {:error, [id: "id"]}
   end
 end

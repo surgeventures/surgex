@@ -107,13 +107,14 @@ defmodule Surgex.RPC.Client do
   """
 
   alias Surgex.Config
+
   alias Surgex.RPC.{
     CallError,
     HTTPAdapter,
     Processor,
     RequestPayload,
     ResponsePayload,
-    TransportError,
+    TransportError
   }
 
   defmacro __using__(opts) do
@@ -135,11 +136,12 @@ defmodule Surgex.RPC.Client do
       end
 
       def __transport_opts__ do
-        dsl_opts = try do
-          apply(__MODULE__, :__transport_opts_dsl__, [])
-        rescue
-          UndefinedFunctionError -> []
-        end
+        dsl_opts =
+          try do
+            apply(__MODULE__, :__transport_opts_dsl__, [])
+          rescue
+            UndefinedFunctionError -> []
+          end
 
         config_opts = Config.get(__MODULE__, :transport) || []
 
@@ -167,7 +169,7 @@ defmodule Surgex.RPC.Client do
   - `Surgex.RPC.HTTPAdapter`
 
   You may also use your own adapter module by passing it as first argument.
-    """
+  """
   defmacro transport(adapter, adapter_opts \\ []) do
     opts = Keyword.put(adapter_opts, :adapter, adapter)
 
@@ -182,25 +184,27 @@ defmodule Surgex.RPC.Client do
   Supports either atom or binary name. Check out moduledoc for `Surgex.RPC.Client` for more info.
   """
   defmacro proto(name) do
-    {proto, service_name} = case name do
-      atom when is_atom(atom) ->
-        {
-          [from: Path.expand("../proto/#{name}.proto", __CALLER__.file)],
-          to_string(name)
-        }
-      string when is_binary(string) ->
-        {
-          [from: string],
-          string
-          |> Path.basename
-          |> Path.rootname
-        }
-    end
+    {proto, service_name} =
+      case name do
+        atom when is_atom(atom) ->
+          {
+            [from: Path.expand("../proto/#{name}.proto", __CALLER__.file)],
+            to_string(name)
+          }
+
+        string when is_binary(string) ->
+          {
+            [from: string],
+            string
+            |> Path.basename()
+            |> Path.rootname()
+          }
+      end
 
     quote do
       service(
         proto: unquote(proto),
-        service_name: unquote(service_name),
+        service_name: unquote(service_name)
       )
     end
   end
@@ -231,39 +235,47 @@ defmodule Surgex.RPC.Client do
 
     service_name = Keyword.fetch!(opts, :service_name)
 
-    service_mod = case Keyword.fetch(opts, :service_mod) do
-      {:ok, value} ->
-        Macro.expand(value, __CALLER__)
-      :error ->
-        :"#{__CALLER__.module}.#{Macro.camelize(to_string(service_name))}"
-    end
+    service_mod =
+      case Keyword.fetch(opts, :service_mod) do
+        {:ok, value} ->
+          Macro.expand(value, __CALLER__)
 
-    request_mod = case Keyword.fetch(opts, :request_mod) do
-      {:ok, value} ->
-        Macro.expand(value, __CALLER__)
-      :error ->
-        :"#{service_mod}.Request"
-    end
+        :error ->
+          :"#{__CALLER__.module}.#{Macro.camelize(to_string(service_name))}"
+      end
 
-    response_mod = case Keyword.fetch(opts, :response_mod) do
-      {:ok, value} ->
-        Macro.expand(value, __CALLER__)
-      :error ->
-        :"#{service_mod}.Response"
-    end
+    request_mod =
+      case Keyword.fetch(opts, :request_mod) do
+        {:ok, value} ->
+          Macro.expand(value, __CALLER__)
 
-    mock_mod = case Keyword.fetch(opts, :mock_mod) do
-      {:ok, value} ->
-        Macro.expand(value, __CALLER__)
-      :error ->
-        :"#{service_mod}Mock"
-    end
+        :error ->
+          :"#{service_mod}.Request"
+      end
+
+    response_mod =
+      case Keyword.fetch(opts, :response_mod) do
+        {:ok, value} ->
+          Macro.expand(value, __CALLER__)
+
+        :error ->
+          :"#{service_mod}.Response"
+      end
+
+    mock_mod =
+      case Keyword.fetch(opts, :mock_mod) do
+        {:ok, value} ->
+          Macro.expand(value, __CALLER__)
+
+        :error ->
+          :"#{service_mod}Mock"
+      end
 
     service_opts = [
       service_name: service_name,
       request_mod: request_mod,
       response_mod: response_mod,
-      mock_mod: mock_mod,
+      mock_mod: mock_mod
     ]
 
     quote do
@@ -298,11 +310,12 @@ defmodule Surgex.RPC.Client do
 
     result =
       call_mock(request_buf, request_mod, response_mod, mock_mod) ||
-      call_adapter(service_name, request_buf, transport_opts)
+        call_adapter(service_name, request_buf, transport_opts)
 
     case result do
       {:ok, response_buf} ->
         {:ok, response_mod.decode(response_buf)}
+
       {:error, errors} ->
         {:error, errors}
     end
@@ -331,17 +344,21 @@ defmodule Surgex.RPC.Client do
   defp call_adapter(service_name, request_buf, opts) do
     {adapter, adapter_opts} = Keyword.pop(opts, :adapter)
     request_payload = RequestPayload.encode(service_name, request_buf)
-    response_payload = case adapter do
-      :http ->
-        HTTPAdapter.call(request_payload, adapter_opts)
-      adapter_mod ->
-        adapter_mod.call(request_payload, adapter_opts)
-    end
+
+    response_payload =
+      case adapter do
+        :http ->
+          HTTPAdapter.call(request_payload, adapter_opts)
+
+        adapter_mod ->
+          adapter_mod.call(request_payload, adapter_opts)
+      end
 
     ResponsePayload.decode(response_payload)
   end
 
   defp handle_non_failing_response({:ok, response}), do: response
+
   defp handle_non_failing_response({:error, errors}) do
     raise CallError, errors: errors
   end
