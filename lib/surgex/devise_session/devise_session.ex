@@ -52,7 +52,7 @@ defmodule Surgex.DeviseSession do
     signing_salt: "signed encrypted cookie",
     key_iterations: 1000,
     key_length: 64,
-    key_digest: :sha,
+    key_digest: :sha
   ]
 
   def init(opts) do

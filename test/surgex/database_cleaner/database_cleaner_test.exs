@@ -2,9 +2,10 @@ defmodule Surgex.DatabaseCleanerTest do
   use Surgex.DataCase
   import Surgex.Factory
   alias Surgex.DatabaseCleaner
+
   alias Surgex.{
     OtherUser,
-    User,
+    User
   }
 
   setup do

@@ -2,6 +2,7 @@ defmodule Surgex.Parser.ResourceParser do
   @moduledoc false
 
   def call(nil, _item_parser), do: {:ok, nil}
+
   def call(resource, item_parser) do
     resource
     |> item_parser.()

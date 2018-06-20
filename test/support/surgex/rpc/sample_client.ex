@@ -3,9 +3,9 @@ defmodule Surgex.RPC.SampleClient do
 
   use Surgex.RPC.Client
 
-  transport :http, url: "http://example.com/rpc", secret: "xyz"
+  transport(:http, url: "http://example.com/rpc", secret: "xyz")
 
-  proto :create_user
+  proto(:create_user)
 end
 
 defmodule Surgex.RPC.SampleClient.CreateUserMock do
@@ -42,8 +42,9 @@ defmodule Surgex.RPC.SampleClient.CreateUserMock do
   end
 
   def call(%Request{user: %Request.User{photo_ids: [1, 2, 2]}}) do
-    {:error, not_unique: [struct: "user", struct: "photo_ids", repeated: 1],
-             not_unique: [struct: "user", struct: "photo_ids", repeated: 2]}
+    {:error,
+     not_unique: [struct: "user", struct: "photo_ids", repeated: 1],
+     not_unique: [struct: "user", struct: "photo_ids", repeated: 2]}
   end
 
   def call(%Request{user: %Request.User{permissions: [{"admin", true}]}}) do

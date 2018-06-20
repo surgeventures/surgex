@@ -2,9 +2,10 @@ defmodule Surgex.DataPipe.TableSyncTest do
   use Surgex.DataCase
   import Surgex.Factory
   alias Surgex.DataPipe.TableSync
+
   alias Surgex.{
     OtherUser,
-    User,
+    User
   }
 
   setup do
@@ -59,17 +60,20 @@ defmodule Surgex.DataPipe.TableSyncTest do
   test "query -> table" do
     columns = [:email, :id, :provider_id]
     conflict_target = [:id]
-    query = from users in "users",
-      where: users.id > 1,
-      select: [
-        fragment("upper(?)", users.email),
-        users.id,
-        users.provider_id,
-      ]
 
-    {upserts, deletions} = TableSync.call(Repo, query, "other_users",
-      columns: columns,
-      conflict_target: conflict_target)
+    query =
+      from(
+        users in "users",
+        where: users.id > 1,
+        select: [
+          fragment("upper(?)", users.email),
+          users.id,
+          users.provider_id
+        ]
+      )
+
+    {upserts, deletions} =
+      TableSync.call(Repo, query, "other_users", columns: columns, conflict_target: conflict_target)
 
     assert upserts == 5
     assert deletions == 2
@@ -82,9 +86,8 @@ defmodule Surgex.DataPipe.TableSyncTest do
     conflict_target = [:id]
     sql = "SELECT upper(email), id, provider_id FROM users WHERE id > 1"
 
-    {upserts, deletions} = TableSync.call(Repo, sql, "other_users",
-      columns: columns,
-      conflict_target: conflict_target)
+    {upserts, deletions} =
+      TableSync.call(Repo, sql, "other_users", columns: columns, conflict_target: conflict_target)
 
     assert upserts == 5
     assert deletions == 2

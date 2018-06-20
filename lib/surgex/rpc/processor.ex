@@ -10,12 +10,16 @@ defmodule Surgex.RPC.Processor do
     case service_result do
       :ok ->
         {:ok, response_mod.encode(response_mod.new())}
+
       {:ok, response_struct} ->
         {:ok, response_mod.encode(response_struct)}
+
       :error ->
         {:error, [error: nil]}
+
       {:error, errors} when is_list(errors) ->
         {:error, Enum.map(errors, &normalize_error/1)}
+
       {:error, error} ->
         {:error, [normalize_error(error)]}
     end

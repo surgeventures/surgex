@@ -51,9 +51,11 @@ defmodule Surgex.DataPipe.FollowerSync do
     cond do
       !enabled?(repo) ->
         :ok
+
       !lsn_valid?(lsn) ->
-        Logger.warn("Invalid LSN: #{inspect lsn}")
+        Logger.warn("Invalid LSN: #{inspect(lsn)}")
         {:error, :invalid_lsn}
+
       true ->
         wait_for_sync(repo, lsn)
     end
@@ -92,9 +94,10 @@ defmodule Surgex.DataPipe.FollowerSync do
         if lsn_valid?(lsn) do
           {:ok, lsn}
         else
-          Logger.warn(fn -> "Invalid replay LSN: #{inspect lsn}" end)
+          Logger.warn(fn -> "Invalid replay LSN: #{inspect(lsn)}" end)
           {:error, :invalid_replay_lsn}
         end
+
       _ ->
         Logger.warn(fn -> "No replay LSN (consider setting follower_sync_enabled: false)" end)
         {:error, :no_replay_lsn}
@@ -115,6 +118,7 @@ defmodule Surgex.DataPipe.FollowerSync do
     case Config.get(repo, key) do
       nil ->
         Application.get_env(:surgex, key, default)
+
       repo_value ->
         repo_value
     end

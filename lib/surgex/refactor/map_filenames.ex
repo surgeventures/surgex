@@ -28,7 +28,7 @@ defmodule Surgex.Refactor.MapFilenames do
   def scan(filenames) do
     filenames
     |> Enum.map(&scan_map/1)
-    |> Enum.filter(&(&1))
+    |> Enum.filter(& &1)
   end
 
   defp scan_map(filename) do
@@ -44,9 +44,11 @@ defmodule Surgex.Refactor.MapFilenames do
         |> List.last()
         |> Macro.underscore()
 
-      new_filename = Path.join(
-        Path.dirname(filename),
-        new_filename_wo_ext <> Path.extname(filename))
+      new_filename =
+        Path.join(
+          Path.dirname(filename),
+          new_filename_wo_ext <> Path.extname(filename)
+        )
 
       if filename != new_filename do
         {filename, new_filename}

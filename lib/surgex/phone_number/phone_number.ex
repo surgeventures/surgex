@@ -26,6 +26,7 @@ defmodule Surgex.PhoneNumber do
   def type, do: :string
 
   def cast(phone_number = %__MODULE__{}), do: {:ok, phone_number}
+
   def cast(string) when is_binary(string) do
     normalized_string =
       string
@@ -36,13 +37,13 @@ defmodule Surgex.PhoneNumber do
          {:ok, ex_phone_number} <- ExPhoneNumber.parse("+" <> normalized_string, nil),
          true <- ExPhoneNumber.is_valid_number?(ex_phone_number),
          "+" <> e164_string <- ExPhoneNumber.format(ex_phone_number, :e164),
-         {e164_integer, ""} <- Integer.parse(e164_string)
-    do
+         {e164_integer, ""} <- Integer.parse(e164_string) do
       {:ok, %__MODULE__{e164: e164_integer}}
     else
       _ -> :error
     end
   end
+
   def cast(nil), do: {:ok, nil}
   def cast(_), do: :error
 
@@ -50,6 +51,7 @@ defmodule Surgex.PhoneNumber do
     case Integer.parse(e164_string) do
       {e164_integer, ""} ->
         {:ok, %__MODULE__{e164: e164_integer}}
+
       _ ->
         :error
     end
@@ -59,13 +61,13 @@ defmodule Surgex.PhoneNumber do
   def dump(_), do: :error
 
   def format(nil), do: nil
+
   def format(%__MODULE__{e164: e164}, format \\ :international) do
     with e164_integer when is_integer(e164_integer) <- e164,
-         {:ok, ex_phone_number} <- ExPhoneNumber.parse("+" <> Integer.to_string(e164_integer), nil)
-    do
+         {:ok, ex_phone_number} <- ExPhoneNumber.parse("+" <> Integer.to_string(e164_integer), nil) do
       ExPhoneNumber.format(ex_phone_number, format)
     else
-      _ -> raise(ArgumentError, "Invalid phone number: #{inspect e164}")
+      _ -> raise(ArgumentError, "Invalid phone number: #{inspect(e164)}")
     end
   end
 end

@@ -26,9 +26,10 @@ defmodule Surgex.Config.Patch do
     case Application.fetch_env(:surgex, :config_patch) do
       {:ok, schema} ->
         new_config = apply(schema)
-        Logger.info fn ->
-          "Patching config: #{inspect new_config}"
-        end
+
+        Logger.info(fn ->
+          "Patching config: #{inspect(new_config)}"
+        end)
 
       :error ->
         nil
@@ -53,9 +54,11 @@ defmodule Surgex.Config.Patch do
 
   defp resolve(tuple = {:system, _}), do: Config.parse(tuple)
   defp resolve(tuple = {:system, _, _}), do: Config.parse(tuple)
+
   defp resolve(list) when is_list(list) do
     Enum.map(list, &resolve/1)
   end
+
   defp resolve({key, value}), do: {key, resolve(value)}
   defp resolve(value), do: value
 end

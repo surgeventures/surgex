@@ -27,9 +27,9 @@ defmodule Surgex.Scout do
 
     api_key = get_api_key()
 
-    Logger.info fn ->
-      "Patching Scout config (api_key: #{inspect api_key})"
-    end
+    Logger.info(fn ->
+      "Patching Scout config (api_key: #{inspect(api_key)})"
+    end)
 
     Mix.Config.persist(scout_apm: [key: api_key])
   end

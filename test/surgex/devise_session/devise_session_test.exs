@@ -17,9 +17,11 @@ defmodule Surgex.DeviseSessionTest do
 
     System.put_env("SECRET_KEY_BASE", secret_key_base)
 
-    opts = [store: :cookie,
-            key: "_my_rails_project_session",
-            domain: {:system, "SESSION_COOKIE_DOMAIN"}]
+    opts = [
+      store: :cookie,
+      key: "_my_rails_project_session",
+      domain: {:system, "SESSION_COOKIE_DOMAIN"}
+    ]
 
     setter_conn =
       :get
@@ -32,12 +34,14 @@ defmodule Surgex.DeviseSessionTest do
       |> resp(200, "")
       |> send_resp()
 
-    assert %{resp_cookies: %{
-      "_my_rails_project_session" => %{
-        domain: "my.domain.com",
-        value: session_cookie
-      }
-    }} = setter_conn
+    assert %{
+             resp_cookies: %{
+               "_my_rails_project_session" => %{
+                 domain: "my.domain.com",
+                 value: session_cookie
+               }
+             }
+           } = setter_conn
 
     getter_conn =
       :get

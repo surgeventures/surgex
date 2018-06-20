@@ -9,7 +9,7 @@ defmodule Surgex.Factory do
       provider_id: 1,
       name: "John",
       email: sequence(:user_email, &"john-#{&1}@example.com"),
-      phone: "48600700800",
+      phone: "48600700800"
     }
   end
 
@@ -18,7 +18,7 @@ defmodule Surgex.Factory do
       provider_id: 1,
       name: "John",
       email: sequence(:other_user_email, &"john-#{&1}@example.com"),
-      phone: "48600700800",
+      phone: "48600700800"
     }
   end
 end

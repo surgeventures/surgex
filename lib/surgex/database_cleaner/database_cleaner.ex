@@ -75,9 +75,11 @@ case Code.ensure_loaded(Ecto) do
         import Ecto.Query
 
         query =
-          from t in "tables",
+          from(
+            t in "tables",
             where: t.table_schema == "public" and t.table_type == "BASE TABLE",
             select: t.table_name
+          )
 
         prefixed_query = Map.put(query, :prefix, "information_schema")
 
@@ -86,12 +88,14 @@ case Code.ensure_loaded(Ecto) do
         |> List.delete("schema_migrations")
         |> Enum.map(&get_table_name/1)
       end
+
       defp get_all_tables(_repo, tables), do: Enum.map(tables, &get_table_name/1)
 
       defp filter_tables(all_tables, nil), do: all_tables
       defp filter_tables(all_tables, except), do: all_tables -- Enum.map(except, &get_table_name/1)
 
       defp get_table_name(name) when is_binary(name), do: name
+
       defp get_table_name(schema) do
         schema.__schema__(:source)
       end
