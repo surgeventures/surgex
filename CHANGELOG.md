@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.24.0
+## 2.24.1
 
 - Added `Surgex.RepoHelpers`
 

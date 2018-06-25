@@ -1,32 +1,53 @@
 defmodule Surgex.RepoHelpers do
   @moduledoc """
-  Common helpers to be used in Ecto Repos
+  Tools for dynamic setup of Ecto repo opts.
   """
 
   @doc """
-  Dynamically loads the repository url and connection pool size from the environment variable.
+  Sets repo options from env vars starting with specified prefix.
+
+  ## Examples
+
+      iex> System.put_env("DATABASE_URL", "postgres://localhost")
+      iex> System.put_env("DATABASE_SERVER_POOL_SIZE", "30")
+      iex> Application.put_env(:phoenix, :serve_endpoints, true)
+      iex>
+      iex> final_opts = Surgex.RepoHelpers.set_opts([])
+      iex>
+      iex> Keyword.get(final_opts, :url)
+      "postgres://localhost"
+      iex> Keyword.get(final_opts, :pool_size)
+      30
+
   """
+  def set_opts(opts, env_prefix \\ :database) do
+    upcase_env_prefix =
+      env_prefix
+      |> to_string()
+      |> String.upcase()
 
-  def set_db_url(opts, db_url_env) do
-    {:ok, Keyword.put(opts, :url, System.get_env(db_url_env))}
+    opts
+    |> set_url("#{upcase_env_prefix}_URL")
+    |> set_server_pool_size("#{upcase_env_prefix}_SERVER_POOL_SIZE")
   end
 
-  def set_db_pool_size(opts, db_pool_size_env) do
-    serve_endpoints = Application.get_env(:phoenix, :serve_endpoints)
-    server_pool_size = parse_server_db_pool_size(System.get_env(db_pool_size_env))
-    if serve_endpoints && is_integer(server_pool_size) do
-      {:ok, Keyword.put(opts, :pool_size, server_pool_size)}
+  @doc """
+  Sets repo database URL from specified env var.
+  """
+  def set_url(opts, env) do
+    Keyword.put(opts, :url, System.get_env(env))
+  end
+
+  @doc """
+  Sets repo database pool size from specified env var only if Phoenix server is configured to run.
+  """
+  def set_server_pool_size(opts, env) do
+    with true <- Application.get_env(:phoenix, :serve_endpoints),
+         env_value when is_binary(env_value) <- System.get_env(env),
+         {server_pool_size, ""} <- Integer.parse(env_value) do
+      Keyword.put(opts, :pool_size, server_pool_size)
     else
-      {:ok, opts}
-    end
-  end
-
-  defp parse_server_db_pool_size(nil), do: nil
-
-  defp parse_server_db_pool_size(server_pool_size_string) do
-    case Integer.parse(server_pool_size_string) do
-      {integer, ""} -> integer
-      _ -> nil
+      _ -> opts
     end
   end
 end

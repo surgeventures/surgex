@@ -3,43 +3,52 @@ defmodule Surgex.RepoHelpersTest do
 
   alias Surgex.RepoHelpers
   alias Surgex.Config.Patch
+  doctest Surgex.RepoHelpers
 
-  test "set db_pool_size with endpoints enabled" do
-    System.put_env("TEST_DB_CONNECTION_POOL", "5")
+  test "set_opts" do
+    System.put_env("DATABASE_URL", "p://h:p/dbn")
+    System.put_env("DATABASE_SERVER_POOL_SIZE", "5")
+    Application.put_env(:phoenix, :serve_endpoints, true)
 
-    schema = [
-      phoenix: [serve_endpoints: true]
-    ]
+    final_opts = RepoHelpers.set_opts([])
 
-    Patch.apply(schema)
-
-    assert Application.get_env(:phoenix, :serve_endpoints) == true
-
-    opts = [{:pool_size, nil}]
-    response = RepoHelpers.set_db_pool_size(opts, "TEST_DB_CONNECTION_POOL")
-    assert {:ok, [pool_size: 5]} == response
+    assert final_opts[:url] == "p://h:p/dbn"
+    assert final_opts[:pool_size] == 5
   end
 
-  test 'set db_pool_size with endpoints disabled' do
-    System.put_env("TEST_DB_CONNECTION_POOL", "5")
+  test "set_opts with custom prefix" do
+    System.put_env("MY_REPO_URL", "p://h:p/dbn")
+    System.put_env("MY_REPO_SERVER_POOL_SIZE", "5")
 
-    schema = [
-      phoenix: [serve_endpoints: false]
-    ]
+    Application.put_env(:phoenix, :serve_endpoints, true)
 
-    Patch.apply(schema)
+    final_opts = RepoHelpers.set_opts([], :my_repo)
 
-    assert Application.get_env(:phoenix, :serve_endpoints) == false
-
-    opts = [{:pool_size, nil}]
-    response = RepoHelpers.set_db_pool_size(opts, "TEST_DB_CONNECTION_POOL")
-    assert {:ok, [pool_size: nil]} == response
+    assert final_opts[:url] == "p://h:p/dbn"
+    assert final_opts[:pool_size] == 5
   end
 
-  test "set db_url" do
+  test "set_url" do
     System.put_env("TEST_DB_URL", "p://h:p/dbn")
-    opts = [{:url, nil}]
-    response = RepoHelpers.set_db_url(opts, "TEST_DB_URL")
-    assert {:ok, [url: "p://h:p/dbn"]} == response
+    final_opts = RepoHelpers.set_url([], "TEST_DB_URL")
+    assert final_opts[:url] == "p://h:p/dbn"
+  end
+
+  test "set_server_pool_size" do
+    System.put_env("TEST_DB_CONNECTION_POOL", "5")
+
+    Application.put_env(:phoenix, :serve_endpoints, true)
+
+    final_opts = RepoHelpers.set_server_pool_size([], "TEST_DB_CONNECTION_POOL")
+    assert final_opts[:pool_size] == 5
+  end
+
+  test 'set_server_pool_size with endpoints disabled' do
+    System.put_env("TEST_DB_CONNECTION_POOL", "5")
+
+    Application.put_env(:phoenix, :serve_endpoints, false)
+
+    final_opts = RepoHelpers.set_server_pool_size([], "TEST_DB_CONNECTION_POOL")
+    assert final_opts[:pool_size] == nil
   end
 end

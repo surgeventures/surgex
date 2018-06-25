@@ -27,7 +27,7 @@ publishing them separately. It currently consists of:
 - `Surgex.RPC`: remote procedure call system based on Protocol Buffers
 - `Surgex.Scout`: extensions to the official ScoutApm package
 - `Surgex.Sentry`: extensions to the official Sentry package
-- `Surgex.RepoHelpers`: tools for dynamic setup db url and db connection pool
+- `Surgex.RepoHelpers`: tools for dynamic setup of Ecto repo opts
 
 ## Separate packages
 
