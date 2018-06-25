@@ -7,11 +7,11 @@ defmodule Surgex.RepoHelpers do
   Dynamically loads the repository url and connection pool size from the environment variable.
   """
 
-  def set_db_url(opts, db_url_env) do
+  def set_db_url({:ok, opts}, db_url_env) do
     {:ok, Keyword.put(opts, :url, System.get_env(db_url_env))}
   end
 
-  def set_db_pool_size(opts, db_pool_size_env) do
+  def set_db_pool_size({:ok, opts}, db_pool_size_env) do
     serve_endpoints = Application.get_env(:phoenix, :serve_endpoints)
     server_pool_size = parse_server_db_pool_size(System.get_env(db_pool_size_env))
     if serve_endpoints && is_integer(server_pool_size) do
