@@ -29,7 +29,6 @@ if Mix.env() == :test do
     adapter: Ecto.Adapters.Postgres,
     database: "surgex_repo_test",
     hostname: "localhost",
-    username: "postgres",
     pool: Ecto.Adapters.SQL.Sandbox,
     port: System.get_env("POSTGRES_TEST_PORT")
 
@@ -37,7 +36,6 @@ if Mix.env() == :test do
     adapter: Ecto.Adapters.Postgres,
     database: "surgex_foreign_repo_test",
     hostname: "localhost",
-    username: "postgres",
     pool: Ecto.Adapters.SQL.Sandbox,
     port: System.get_env("POSTGRES_TEST_PORT")
 end

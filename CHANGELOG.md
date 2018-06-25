@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.24.0
+
+- Added `Surgex.RepoHelpers`
+
 ## 2.23.0
 
 - Added `Surgex.DataPipe.PostgresSystemUtils`
