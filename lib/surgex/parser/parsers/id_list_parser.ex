@@ -11,7 +11,14 @@ defmodule Surgex.Parser.IdListParser do
     input
     |> String.split(",")
     |> Enum.reduce({:ok, []}, &reduce_ids/2)
-    |> reverse
+    |> reverse()
+    |> check_max(Keyword.get(opts, :max))
+  end
+
+  def call(input, opts) when is_list(input) do
+    input
+    |> Enum.reduce({:ok, []}, &reduce_ids/2)
+    |> reverse()
     |> check_max(Keyword.get(opts, :max))
   end
 
@@ -19,7 +26,7 @@ defmodule Surgex.Parser.IdListParser do
     {:error, reason}
   end
 
-  defp reduce_ids(id_string, {:ok, previous_ids}) do
+  defp reduce_ids(id_string, {:ok, previous_ids}) when is_binary(id_string) do
     case IdParser.call(id_string) do
       {:ok, id} ->
         {:ok, [id | previous_ids]}
@@ -27,6 +34,14 @@ defmodule Surgex.Parser.IdListParser do
       {:error, reason} ->
         {:error, reason}
     end
+  end
+
+  defp reduce_ids(id, {:ok, previous_ids}) when is_integer(id) and id > 0 do
+    {:ok, [id | previous_ids]}
+  end
+
+  defp reduce_ids(id, {:ok, _previous_ids}) when is_integer(id) do
+    {:error, :invalid_identifier}
   end
 
   defp reverse({:ok, ids}), do: {:ok, Enum.reverse(ids)}
