@@ -1,7 +1,7 @@
 defmodule Surgex.Parser.EmailParser do
   @moduledoc false
 
-  @email_regex ~r/^([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+$/i
+  @email_regex ~r/^([\w+\-]\.?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+$/i
 
   def call(nil), do: {:ok, nil}
 
