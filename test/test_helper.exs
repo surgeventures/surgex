@@ -1,6 +1,6 @@
 Application.ensure_all_started(:ex_machina)
-Mix.Ecto.ensure_started(Surgex.Repo, [])
-Mix.Ecto.ensure_started(Surgex.ForeignRepo, [])
+Mix.EctoSQL.ensure_started(Surgex.Repo, [])
+Mix.EctoSQL.ensure_started(Surgex.ForeignRepo, [])
 
 ExUnit.start()
 

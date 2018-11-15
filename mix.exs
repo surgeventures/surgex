@@ -68,14 +68,15 @@ defmodule Surgex.Mixfile do
 
   defp optional_deps do
     [
-      {:ecto, "~> 2.1.4"},
+      {:ecto_sql, "~> 3.0"},
       {:ex_marshal, "~> 0.0.8"},
       {:ex_phone_number, "~> 0.1.1"},
       {:exprotobuf, "~> 1.2.7"},
       {:httpoison, "~> 0.13.0"},
       {:jabbax, ">= 0.1.0"},
-      {:plug, "~> 1.3.2 or ~> 1.4"},
-      {:plug_rails_cookie_session_store, "~> 0.2.0"}
+      {:plug, "~> 1.7"},
+      {:plug_rails_cookie_session_store,
+       github: "surgeventures/plug_rails_cookie_session_store", tag: "v0.3.0"}
     ]
     |> Enum.map(&merge_dep_flags(&1, optional: true))
   end
@@ -87,6 +88,7 @@ defmodule Surgex.Mixfile do
     ]
   end
 
+  defp merge_dep_flags({pkg, flg}, flags) when is_list(flg), do: {pkg, Keyword.merge(flg, flags)}
   defp merge_dep_flags({pkg, ver}, flags), do: {pkg, ver, flags}
   defp merge_dep_flags({pkg, ver, flg}, flags), do: {pkg, ver, Keyword.merge(flg, flags)}
 end
