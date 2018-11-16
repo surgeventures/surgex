@@ -74,9 +74,7 @@ defmodule Surgex.Mixfile do
       {:exprotobuf, "~> 1.2.7"},
       {:httpoison, "~> 0.13.0"},
       {:jabbax, ">= 0.1.0"},
-      {:plug, "~> 1.7"},
-      {:plug_rails_cookie_session_store,
-       github: "surgeventures/plug_rails_cookie_session_store", tag: "v0.3.0"}
+      {:plug, "~> 1.7"}
     ]
     |> Enum.map(&merge_dep_flags(&1, optional: true))
   end
