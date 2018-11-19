@@ -2,7 +2,7 @@ defmodule Surgex.RPC.ResponsePayload do
   @moduledoc false
 
   def decode(payload) do
-    case Poison.decode!(payload) do
+    case Jason.decode!(payload) do
       %{"errors" => errors} when is_list(errors) ->
         {:error, decode_errors(errors)}
 
