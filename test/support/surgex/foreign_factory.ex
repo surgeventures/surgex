@@ -8,8 +8,7 @@ defmodule Surgex.ForeignFactory do
     %ForeignUser{
       provider_id: 1,
       name: "John",
-      email: sequence(:user_email, &"john-#{&1}@example.com"),
-      phone: "48600700800"
+      email: sequence(:user_email, &"john-#{&1}@example.com")
     }
   end
 end

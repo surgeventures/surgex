@@ -4,7 +4,7 @@ defmodule Surgex.Mixfile do
   def project do
     [
       app: :surgex,
-      version: "2.25.0",
+      version: "3.0.0",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
@@ -69,13 +69,9 @@ defmodule Surgex.Mixfile do
   defp optional_deps do
     [
       {:ecto_sql, "~> 3.0"},
-      {:ex_marshal, "~> 0.0.8"},
-      {:ex_phone_number, github: "surgeventures/ex_phone_number_new", tag: "v1.0", override: true},
-      {:exprotobuf, "~> 1.2.7"},
-      {:httpoison, "~> 0.13.0"},
       {:jabbax, ">= 0.1.0"},
-      {:jason, "~> 1.0"},
-      {:plug, "~> 1.7"}
+      {:plug, "~> 1.7"},
+      {:confix, "~> 0.4.0"}
     ]
     |> Enum.map(&merge_dep_flags(&1, optional: true))
   end
