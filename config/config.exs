@@ -28,12 +28,14 @@ if Mix.env() == :test do
   config :surgex, Surgex.Repo,
     database: "surgex_repo_test",
     hostname: "localhost",
+    username: "postgres",
     pool: Ecto.Adapters.SQL.Sandbox,
     port: System.get_env("POSTGRES_TEST_PORT")
 
   config :surgex, Surgex.ForeignRepo,
     database: "surgex_foreign_repo_test",
     hostname: "localhost",
+    username: "postgres",
     pool: Ecto.Adapters.SQL.Sandbox,
     port: System.get_env("POSTGRES_TEST_PORT")
 end

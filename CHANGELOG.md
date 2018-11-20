@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.0.0
+
+- Extended `Surgex.Parser.IdListParser` with support for list type
+- Removed `Surgex.Config`
+- Removed `Surgex.DeviseSession`
+- Removed `Surgex.PhoneNumber`
+- Removed `Surgex.RPC`
+- Removed `Surgex.Scout`
+- Updated some deps
+
 ## 2.24.1
 
 - Added `Surgex.RepoHelpers`

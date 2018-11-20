@@ -30,7 +30,6 @@ defmodule Surgex.DataPipe.FollowerSync do
   """
 
   require Logger
-  alias Surgex.Config
   alias Surgex.DataPipe.{FollowerSync, PostgresSystemUtils}
 
   defmacro __using__(_) do
@@ -104,7 +103,7 @@ defmodule Surgex.DataPipe.FollowerSync do
   defp get_interval(repo), do: get_config(repo, :follower_sync_interval, 1_000)
 
   defp get_config(repo, key, default) do
-    case Config.get(repo, key) do
+    case Confix.get_in([repo, key]) do
       nil ->
         Application.get_env(:surgex, key, default)
 
