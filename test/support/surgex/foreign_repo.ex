@@ -1,5 +1,5 @@
 defmodule Surgex.ForeignRepo do
   @moduledoc false
 
-  use Ecto.Repo, otp_app: :surgex
+  use Ecto.Repo, otp_app: :surgex, adapter: Ecto.Adapters.Postgres
 end

@@ -4,7 +4,7 @@ defmodule Surgex.Mixfile do
   def project do
     [
       app: :surgex,
-      version: "2.24.1",
+      version: "3.0.0",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
@@ -68,14 +68,10 @@ defmodule Surgex.Mixfile do
 
   defp optional_deps do
     [
-      {:ecto, "~> 2.1.4"},
-      {:ex_marshal, "~> 0.0.8"},
-      {:ex_phone_number, "~> 0.1.1"},
-      {:exprotobuf, "~> 1.2.7"},
-      {:httpoison, "~> 0.13.0"},
+      {:ecto_sql, "~> 3.0"},
       {:jabbax, ">= 0.1.0"},
-      {:plug, "~> 1.3.2 or ~> 1.4"},
-      {:plug_rails_cookie_session_store, "~> 0.2.0"}
+      {:plug, "~> 1.7"},
+      {:confix, "~> 0.4.0"}
     ]
     |> Enum.map(&merge_dep_flags(&1, optional: true))
   end
@@ -87,6 +83,7 @@ defmodule Surgex.Mixfile do
     ]
   end
 
+  defp merge_dep_flags({pkg, flg}, flags) when is_list(flg), do: {pkg, Keyword.merge(flg, flags)}
   defp merge_dep_flags({pkg, ver}, flags), do: {pkg, ver, flags}
   defp merge_dep_flags({pkg, ver, flg}, flags), do: {pkg, ver, Keyword.merge(flg, flags)}
 end

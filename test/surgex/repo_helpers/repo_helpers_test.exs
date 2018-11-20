@@ -2,7 +2,6 @@ defmodule Surgex.RepoHelpersTest do
   use ExUnit.Case
 
   alias Surgex.RepoHelpers
-  alias Surgex.Config.Patch
   doctest Surgex.RepoHelpers
 
   test "set_opts" do

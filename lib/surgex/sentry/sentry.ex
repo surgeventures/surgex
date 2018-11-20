@@ -4,7 +4,6 @@ defmodule Surgex.Sentry do
   """
 
   alias Mix.Project
-  alias Surgex.Config
 
   @doc """
   Patches Sentry environment name and release version from env vars.
@@ -50,7 +49,7 @@ defmodule Surgex.Sentry do
         Mix.env()
 
       value ->
-        Surgex.Config.parse(value)
+        Confix.parse(value)
     end
   end
 
@@ -60,7 +59,7 @@ defmodule Surgex.Sentry do
         Project.config()[:version]
 
       value ->
-        Config.parse(value)
+        Confix.parse(value)
     end
   end
 

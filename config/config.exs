@@ -26,14 +26,12 @@ if Mix.env() == :test do
     follower_sync_enabled: {:system, "NON_EXISTING_ENV_VAR", type: :boolean, default: false}
 
   config :surgex, Surgex.Repo,
-    adapter: Ecto.Adapters.Postgres,
     database: "surgex_repo_test",
     hostname: "localhost",
     pool: Ecto.Adapters.SQL.Sandbox,
     port: System.get_env("POSTGRES_TEST_PORT")
 
   config :surgex, Surgex.ForeignRepo,
-    adapter: Ecto.Adapters.Postgres,
     database: "surgex_foreign_repo_test",
     hostname: "localhost",
     pool: Ecto.Adapters.SQL.Sandbox,
