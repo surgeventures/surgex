@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.0
+
+- Added `Surgex.RepoHelpers.set_pool_size/2` and included it in `set_opts/2`
+
 ## 3.0.0
 
 - Extended `Surgex.Parser.IdListParser` with support for list type
