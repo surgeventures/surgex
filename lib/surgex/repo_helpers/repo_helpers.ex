@@ -28,6 +28,7 @@ defmodule Surgex.RepoHelpers do
 
     opts
     |> set_url("#{upcase_env_prefix}_URL")
+    |> set_pool_size("#{upcase_env_prefix}_POOL_SIZE")
     |> set_server_pool_size("#{upcase_env_prefix}_SERVER_POOL_SIZE")
   end
 
@@ -39,15 +40,25 @@ defmodule Surgex.RepoHelpers do
   end
 
   @doc """
-  Sets repo database pool size from specified env var only if Phoenix server is configured to run.
+  Sets repo database pool size from specified env var.
   """
-  def set_server_pool_size(opts, env) do
-    with true <- Application.get_env(:phoenix, :serve_endpoints),
-         env_value when is_binary(env_value) <- System.get_env(env),
+  def set_pool_size(opts, env) do
+    with env_value when is_binary(env_value) <- System.get_env(env),
          {server_pool_size, ""} <- Integer.parse(env_value) do
       Keyword.put(opts, :pool_size, server_pool_size)
     else
       _ -> opts
+    end
+  end
+
+  @doc """
+  Sets repo database pool size from specified env var only if Phoenix server is configured to run.
+  """
+  def set_server_pool_size(opts, env) do
+    if Application.get_env(:phoenix, :serve_endpoints) do
+      set_pool_size(opts, env)
+    else
+      opts
     end
   end
 end
