@@ -57,7 +57,7 @@ defmodule Surgex.Mixfile do
   defp deps do
     [
       {:credo, "~> 0.8.1", only: [:dev, :test]},
-      {:ex_doc, "~> 0.18.0", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:ex_machina, "~> 2.0", only: :test},
       {:excoveralls, "~> 0.7", only: :test},
       {:inch_ex, "~> 0.5", only: [:dev, :test]},
@@ -68,10 +68,11 @@ defmodule Surgex.Mixfile do
 
   defp optional_deps do
     [
+      {:appsignal, "~> 1.0"},
+      {:confix, "~> 0.4.0"},
       {:ecto_sql, "~> 3.0"},
       {:jabbax, ">= 0.1.0"},
-      {:plug, "~> 1.7"},
-      {:confix, "~> 0.4.0"}
+      {:plug, "~> 1.7"}
     ]
     |> Enum.map(&merge_dep_flags(&1, optional: true))
   end
