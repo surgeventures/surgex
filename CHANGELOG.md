@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.2.1
+
+- Fixed compilation of `Surgex.Appsignal.EctoLogger`
+- Added `:all` value for `:query_stages` option in `Surgex.Appsignal.EctoLogger.handle_event/4`
+
+## 3.2.0
+
+- Added `Surgex.Appsignal.EctoLogger`
+
 ## 3.1.0
 
 - Added `Surgex.RepoHelpers.set_pool_size/2` and included it in `set_opts/2`
