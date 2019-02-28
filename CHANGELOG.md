@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.2
+
+- Fixed error in `Surgex.Appsignal.EctoLogger` for when event is missing stage times
+
 ## 3.2.1
 
 - Fixed compilation of `Surgex.Appsignal.EctoLogger`
