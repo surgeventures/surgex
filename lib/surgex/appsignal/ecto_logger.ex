@@ -181,6 +181,7 @@ defmodule Surgex.Appsignal.EctoLogger do
       total_time = get_total_time(entry, [stage])
       duration = trunc(total_time / @nano_seconds)
       event_name = event_name <> "_" <> to_string(stage)
+
       apply(Transaction, :record_event, [transaction, event_name, "", entry.query, duration, 10])
     end)
   end
@@ -188,6 +189,7 @@ defmodule Surgex.Appsignal.EctoLogger do
   defp log_stages(transaction, event_name, entry, query_stages) when is_list(query_stages) do
     total_time = get_total_time(entry, query_stages)
     duration = trunc(total_time / @nano_seconds)
+
     apply(Transaction, :record_event, [transaction, event_name, "", entry.query, duration, 1])
   end
 
@@ -196,10 +198,11 @@ defmodule Surgex.Appsignal.EctoLogger do
   end
 
   defp reduce_total_time_for_query_stage(entry, stage, included_stages, accum) do
-    if stage in included_stages do
-      accum + Map.get(entry, :"#{stage}_time", 0)
+    with true <- Enum.member?(included_stages, stage),
+         {:ok, incr} when is_number(incr) <- Map.fetch(entry, :"#{stage}_time") do
+      accum + incr
     else
-      accum
+      _ -> accum
     end
   end
 end
