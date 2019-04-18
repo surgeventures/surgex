@@ -32,18 +32,17 @@ case Code.ensure_loaded(Ecto) do
 
         Logger.info(fn -> "Preparing foreign data wrapper at #{local_name}.#{server}..." end)
 
-        server_opts = build_server_opts(config)
-        user_opts = build_user_opts(config)
+        servers_count =
+          SQL.query!(
+            source_repo,
+            "select 1 from pg_foreign_server where srvname = '#{server}'"
+          )
 
-        script = [
-          "CREATE EXTENSION IF NOT EXISTS postgres_fdw",
-          "DROP SERVER IF EXISTS #{server} CASCADE",
-          "CREATE SERVER #{server} FOREIGN DATA WRAPPER postgres_fdw" <> server_opts,
-          "CREATE USER MAPPING FOR CURRENT_USER SERVER #{server}" <> user_opts,
-          "DROP SCHEMA IF EXISTS #{schema}",
-          "CREATE SCHEMA #{schema}",
-          "IMPORT FOREIGN SCHEMA public FROM SERVER #{server} INTO #{schema}"
-        ]
+        script =
+          case servers_count.num_rows do
+            0 -> init_script(server, schema, config)
+            _ -> update_script(server, schema, config)
+          end
 
         {:ok, _} =
           apply(source_repo, :transaction, [
@@ -53,6 +52,34 @@ case Code.ensure_loaded(Ecto) do
               end)
             end
           ])
+      end
+
+      def update_script(server, schema, config) do
+        server_opts = build_server_opts(config, "SET")
+        user_opts = build_user_opts(config, "SET")
+
+        [
+          "ALTER SERVER #{server}" <> server_opts,
+          "ALTER USER MAPPING FOR CURRENT_USER SERVER #{server}" <> user_opts,
+          "DROP SCHEMA IF EXISTS #{schema} CASCADE",
+          "CREATE SCHEMA #{schema}",
+          "IMPORT FOREIGN SCHEMA public FROM SERVER #{server} INTO #{schema}"
+        ]
+      end
+
+      def init_script(server, schema, config) do
+        server_opts = build_server_opts(config)
+        user_opts = build_user_opts(config)
+
+        [
+          "CREATE EXTENSION IF NOT EXISTS postgres_fdw",
+          "DROP SERVER IF EXISTS #{server} CASCADE",
+          "CREATE SERVER #{server} FOREIGN DATA WRAPPER postgres_fdw" <> server_opts,
+          "CREATE USER MAPPING FOR CURRENT_USER SERVER #{server}" <> user_opts,
+          "DROP SCHEMA IF EXISTS #{schema}",
+          "CREATE SCHEMA #{schema}",
+          "IMPORT FOREIGN SCHEMA public FROM SERVER #{server} INTO #{schema}"
+        ]
       end
 
       @doc """
@@ -71,26 +98,32 @@ case Code.ensure_loaded(Ecto) do
         prefix(from(schema), foreign_repo)
       end
 
-      defp build_server_opts(config) do
-        build_opts([
-          {"host", Keyword.get(config, :hostname)},
-          {"dbname", Keyword.get(config, :database)},
-          {"port", Keyword.get(config, :port)}
-        ])
+      defp build_server_opts(config, command \\ "") do
+        build_opts(
+          [
+            {"host", Keyword.get(config, :hostname)},
+            {"dbname", Keyword.get(config, :database)},
+            {"port", Keyword.get(config, :port)}
+          ],
+          command
+        )
       end
 
-      defp build_user_opts(config) do
-        build_opts([
-          {"user", Keyword.get(config, :username)},
-          {"password", Keyword.get(config, :password)}
-        ])
+      defp build_user_opts(config, command \\ "") do
+        build_opts(
+          [
+            {"user", Keyword.get(config, :username)},
+            {"password", Keyword.get(config, :password)}
+          ],
+          command
+        )
       end
 
-      defp build_opts(mapping) do
+      defp build_opts(mapping, command) do
         opts_string =
           mapping
           |> Enum.filter(fn {_, value} -> value end)
-          |> Enum.map(fn {option, value} -> "#{option} '#{value}'" end)
+          |> Enum.map(fn {option, value} -> "#{command} #{option} '#{value}'" end)
           |> Enum.join(", ")
 
         case opts_string do
