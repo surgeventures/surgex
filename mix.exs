@@ -24,7 +24,12 @@ defmodule Surgex.Mixfile do
       description: "All Things Elixir @ Surge Ventures Inc, the creators of Shedul",
       source_url: "https://github.com/surgeventures/surgex",
       homepage_url: "https://github.com/surgeventures/surgex",
-      docs: [main: "readme", logo: "logo.png", extras: ["README.md", "CHANGELOG.md"]]
+      docs: [main: "readme", logo: "logo.png", extras: ["README.md", "CHANGELOG.md"]],
+      dialyzer: [
+        plt_add_apps: [:mix],
+        list_unused_filters: true,
+        remove_defaults: [:unknown]
+      ]
     ]
   end
 
@@ -57,6 +62,7 @@ defmodule Surgex.Mixfile do
   defp deps do
     [
       {:credo, "~> 0.8.1", only: [:dev, :test]},
+      {:dialyxir, "~> 0.5", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:ex_machina, "~> 2.0", only: :test},
       {:excoveralls, "~> 0.7", only: :test},

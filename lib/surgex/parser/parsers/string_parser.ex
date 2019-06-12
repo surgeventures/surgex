@@ -5,9 +5,11 @@ defmodule Surgex.Parser.StringParser do
   - **min** is a minimal length of the string, returns :too_short error symbol
   - **max** is a maximal length of the string, returns :too_long error symbol
   """
-
+  @type errors :: :too_short | :too_long
   @opts [:trim, :min, :max]
 
+  @spec call(nil, any) :: {:ok, nil}
+  @spec call(String.t(), list) :: {:ok, String.t()} | {:error, errors}
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, nil}
 
@@ -25,9 +27,10 @@ defmodule Surgex.Parser.StringParser do
     end
   end
 
-  def validate_opts!([]), do: :ok
+  @spec validate_opts!(list) :: :ok
+  defp validate_opts!([]), do: :ok
 
-  def validate_opts!(opts) do
+  defp validate_opts!(opts) do
     invalid_opts = Keyword.keys(opts) -- @opts
 
     if Enum.any?(invalid_opts) do
@@ -44,6 +47,11 @@ defmodule Surgex.Parser.StringParser do
     |> validate_max()
   end
 
+  @spec trim(%{opts: list, value: String.t(), error: nil}) :: %{
+          opts: list,
+          value: String.t(),
+          error: nil
+        }
   def trim(%{opts: opts, value: value} = input) do
     trim_value = Keyword.get(opts, :trim)
 
@@ -53,6 +61,11 @@ defmodule Surgex.Parser.StringParser do
     end
   end
 
+  @spec validate_min(%{opts: list, value: String.t(), error: nil}) :: %{
+          opts: list,
+          value: String.t(),
+          error: nil | :too_short
+        }
   def validate_min(%{opts: opts, value: value} = input) do
     min_value = Keyword.get(opts, :min)
 
@@ -63,6 +76,11 @@ defmodule Surgex.Parser.StringParser do
     end
   end
 
+  @spec validate_max(%{opts: list, value: String.t(), error: nil}) :: %{
+          opts: list,
+          value: String.t(),
+          error: nil | :too_long
+        }
   def validate_max(%{opts: opts, value: value} = input) do
     max_value = Keyword.get(opts, :max)
 

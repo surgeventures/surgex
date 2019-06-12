@@ -4,6 +4,7 @@ defmodule Surgex.Parser.ContainParser do
   """
 
   @doc false
+  @spec call(any, [any]) :: {:ok, nil} :: {:ok, any} | {:error, :invalid_value}
   def call(nil, _allowed_values), do: {:ok, nil}
 
   def call(input, allowed_values) when is_list(allowed_values) do

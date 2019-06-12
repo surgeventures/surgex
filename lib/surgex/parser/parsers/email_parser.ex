@@ -3,6 +3,8 @@ defmodule Surgex.Parser.EmailParser do
 
   @email_regex ~r/^([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+$/i
 
+  @spec call(nil) :: {:ok, nil}
+  @spec call(String.t()) :: {:ok, String.t()} | {:error, :invalid_email}
   def call(nil), do: {:ok, nil}
 
   def call(input) when is_binary(input) do
