@@ -3,6 +3,13 @@ defmodule Surgex.Parser.GeolocationParser do
 
   alias Surgex.Parser.{FloatParser, Geolocation}
 
+  @type errors :: :invalid_geolocation_tuple | :invalid_geolocation
+
+  @spec call(nil) :: {:ok, nil}
+  @spec call(String.t()) ::
+          {:ok, Geolocation.t()} | {:error, errors} | {:error, FloatParser.errors()}
+  @spec call({String.t(), String.t()}) ::
+          {:ok, Geolocation.t()} | {:error, errors} | {:error, FloatParser.errors()}
   def call(nil), do: {:ok, nil}
 
   def call(input) when is_binary(input) do
