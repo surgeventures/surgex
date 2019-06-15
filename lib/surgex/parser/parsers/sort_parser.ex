@@ -8,6 +8,8 @@ defmodule Surgex.Parser.SortParser do
   """
 
   @doc false
+  @spec call(nil, any) :: {:ok, nil}
+  @spec call(String.t(), [atom]) :: {:ok, {:asc | :desc, atom}} | {:error, :invalid_sort_column}
   def call(nil, _allowed_columns), do: {:ok, nil}
 
   def call(input, allowed_columns) when is_binary(input) do
@@ -52,6 +54,7 @@ defmodule Surgex.Parser.SortParser do
       {:ok, sort_by: :col, sort_direction: :asc}
 
   """
+  @spec flatten({:ok, Keyword.t()}, atom) :: {:ok, {:asc | :desc, atom}}
   def flatten({:ok, opts}, key) do
     case Keyword.pop(opts, key) do
       {nil, _} ->

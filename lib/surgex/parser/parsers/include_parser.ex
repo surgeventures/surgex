@@ -7,6 +7,8 @@ defmodule Surgex.Parser.IncludeParser do
   """
 
   @doc false
+  @spec call(nil, any) :: {:ok, []}
+  @spec call(String.t(), []) :: {:ok, [atom]} | {:error, :invalid_relationship_path}
   def call(nil, _spec), do: {:ok, []}
   def call("", _spec), do: {:ok, []}
 
@@ -36,6 +38,7 @@ defmodule Surgex.Parser.IncludeParser do
       {:ok, include_user: true}
 
   """
+  @spec flatten({:ok, Keyword.t()}, String.t()) :: {:ok, Keyword.t()}
   def flatten({:ok, opts}, key) do
     case Keyword.pop(opts, key) do
       {nil, _} ->

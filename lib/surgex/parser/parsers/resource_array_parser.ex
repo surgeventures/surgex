@@ -1,6 +1,10 @@
 defmodule Surgex.Parser.ResourceArrayParser do
   @moduledoc false
 
+  @type errors :: :too_short | :too_long
+
+  @spec call(nil, any, any) :: {:ok, nil}
+  @spec call(list, fun, Keyword.t()) :: {:ok, list} | {:error, errors}
   def call(list, item_parser, opts \\ [])
   def call(nil, _item_parser, _opts), do: {:ok, nil}
 

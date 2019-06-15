@@ -59,21 +59,21 @@ defmodule Surgex.Parser do
 
   Returns a keyword list with parsed options.
   """
+  @spec parse(nil, any) :: {:error, :empty_input}
+  @spec parse(map, list) ::
+          {:ok, any} | {:error, :invalid_parameters, list} | {:error, :invalid_pointers, list}
   def parse(input, parsers)
 
   def parse(resource = %{__struct__: Jabbax.Document.Resource}, parsers) do
-    resource
-    |> parse_resource(parsers)
+    parse_resource(resource, parsers)
   end
 
   def parse(doc = %{__struct__: Jabbax.Document}, parsers) do
-    doc
-    |> parse_doc(parsers)
+    parse_doc(doc, parsers)
   end
 
   def parse(params = %{}, parsers) do
-    params
-    |> parse_params(parsers)
+    parse_params(params, parsers)
   end
 
   def parse(nil, _parsers), do: {:error, :empty_input}
@@ -84,6 +84,9 @@ defmodule Surgex.Parser do
   This function takes the same input as `parse/2` but it returns a `{:ok, value1, value2, ...}`
   tuple instead of a `[key1: value1, key2: value2, ...]` keyword list.
   """
+  @spec flat_parse(nil, any) :: {:error, :empty_input}
+  @spec flat_parse(map, list) ::
+          {:ok, any} | {:error, :invalid_parameters, list} | {:error, :invalid_pointers, list}
   def flat_parse(input, parsers)
 
   def flat_parse(doc = %{__struct__: Jabbax.Document}, parsers) do
@@ -113,6 +116,8 @@ defmodule Surgex.Parser do
   @doc """
   Makes sure there are no unknown params passed to controller action.
   """
+  @spec assert_blank_params(map) ::
+          :ok | {:error, :invalid_parameters, list} | {:error, :invalid_pointers, list}
   def assert_blank_params(params) do
     with {:ok, []} <- parse(params, []) do
       :ok
@@ -122,6 +127,8 @@ defmodule Surgex.Parser do
   @doc """
   Renames keys in the parser output.
   """
+  @spec map_parsed_options({:error, any}, any) :: {:error, any}
+  @spec map_parsed_options({:ok, any}, any) :: {:ok, any}
   def map_parsed_options(parser_result, mapping) do
     with {:ok, opts} <- parser_result do
       updated_opts =
