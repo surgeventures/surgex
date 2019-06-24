@@ -3,5 +3,7 @@ defmodule Surgex.Parser.Geolocation do
   Holds a specific point on Earth's surface.
   """
 
+  @type t :: %__MODULE__{latitude: number, longitude: number}
+
   defstruct [:latitude, :longitude]
 end

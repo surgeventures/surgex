@@ -1,6 +1,10 @@
 defmodule Surgex.Parser.IntegerParser do
   @moduledoc false
 
+  @type errors :: :invalid_integer | :out_of_range
+
+  @spec call(nil, any) :: {:ok, nil}
+  @spec call(String.t() | integer, list) :: {:ok, integer} | {:error, errors}
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, nil}
 

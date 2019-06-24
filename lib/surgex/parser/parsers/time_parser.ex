@@ -3,8 +3,12 @@ defmodule Surgex.Parser.TimeParser do
 
   alias Surgex.Parser.IntegerParser
 
+  @type errors :: :invalid_time | IntegerParser.errors()
+
   @day_secs 60 * 60 * 24
 
+  @spec call(nil) :: {:ok, nil}
+  @spec call(String.t()) :: {:ok, integer} | {:error, errors}
   def call(nil), do: {:ok, nil}
 
   def call(input) when is_binary(input) do

@@ -3,6 +3,9 @@ defmodule Surgex.Parser.IdListParser do
 
   alias Surgex.Parser.IdParser
 
+  @type errors :: :invalid_identifier | :invalid_id_list_length | IdParser.errors()
+
+  @spec call(String.t() | List.t() | nil, Keyword.t()) :: {:ok, [integer]} | {:error, errors}
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, []}
   def call("", _opts), do: {:ok, []}
