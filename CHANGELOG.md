@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.2.4
+
+- Added typespecs in `Surgex.Parser`
+- Deprecated `Surgex.Guide`, `Surgex.RepoHelpers` and `Surgex.Sentry`
+
 ## 3.2.3
 
 - Improved `Surgex.DataPipe.ForeignDataWrapper` to alter pg server if it already exists
