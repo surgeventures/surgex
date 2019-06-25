@@ -2,6 +2,8 @@ defmodule Surgex.Guide do
   @moduledoc """
   Official style guide for Elixir and Phoenix projects at Surge Ventures.
 
+  **NOTE: Deprecated in favor of https://github.com/surgeventures/elixir.**
+
   The rules in this guide aim to provide a consistent, convention-driven coding experience and an
   easily readable, long-term maintainable code as a result. It's divided into the following modules:
 

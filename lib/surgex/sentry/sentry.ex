@@ -1,6 +1,8 @@
 defmodule Surgex.Sentry do
   @moduledoc """
   Extensions to the official Sentry package.
+
+  **NOTE: Deprecated in favor of Elixir 1.9 runtime configuration.**
   """
 
   alias Mix.Project

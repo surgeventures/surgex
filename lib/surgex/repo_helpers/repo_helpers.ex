@@ -1,6 +1,8 @@
 defmodule Surgex.RepoHelpers do
   @moduledoc """
   Tools for dynamic setup of Ecto repo opts.
+
+  **NOTE: Deprecated in favor of Elixir 1.9 runtime configuration.**
   """
 
   @doc """
