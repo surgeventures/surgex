@@ -86,7 +86,8 @@ defmodule Surgex.Mixfile do
   defp check_alias do
     [
       "test",
-      "credo --strict"
+      "credo --strict",
+      "dialyzer --halt-exit-status"
     ]
   end
 
