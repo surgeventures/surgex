@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.2.5
+
+- Fixed typespec error in `Surgex.Parser.BooleanParser`
+- Added `dialyzer --halt-exit-status` to `mix check`
+
 ## 3.2.4
 
 - Added typespecs in `Surgex.Parser`
