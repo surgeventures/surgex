@@ -50,16 +50,19 @@ defmodule Surgex.RepoHelpersTest do
     final_opts = RepoHelpers.set_server_pool_size([], "TEST_DB_CONNECTION_POOL")
     assert final_opts[:pool_size] == nil
   end
+
   test "set_ssl true" do
     System.put_env("TEST_DB_SSL", "true")
     final_opts = RepoHelpers.set_url([], "TEST_DB_SSL")
     assert final_opts[:ssl] == true
   end
+
   test "set_ssl false" do
     System.put_env("TEST_DB_SSL", "false")
     final_opts = RepoHelpers.set_url([], "TEST_DB_SSL")
     assert final_opts[:ssl] == false
   end
+
   test "set_ssl nil" do
     System.put_env("TEST_DB_SSL", "random")
     final_opts = RepoHelpers.set_url([], "TEST_DB_SSL")
