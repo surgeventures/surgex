@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.2.6
+
+- Added ssl in `Surgex.RepoHelpers`
+
+
 ## 3.2.5
 
 - Fixed typespec error in `Surgex.Parser.BooleanParser`
