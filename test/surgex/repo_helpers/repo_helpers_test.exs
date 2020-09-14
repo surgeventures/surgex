@@ -76,6 +76,6 @@ defmodule Surgex.RepoHelpersTest do
   test "set_ssl not set env var" do
     System.delete_env("TEST_DB_SSL")
     final_opts = RepoHelpers.set_ssl([], "TEST_DB_SSL")
-    assert final_opts[:ssl] == nil
+    refute Keyword.has_key?(final_opts, :ssl)
   end
 end
