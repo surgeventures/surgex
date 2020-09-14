@@ -72,15 +72,17 @@ defmodule Surgex.RepoHelpers do
   Sets repo database ssl enable from specified env var.
   """
   def set_ssl(opts, env) do
-    cond do
-      String.downcase(System.get_env(env)) == "true" ->
-        Keyword.put(opts, :ssl, true)
+    if System.get_env(env) do
+      cond do
+        System.get_env(env) == "true" ->
+          Keyword.put(opts, :ssl, true)
 
-      String.downcase(System.get_env(env)) == "false" ->
-        Keyword.put(opts, :ssl, false)
+        System.get_env(env) == "false" ->
+          Keyword.put(opts, :ssl, false)
 
-      true ->
-        Keyword.put(opts, :ssl, nil)
+        true ->
+          opts
+      end
     end
   end
 end
