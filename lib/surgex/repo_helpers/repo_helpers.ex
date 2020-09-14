@@ -12,6 +12,7 @@ defmodule Surgex.RepoHelpers do
 
       iex> System.put_env("DATABASE_URL", "postgres://localhost")
       iex> System.put_env("DATABASE_SERVER_POOL_SIZE", "30")
+      iex> System.put_env("DATABASE_SSL", "true")
       iex> Application.put_env(:phoenix, :serve_endpoints, true)
       iex>
       iex> final_opts = Surgex.RepoHelpers.set_opts([])
@@ -20,6 +21,8 @@ defmodule Surgex.RepoHelpers do
       "postgres://localhost"
       iex> Keyword.get(final_opts, :pool_size)
       30
+      iex> Keyword.get(final_opts, :ssl)
+      true
 
   """
   def set_opts(opts, env_prefix \\ :database) do
@@ -32,6 +35,7 @@ defmodule Surgex.RepoHelpers do
     |> set_url("#{upcase_env_prefix}_URL")
     |> set_pool_size("#{upcase_env_prefix}_POOL_SIZE")
     |> set_server_pool_size("#{upcase_env_prefix}_SERVER_POOL_SIZE")
+    |> set_ssl("#{upcase_env_prefix}_SSL")
   end
 
   @doc """
@@ -61,6 +65,22 @@ defmodule Surgex.RepoHelpers do
       set_pool_size(opts, env)
     else
       opts
+    end
+  end
+
+  @doc """
+  Sets repo database ssl enable from specified env var.
+  """
+  def set_ssl(opts, env) do
+    with env_value when is_binary(env_value) <- System.get_env(env),
+         ssl_value <- String.downcase(env_value) do
+      case ssl_value do
+        "true" -> Keyword.put(opts, :ssl, true)
+        "false" -> Keyword.put(opts, :ssl, false)
+        _ -> opts
+      end
+    else
+      _ -> opts
     end
   end
 end
