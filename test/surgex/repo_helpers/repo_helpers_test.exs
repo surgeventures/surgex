@@ -70,7 +70,7 @@ defmodule Surgex.RepoHelpersTest do
   test "set_ssl set random value" do
     System.put_env("TEST_DB_SSL", "random")
     final_opts = RepoHelpers.set_ssl([], "TEST_DB_SSL")
-    assert final_opts[:ssl] == nil
+    refute Keyword.has_key?(final_opts, :ssl)
   end
 
   test "set_ssl not set env var" do
