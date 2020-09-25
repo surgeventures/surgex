@@ -1,7 +1,7 @@
 defmodule Surgex.Parser.EmailParser do
   @moduledoc false
 
-  @email_regex ~r/^([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+$/i
+  @email_regex ~r/^[^@\s]+@[^@\s]+\.[^@\s]+$/i
 
   @spec call(nil) :: {:ok, nil}
   @spec call(String.t()) :: {:ok, String.t()} | {:error, :invalid_email}

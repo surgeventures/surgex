@@ -1,9 +1,12 @@
 # Changelog
 
+## 3.2.7
+
+- Simplified email regex to fix catastrophic backtracing error when providing longer addresses
+
 ## 3.2.6
 
 - Added ssl in `Surgex.RepoHelpers`
-
 
 ## 3.2.5
 
