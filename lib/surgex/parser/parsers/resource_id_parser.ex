@@ -9,6 +9,7 @@ defmodule Surgex.Parser.ResourceIdParser do
           | {:error, [{IdParser.errors(), String.t()}]}
           | {:error, [required: String.t()]}
   def call(nil), do: {:ok, nil}
+  def call(""), do: {:ok, nil}
 
   def call(%{id: id_string}) when is_binary(id_string) do
     with {:error, reason} <- IdParser.call(id_string) do

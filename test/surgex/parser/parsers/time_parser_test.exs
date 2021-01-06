@@ -6,6 +6,10 @@ defmodule Surgex.Parser.TimeParserTest do
     assert TimeParser.call(nil) == {:ok, nil}
   end
 
+  test "empty string" do
+    assert TimeParser.call("") == {:ok, nil}
+  end
+
   test "valid input" do
     assert TimeParser.call("0") == {:ok, 0}
     assert TimeParser.call(0) == {:ok, 0}

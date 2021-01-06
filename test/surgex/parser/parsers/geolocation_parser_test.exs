@@ -6,6 +6,10 @@ defmodule Surgex.Parser.GeolocationParserTest do
     assert GeolocationParser.call(nil) == {:ok, nil}
   end
 
+  test "empty string" do
+    assert GeolocationParser.call("") == {:ok, nil}
+  end
+
   test "valid input" do
     assert GeolocationParser.call("12.345,67.891") ==
              {:ok, %Geolocation{latitude: 12.345, longitude: 67.891}}

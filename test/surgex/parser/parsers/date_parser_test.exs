@@ -6,6 +6,10 @@ defmodule Surgex.Parser.DateParserTest do
     assert DateParser.call(nil) == {:ok, nil}
   end
 
+  test "empty string" do
+    assert DateParser.call("") == {:ok, nil}
+  end
+
   test "valid input" do
     assert DateParser.call("2015-01-01") == {:ok, ~D[2015-01-01]}
   end

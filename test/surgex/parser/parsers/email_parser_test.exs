@@ -6,6 +6,10 @@ defmodule Surgex.Parser.EmailParserTest do
     assert EmailParser.call(nil) == {:ok, nil}
   end
 
+  test "empty string" do
+    assert EmailParser.call("") == {:ok, nil}
+  end
+
   test "valid input" do
     valid_emails =
       [

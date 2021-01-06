@@ -6,6 +6,10 @@ defmodule Surgex.Parser.BooleanParserTest do
     assert BooleanParser.call(nil) == {:ok, nil}
   end
 
+  test "empty string" do
+    assert BooleanParser.call("") == {:ok, nil}
+  end
+
   test "valid input" do
     assert BooleanParser.call("0") == {:ok, false}
     assert BooleanParser.call("1") == {:ok, true}

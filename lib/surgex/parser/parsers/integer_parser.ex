@@ -7,6 +7,7 @@ defmodule Surgex.Parser.IntegerParser do
   @spec call(String.t() | integer, list) :: {:ok, integer} | {:error, errors}
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, nil}
+  def call("", _opts), do: {:ok, nil}
 
   def call(input, opts) when is_integer(input) do
     min = Keyword.get(opts, :min)

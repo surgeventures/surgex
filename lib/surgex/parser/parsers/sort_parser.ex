@@ -11,6 +11,7 @@ defmodule Surgex.Parser.SortParser do
   @spec call(nil, any) :: {:ok, nil}
   @spec call(String.t(), [atom]) :: {:ok, {:asc | :desc, atom}} | {:error, :invalid_sort_column}
   def call(nil, _allowed_columns), do: {:ok, nil}
+  def call("", _allowed_columns), do: {:ok, nil}
 
   def call(input, allowed_columns) when is_binary(input) do
     case input do

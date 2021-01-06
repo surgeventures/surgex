@@ -6,6 +6,10 @@ defmodule Surgex.Parser.ResourceIdParserTest do
     assert ResourceIdParser.call(nil) == {:ok, nil}
   end
 
+  test "empty string" do
+    assert ResourceIdParser.call("") == {:ok, nil}
+  end
+
   test "valid input" do
     assert ResourceIdParser.call(%{id: "123"}) == {:ok, 123}
   end

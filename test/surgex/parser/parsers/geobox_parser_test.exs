@@ -6,6 +6,10 @@ defmodule Surgex.Parser.GeoboxParserTest do
     assert GeoboxParser.call(nil) == {:ok, nil}
   end
 
+  test "empty string" do
+    assert GeoboxParser.call("") == {:ok, nil}
+  end
+
   test "valid input" do
     # northern hemisphere
     assert GeoboxParser.call("12.345,67.891,12.145,67.801") ==

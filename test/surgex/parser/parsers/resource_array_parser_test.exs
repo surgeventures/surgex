@@ -6,6 +6,10 @@ defmodule Surgex.Parser.ResourceArrayParserTest do
     assert ResourceArrayParser.call(nil, fn _ -> nil end) == {:ok, nil}
   end
 
+  test "empty string" do
+    assert ResourceArrayParser.call("", fn _ -> nil end) == {:ok, nil}
+  end
+
   test "valid input" do
     assert ResourceArrayParser.call(
              [%{id: "123"}, %{id: "456"}],

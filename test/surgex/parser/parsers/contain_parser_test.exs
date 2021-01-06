@@ -6,6 +6,10 @@ defmodule Surgex.Parser.ContainParserTest do
     assert ContainParser.call(nil, ["allowed value"]) == {:ok, nil}
   end
 
+  test "empty string" do
+    assert ContainParser.call("", ["allowed value"]) == {:ok, nil}
+  end
+
   test "empty array of allowed values" do
     assert ContainParser.call("value", []) == {:error, :invalid_value}
   end
