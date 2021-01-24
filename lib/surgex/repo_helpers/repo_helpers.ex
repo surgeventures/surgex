@@ -36,6 +36,7 @@ defmodule Surgex.RepoHelpers do
     |> set_pool_size("#{upcase_env_prefix}_POOL_SIZE")
     |> set_server_pool_size("#{upcase_env_prefix}_SERVER_POOL_SIZE")
     |> set_ssl("#{upcase_env_prefix}_SSL")
+    |> set_application_name()
   end
 
   @doc """
@@ -79,6 +80,17 @@ defmodule Surgex.RepoHelpers do
         "false" -> Keyword.put(opts, :ssl, false)
         _ -> opts
       end
+    else
+      _ -> opts
+    end
+  end
+
+  def set_application_name(opts) do
+    with env_value when is_binary(env_value) <- System.get_env("APP_NAME"),
+         application_name <- String.slice(env_value, 0, 63),
+         parameters <- Keyword.get(opts, :parameters, []) do
+      updated_parameters = Keyword.put(parameters, :application_name, application_name)
+      Keyword.put(opts, :parameters, updated_parameters)
     else
       _ -> opts
     end
