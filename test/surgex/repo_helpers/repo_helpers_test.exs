@@ -78,4 +78,58 @@ defmodule Surgex.RepoHelpersTest do
     final_opts = RepoHelpers.set_ssl([], "TEST_DB_SSL")
     refute Keyword.has_key?(final_opts, :ssl)
   end
+
+  test "set_application_name no env var, no existing params" do
+    System.delete_env("APP_NAME")
+    opts = RepoHelpers.set_application_name([])
+    refute Keyword.has_key?(opts, :parameters)
+  end
+
+  test "set_application_name no env var, existing params" do
+    System.delete_env("APP_NAME")
+
+    opts =
+      RepoHelpers.set_application_name(
+        parameters: [test_key: "test_value", application_name: "surgex"]
+      )
+
+    assert opts[:parameters][:test_key] == "test_value"
+    assert opts[:parameters][:application_name] == "surgex"
+  end
+
+  test "set_application_name env var present, no existing params" do
+    System.put_env("APP_NAME", "app-name-from-env")
+    opts = RepoHelpers.set_application_name([])
+    assert opts[:parameters][:application_name] == "app-name-from-env"
+  after
+    System.delete_env("APP_NAME")
+  end
+
+  test "set_application_name env var present, existing params" do
+    System.put_env("APP_NAME", "app-name-from-env")
+
+    opts =
+      RepoHelpers.set_application_name(
+        parameters: [test_key: "test_value", application_name: "surgex"]
+      )
+
+    assert opts[:parameters][:test_key] == "test_value"
+    assert opts[:parameters][:application_name] == "app-name-from-env"
+  after
+    System.delete_env("APP_NAME")
+  end
+
+  test "set_application_name trims names longet than 63" do
+    System.put_env(
+      "APP_NAME",
+      "this-is-very-very-very-very-very-very-very-very-long-app-name->|<-chop here"
+    )
+
+    opts = RepoHelpers.set_application_name([])
+
+    assert opts[:parameters][:application_name] ==
+             "this-is-very-very-very-very-very-very-very-very-long-app-name->"
+  after
+    System.delete_env("APP_NAME")
+  end
 end
