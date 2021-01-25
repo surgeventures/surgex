@@ -101,7 +101,10 @@ defmodule Surgex.RepoHelpersTest do
     System.put_env("APP_NAME", "app-name-from-env")
     opts = RepoHelpers.set_application_name([])
     assert opts[:parameters][:application_name] == "app-name-from-env"
-    System.delete_env("APP_NAME")
+
+    on_exit(fn ->
+      System.delete_env("APP_NAME")
+    end)
   end
 
   test "set_application_name env var present, existing params" do
@@ -114,7 +117,10 @@ defmodule Surgex.RepoHelpersTest do
 
     assert opts[:parameters][:test_key] == "test_value"
     assert opts[:parameters][:application_name] == "app-name-from-env"
-    System.delete_env("APP_NAME")
+
+    on_exit(fn ->
+      System.delete_env("APP_NAME")
+    end)
   end
 
   test "set_application_name trims names longet than 63" do
@@ -128,6 +134,8 @@ defmodule Surgex.RepoHelpersTest do
     assert opts[:parameters][:application_name] ==
              "this-is-very-very-very-very-very-very-very-very-long-app-name->"
 
-    System.delete_env("APP_NAME")
+    on_exit(fn ->
+      System.delete_env("APP_NAME")
+    end)
   end
 end
