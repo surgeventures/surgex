@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.8
+
+- `Surgex.RepoHelpers` sets ecto application_name based on APP_NAME env var
+
 ## 3.2.7
 
 - Simplified email regex to fix catastrophic backtracing error when providing longer addresses
