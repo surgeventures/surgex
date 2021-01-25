@@ -85,6 +85,9 @@ defmodule Surgex.RepoHelpers do
     end
   end
 
+  @doc """
+  Sets application_name to the value of APP_NAME env var.
+  """
   def set_application_name(opts) do
     with env_value when is_binary(env_value) <- System.get_env("APP_NAME"),
          application_name <- String.slice(env_value, 0, 63),
