@@ -4,7 +4,7 @@ defmodule Surgex.Mixfile do
   def project do
     [
       app: :surgex,
-      version: "3.2.8",
+      version: "4.0.0",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
@@ -21,7 +21,7 @@ defmodule Surgex.Mixfile do
         "coveralls.html": :test
       ],
       name: "Surgex",
-      description: "All Things Elixir @ Surge Ventures Inc, the creators of Shedul",
+      description: "All Things Elixir @ Surge Ventures Inc, the creators of Fresha",
       source_url: "https://github.com/surgeventures/surgex",
       homepage_url: "https://github.com/surgeventures/surgex",
       docs: [main: "readme", logo: "logo.png", extras: ["README.md", "CHANGELOG.md"]],
@@ -35,11 +35,10 @@ defmodule Surgex.Mixfile do
 
   defp package do
     [
-      maintainers: ["Karol Słuszniak"],
       licenses: ["MIT"],
       links: %{
         "GitHub" => "https://github.com/surgeventures/surgex",
-        "Shedul" => "https://www.shedul.com"
+        "Fresha" => "https://www.fresha.com"
       },
       files: ~w(mix.exs lib LICENSE.md README.md CHANGELOG.md)
     ]
@@ -61,9 +60,9 @@ defmodule Surgex.Mixfile do
 
   defp deps do
     [
-      {:credo, "~> 0.8.1", only: [:dev, :test]},
+      {:credo, "~> 1.5", only: [:dev, :test]},
       {:dialyxir, "~> 1.0.0-rc.6", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.23", only: :dev, runtime: false},
       {:ex_machina, "~> 2.3", only: :test},
       {:excoveralls, "~> 0.7", only: :test},
       {:inch_ex, "~> 0.5", only: [:dev, :test]},
