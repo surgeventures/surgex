@@ -74,7 +74,6 @@ defmodule Surgex.Mixfile do
 
   defp optional_deps do
     [
-      {:appsignal, "~> 1.8"},
       {:confix, "~> 0.4"},
       {:ecto_sql, "~> 3.0"},
       {:jabbax, "~> 0.1"},

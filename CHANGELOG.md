@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Removed support for AppSignal
+
 ## 3.2.8
 
 - `Surgex.RepoHelpers` sets ecto application_name based on APP_NAME env var

@@ -16,7 +16,6 @@ a set of functions in the `Surgex.Guide` module ([visit at HexDocs](https://hexd
 Surgex is a package of cross-project helper modules, each too small or too young to justify
 publishing them separately. It currently consists of:
 
-- `Surgex.Appsignal`: extensions to the official Appsignal package
 - `Surgex.Changeset`: tools for working with Ecto changesets
 - `Surgex.DatabaseCleaner`: cleans tables in a database represented by an Ecto repo
 - `Surgex.DataPipe`: tools for moving data between PostgreSQL databases and tables
