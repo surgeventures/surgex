@@ -14,15 +14,20 @@ case Code.ensure_loaded(Jabbax) do
         %Document{errors: build_errors(changeset)}
       end
 
-      defp build_errors(_changeset = %{errors: errors}) do
-        Enum.map(errors, &build_error/1)
+      defp build_errors(changeset) do
+        changeset
+        |> Ecto.Changeset.traverse_errors(fn {msg, opts} -> {msg, opts} end)
+        |> Enum.map(&build_error/1)
+        |> List.flatten()
       end
 
-      defp build_error({field, {text, info}}) do
-        %Error{
-          code: get_error_code(text, info[:validation]),
-          source: ErrorSource.from_attribute(field)
-        }
+      defp build_error({field, list}) do
+        Enum.map(list, fn {text, info} ->
+          %Error{
+            code: get_error_code(text, info[:validation]),
+            source: ErrorSource.from_attribute(field)
+          }
+        end)
       end
 
       defp get_error_code("has already been taken", nil), do: "taken"
