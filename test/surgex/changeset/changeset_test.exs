@@ -14,6 +14,10 @@ defmodule Surgex.ChangesetTest do
       embeds_one :address, TestAddress do
         field(:city, :string)
         field(:street, :string)
+
+        embeds_one :country, TestCountry do
+          field(:code, :string)
+        end
       end
     end
 
@@ -27,6 +31,13 @@ defmodule Surgex.ChangesetTest do
       schema
       |> cast(params, [:city, :street])
       |> validate_required([:city])
+      |> cast_embed(:country, with: &country_changeset/2)
+    end
+
+    defp country_changeset(schema, params) do
+      schema
+      |> cast(params, [:code])
+      |> validate_inclusion(:code, ["us", "ca", "pl"])
     end
   end
 
@@ -63,9 +74,12 @@ defmodule Surgex.ChangesetTest do
            }
   end
 
-  @tag :skip
   test "changeset with nested errors" do
-    changeset = TestSchema.changeset(%TestSchema{}, %{name: "test", address: %{street: "Main"}})
+    changeset =
+      TestSchema.changeset(%TestSchema{}, %{
+        name: "test",
+        address: %{street: "Main", country: %{code: "es"}}
+      })
 
     assert Changeset.build_errors_document(changeset) == %Jabbax.Document{
              errors: [
@@ -73,6 +87,12 @@ defmodule Surgex.ChangesetTest do
                  code: "required",
                  source: %Jabbax.Document.ErrorSource{
                    pointer: "/relationships/address/data/attributes/city"
+                 }
+               },
+               %Jabbax.Document.Error{
+                 code: "invalid_inclusion",
+                 source: %Jabbax.Document.ErrorSource{
+                   pointer: "/relationships/address/data/relationships/country/data/attributes/code"
                  }
                }
              ]

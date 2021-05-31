@@ -11,21 +11,25 @@ case Code.ensure_loaded(Jabbax) do
       Builds Jabbax document that describes changeset errors.
       """
       def build_errors_document(changeset) do
-        %Document{errors: build_errors(changeset)}
+        errors_map = Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} -> {msg, opts} end)
+        %Document{errors: build_errors(errors_map)}
       end
 
-      defp build_errors(changeset) do
-        changeset
-        |> Ecto.Changeset.traverse_errors(fn {msg, opts} -> {msg, opts} end)
-        |> Enum.map(&build_error/1)
+      defp build_errors(map, prefixes \\ []) do
+        map
+        |> Enum.map(& build_error(&1, prefixes))
         |> List.flatten()
       end
 
-      defp build_error({field, list}) do
+      defp build_error({field, map}, prefixes) when is_map(map) do
+        build_errors(map, [field | prefixes])
+      end
+
+      defp build_error({field, list}, prefixes) do
         Enum.map(list, fn {text, info} ->
           %Error{
             code: get_error_code(text, info[:validation]),
-            source: ErrorSource.from_attribute(field)
+            source: build_error_source(field, prefixes)
           }
         end)
       end
@@ -35,6 +39,19 @@ case Code.ensure_loaded(Jabbax) do
       defp get_error_code(_, nil), do: "invalid"
       defp get_error_code(_, :cast), do: "invalid"
       defp get_error_code(_, suffix), do: "invalid_#{suffix}"
+
+      defp build_error_source(field, []), do: ErrorSource.from_attribute(field)
+
+      defp build_error_source(field, prefixes) do
+        base =
+        prefixes
+        |> Enum.reverse()
+        |> Enum.map(& "/relationships/#{&1}/data")
+        |> Enum.join("")
+
+        pointer = "#{base}/attributes/#{field}"
+        %ErrorSource{pointer: pointer}
+      end
     end
 
   _ ->
