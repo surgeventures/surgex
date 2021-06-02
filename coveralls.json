@@ -1,6 +1,0 @@
-{
-  "skip_files": [
-    "lib/surgex/guide",
-    "test/support",
-  ]
-}
