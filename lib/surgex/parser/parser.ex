@@ -86,7 +86,7 @@ defmodule Surgex.Parser do
   """
   @spec flat_parse(nil, any) :: {:error, :empty_input}
   @spec flat_parse(map, list) ::
-          tuple() | {:error, :invalid_parameters, list} | {:error, :invalid_pointers, list}
+          {:ok, any} | {:error, :invalid_parameters, list} | {:error, :invalid_pointers, list}
   def flat_parse(input, parsers)
 
   def flat_parse(doc = %{__struct__: Jabbax.Document}, parsers) do
