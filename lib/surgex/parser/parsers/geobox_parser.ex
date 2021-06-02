@@ -9,6 +9,7 @@ defmodule Surgex.Parser.GeoboxParser do
   @spec call(String.t()) :: {:ok, Geobox.t()} | {:error, errors}
   def call(nil), do: {:ok, nil}
 
+  # credo:disable-for-next-line Credo.Check.Refactor.ABCSize
   def call(input) when is_binary(input) do
     with [lat_ne, lng_ne, lat_sw, lng_sw] <- String.split(input, ","),
          {:ok, ne} <- GeolocationParser.call({lat_ne, lng_ne}),

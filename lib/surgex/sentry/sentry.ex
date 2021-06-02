@@ -5,7 +5,7 @@ defmodule Surgex.Sentry do
   **NOTE: Deprecated in favor of Elixir 1.9 runtime configuration.**
   """
 
-  alias Mix.Project
+  alias Mix.{Config, Project}
 
   @doc """
   Patches Sentry environment name and release version from env vars.
@@ -36,7 +36,7 @@ defmodule Surgex.Sentry do
       "Patching Sentry config (environment: #{inspect(env)}, release: #{inspect(release)})"
     end)
 
-    Mix.Config.persist(
+    Config.persist(
       sentry: [
         release: release,
         environment_name: env,
@@ -65,8 +65,8 @@ defmodule Surgex.Sentry do
     end
   end
 
-  @scrubbed_param_keys Application.get_env(:surgex, :sentry_scrubbed_param_keys, ~w{password})
-  @scrubbed_value Application.get_env(:surgex, :sentry_scrubbed_value, "[Filtered]")
+  @scrubbed_param_keys Application.compile_env(:surgex, :sentry_scrubbed_param_keys, ~w{password})
+  @scrubbed_value Application.compile_env(:surgex, :sentry_scrubbed_value, "[Filtered]")
 
   @doc """
   Deeply scrubs params, obfuscating those with blacklisted names.

@@ -10,7 +10,7 @@ defmodule Surgex.Refactor.MapFilenames do
       IO.puts("#{filename} => #{new_filename}")
     end)
 
-    if length(scanned) == 0 do
+    if Enum.empty?(scanned) do
       IO.puts("No files found.")
     end
 
@@ -37,24 +37,26 @@ defmodule Surgex.Refactor.MapFilenames do
       |> File.stream!()
       |> Enum.find_value(&Regex.run(~r/^defmodule ([\w.]+)/, &1))
 
-    with [_, module_name] <- module_match do
-      new_filename_wo_ext =
-        module_name
-        |> String.split(".")
-        |> List.last()
-        |> Macro.underscore()
+    case module_match do
+      [_, module_name] ->
+        new_filename_wo_ext =
+          module_name
+          |> String.split(".")
+          |> List.last()
+          |> Macro.underscore()
 
-      new_filename =
-        Path.join(
-          Path.dirname(filename),
-          new_filename_wo_ext <> Path.extname(filename)
-        )
+        new_filename =
+          Path.join(
+            Path.dirname(filename),
+            new_filename_wo_ext <> Path.extname(filename)
+          )
 
-      if filename != new_filename do
-        {filename, new_filename}
-      end
-    else
-      _ -> nil
+        if filename != new_filename do
+          {filename, new_filename}
+        end
+
+      _ ->
+        nil
     end
   end
 
