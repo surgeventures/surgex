@@ -8,7 +8,7 @@ workflows:
   ci:
     jobs:
       - elixir-orb/test:
-          executor: elixir-postgres
+          executor: elixir-orb/elixir-postgres
       - elixir-orb/static-check:
           dialyzer: false
           context: Hex
