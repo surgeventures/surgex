@@ -85,6 +85,7 @@ defmodule Surgex.Parser do
   tuple instead of a `[key1: value1, key2: value2, ...]` keyword list.
   """
   @spec flat_parse(nil, any) :: {:error, :empty_input}
+  # any number of params could be parsed, so the best spec for {:ok, v1, v2, vn} is tuple()
   @spec flat_parse(map, list) ::
           tuple() | {:error, :invalid_parameters, list} | {:error, :invalid_pointers, list}
   def flat_parse(input, parsers)
