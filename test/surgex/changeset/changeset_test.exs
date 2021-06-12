@@ -86,13 +86,13 @@ defmodule Surgex.ChangesetTest do
                %Jabbax.Document.Error{
                  code: "required",
                  source: %Jabbax.Document.ErrorSource{
-                   pointer: "/relationships/address/data/attributes/city"
+                   pointer: "/data/attributes/address/city"
                  }
                },
                %Jabbax.Document.Error{
                  code: "invalid_inclusion",
                  source: %Jabbax.Document.ErrorSource{
-                   pointer: "/relationships/address/data/relationships/country/data/attributes/code"
+                   pointer: "/data/attributes/address/country/code"
                  }
                }
              ]

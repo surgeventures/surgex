@@ -43,14 +43,9 @@ case Code.ensure_loaded(Jabbax) do
       defp build_error_source(field, []), do: ErrorSource.from_attribute(field)
 
       defp build_error_source(field, prefixes) do
-        base =
-        prefixes
+        [field | prefixes]
         |> Enum.reverse()
-        |> Enum.map(& "/relationships/#{&1}/data")
-        |> Enum.join("")
-
-        pointer = "#{base}/attributes/#{field}"
-        %ErrorSource{pointer: pointer}
+        |> ErrorSource.from_attribute()
       end
     end
 
