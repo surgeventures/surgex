@@ -24,3 +24,6 @@ erl_crash.dump
 
 # Output from escript.build
 /surgex
+
+.idea
+*.iml

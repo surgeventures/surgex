@@ -4,7 +4,7 @@ defmodule Surgex.Mixfile do
   def project do
     [
       app: :surgex,
-      version: "4.0.0",
+      version: "4.1.1",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
@@ -12,14 +12,7 @@ defmodule Surgex.Mixfile do
       deps: deps(),
       package: package(),
       aliases: aliases(),
-      test_coverage: [tool: ExCoveralls],
       escript: [main_module: Surgex.Command],
-      preferred_cli_env: [
-        check: :test,
-        coveralls: :test,
-        "coveralls.detail": :test,
-        "coveralls.html": :test
-      ],
       name: "Surgex",
       description: "All Things Elixir @ Surge Ventures Inc, the creators of Fresha",
       source_url: "https://github.com/surgeventures/surgex",
@@ -64,7 +57,6 @@ defmodule Surgex.Mixfile do
       {:dialyxir, "~> 1.0.0-rc.6", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
       {:ex_machina, "~> 2.3", only: :test},
-      {:excoveralls, "~> 0.7", only: :test},
       {:inch_ex, "~> 0.5", only: [:dev, :test]},
       {:mock, "~> 0.2.1", only: :test},
       {:postgrex, ">= 0.0.0", only: :test}

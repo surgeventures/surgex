@@ -38,7 +38,7 @@ defmodule Surgex.Parser.StringParser do
     end
   end
 
-  defp process_opts(%{opts: []} = input), do: input
+  defp process_opts(input = %{opts: []}), do: input
 
   defp process_opts(input) do
     input
@@ -52,12 +52,13 @@ defmodule Surgex.Parser.StringParser do
           value: String.t(),
           error: nil
         }
-  def trim(%{opts: opts, value: value} = input) do
+  def trim(input = %{opts: opts, value: value}) do
     trim_value = Keyword.get(opts, :trim)
 
-    cond do
-      is_nil(trim_value) -> input
-      true -> %{input | value: String.trim(value)}
+    if is_nil(trim_value) do
+      input
+    else
+      %{input | value: String.trim(value)}
     end
   end
 
@@ -66,7 +67,7 @@ defmodule Surgex.Parser.StringParser do
           value: String.t(),
           error: nil | :too_short
         }
-  def validate_min(%{opts: opts, value: value} = input) do
+  def validate_min(input = %{opts: opts, value: value}) do
     min_value = Keyword.get(opts, :min)
 
     cond do
@@ -81,7 +82,7 @@ defmodule Surgex.Parser.StringParser do
           value: String.t(),
           error: nil | :too_long
         }
-  def validate_max(%{opts: opts, value: value} = input) do
+  def validate_max(input = %{opts: opts, value: value}) do
     max_value = Keyword.get(opts, :max)
 
     cond do
@@ -91,6 +92,6 @@ defmodule Surgex.Parser.StringParser do
     end
   end
 
-  defp nullify_empty_output(%{value: ""} = input), do: %{input | value: nil}
+  defp nullify_empty_output(input = %{value: ""}), do: %{input | value: nil}
   defp nullify_empty_output(input), do: input
 end
