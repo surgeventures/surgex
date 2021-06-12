@@ -11,13 +11,15 @@ case Code.ensure_loaded(Jabbax) do
       Builds Jabbax document that describes changeset errors.
       """
       def build_errors_document(changeset) do
-        errors_map = Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} -> {msg, opts} end)
+        # According to the typespec a function passed to traverse_errors, but we choose to ignore
+        # as it does not seem to be justified.
+        errors_map = Ecto.Changeset.traverse_errors(changeset, & &1)
         %Document{errors: build_errors(errors_map)}
       end
 
       defp build_errors(map, prefixes \\ []) do
         map
-        |> Enum.map(& build_error(&1, prefixes))
+        |> Enum.map(&build_error(&1, prefixes))
         |> List.flatten()
       end
 
