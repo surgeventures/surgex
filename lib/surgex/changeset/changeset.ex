@@ -13,6 +13,7 @@ case Code.ensure_loaded(Jabbax) do
       def build_errors_document(changeset) do
         # According to the typespec a function passed to traverse_errors, but we choose to ignore
         # as it does not seem to be justified.
+        # credo:disable-for-next-line Credo.Check.Design.AliasUsage
         errors_map = Ecto.Changeset.traverse_errors(changeset, & &1)
         %Document{errors: build_errors(errors_map)}
       end
