@@ -3,7 +3,7 @@ defmodule Surgex.Parser.PageParser do
 
   alias Surgex.Parser.IntegerParser
 
-  @spec call(any) ::
+  @spec call(Surgex.Types.json_value()) ::
           {:ok, integer | nil} | {:error, :invalid_page} | {:error, IntegerParser.errors()}
   def call(nil), do: {:ok, nil}
 

@@ -7,7 +7,7 @@ defmodule Surgex.Parser.TimeParser do
 
   @day_secs 60 * 60 * 24
 
-  @spec call(any) :: {:ok, integer | nil} | {:error, errors}
+  @spec call(Surgex.Types.json_value()) :: {:ok, integer | nil} | {:error, errors}
   def call(nil), do: {:ok, nil}
 
   def call(input) when is_binary(input) do

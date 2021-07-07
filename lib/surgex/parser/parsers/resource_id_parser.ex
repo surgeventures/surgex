@@ -3,7 +3,7 @@ defmodule Surgex.Parser.ResourceIdParser do
 
   alias Surgex.Parser.IdParser
 
-  @spec call(any) ::
+  @spec call(Surgex.Types.json_value()) ::
           {:ok, nil}
           | {:ok, integer}
           | {:error, [{IdParser.errors(), String.t()}]}
