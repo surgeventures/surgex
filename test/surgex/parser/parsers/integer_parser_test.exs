@@ -19,4 +19,10 @@ defmodule Surgex.Parser.IntegerParserTest do
     assert IntegerParser.call("1", min: 2) == {:error, :out_of_range}
     assert IntegerParser.call("1", max: 0) == {:error, :out_of_range}
   end
+
+  test "unsupported input type" do
+    assert IntegerParser.call(0.5) == {:error, :invalid_integer}
+    assert IntegerParser.call([1]) == {:error, :invalid_integer}
+    assert IntegerParser.call(%{test: 1}) == {:error, :invalid_integer}
+  end
 end

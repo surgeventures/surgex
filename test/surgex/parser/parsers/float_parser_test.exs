@@ -23,4 +23,8 @@ defmodule Surgex.Parser.FloatParserTest do
     assert FloatParser.call("1.5", min: 1.6) == {:error, :out_of_range}
     assert FloatParser.call("1.5", max: 1.4) == {:error, :out_of_range}
   end
+
+  test "unsupported input type" do
+    assert FloatParser.call(["1.3"]) == {:error, :invalid_float}
+  end
 end

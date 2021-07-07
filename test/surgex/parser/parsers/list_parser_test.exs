@@ -6,6 +6,10 @@ defmodule Surgex.Parser.ListParserTest do
     assert ListParser.call(nil) == {:ok, []}
   end
 
+  test "empty string" do
+    assert ListParser.call("") == {:ok, []}
+  end
+
   test "valid input" do
     assert ListParser.call(["a", 1]) == {:ok, ["a", 1]}
     assert ListParser.call("a,1") == {:ok, ["a", "1"]}

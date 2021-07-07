@@ -3,8 +3,7 @@ defmodule Surgex.Parser.SlugOrIdParser do
 
   alias Surgex.Parser.IdParser
 
-  @spec call(nil) :: {:ok, nil}
-  @spec call(String.t()) :: {:ok, String.t()} | {:error, :invalid_slug}
+  @spec call(any) :: {:ok, String.t() | nil} | {:error, :invalid_slug}
   def call(nil), do: {:ok, nil}
 
   def call(input) when is_binary(input) do
@@ -19,4 +18,6 @@ defmodule Surgex.Parser.SlugOrIdParser do
         {:error, :invalid_slug}
     end
   end
+
+  def call(_input), do: {:error, :invalid_slug}
 end

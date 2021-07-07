@@ -5,11 +5,10 @@ defmodule Surgex.Parser.StringParser do
   - **min** is a minimal length of the string, returns :too_short error symbol
   - **max** is a maximal length of the string, returns :too_long error symbol
   """
-  @type errors :: :too_short | :too_long
+  @type errors :: :too_short | :too_long | :invalid_string
   @opts [:trim, :min, :max]
 
-  @spec call(nil, any) :: {:ok, nil}
-  @spec call(String.t(), list) :: {:ok, String.t()} | {:error, errors}
+  @spec call(any, list) :: {:ok, String.t() | nil} | {:error, errors}
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, nil}
 
@@ -26,6 +25,8 @@ defmodule Surgex.Parser.StringParser do
       %{error: error} -> {:error, error}
     end
   end
+
+  def call(_input, _opts), do: {:error, :invalid_string}
 
   @spec validate_opts!(list) :: :ok
   defp validate_opts!([]), do: :ok

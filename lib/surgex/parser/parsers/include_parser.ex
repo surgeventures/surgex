@@ -7,8 +7,7 @@ defmodule Surgex.Parser.IncludeParser do
   """
 
   @doc false
-  @spec call(nil, any) :: {:ok, []}
-  @spec call(String.t(), []) :: {:ok, [atom]} | {:error, :invalid_relationship_path}
+  @spec call(any, []) :: {:ok, [atom]} | {:error, :invalid_relationship_path} | {:error, :invalid_input}
   def call(nil, _spec), do: {:ok, []}
   def call("", _spec), do: {:ok, []}
 
@@ -18,6 +17,8 @@ defmodule Surgex.Parser.IncludeParser do
 
     validate_relationship_path(paths, allowed_paths)
   end
+
+  def call(_input, _paths), do: {:error, :invalid_input}
 
   defp convert_to_string(path) when is_binary(path), do: path
   defp convert_to_string(path) when is_atom(path), do: Atom.to_string(path)

@@ -3,8 +3,7 @@ defmodule Surgex.Parser.IntegerParser do
 
   @type errors :: :invalid_integer | :out_of_range
 
-  @spec call(nil, any) :: {:ok, nil}
-  @spec call(String.t() | integer, list) :: {:ok, integer} | {:error, errors}
+  @spec call(any, list) :: {:ok, integer | nil} | {:error, errors}
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, nil}
 
@@ -27,6 +26,8 @@ defmodule Surgex.Parser.IntegerParser do
         {:error, :invalid_integer}
     end
   end
+
+  def call(_input, _opts), do: {:error, :invalid_integer}
 
   defp validate_range(input, min, max) do
     case input do

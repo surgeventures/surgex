@@ -5,8 +5,7 @@ defmodule Surgex.Parser.IdParser do
 
   @type errors :: :invalid_identifier | IntegerParser.errors()
 
-  @spec call(nil) :: {:ok, nil}
-  @spec call(String.t()) :: {:ok, integer} | {:error, errors}
+  @spec call(any) :: {:ok, nil} | {:ok, integer} | {:error, errors}
   def call(nil), do: {:ok, nil}
 
   def call(input) when is_binary(input) do
@@ -16,4 +15,6 @@ defmodule Surgex.Parser.IdParser do
       {:error, reason} -> {:error, reason}
     end
   end
+
+  def call(_input), do: {:error, :invalid_identifier}
 end

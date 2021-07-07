@@ -15,5 +15,7 @@ defmodule Surgex.Parser.BooleanParserTest do
 
   test "invalid input" do
     assert BooleanParser.call("?") == {:error, :invalid_boolean}
+    assert BooleanParser.call(2) == {:error, :invalid_boolean}
+    assert BooleanParser.call(0.5) == {:error, :invalid_boolean}
   end
 end

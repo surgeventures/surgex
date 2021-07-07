@@ -17,4 +17,9 @@ defmodule Surgex.Parser.SlugOrIdParserTest do
     assert SlugOrIdParser.call("abć-123") == {:error, :invalid_slug}
     assert SlugOrIdParser.call("abć%20123") == {:error, :invalid_slug}
   end
+
+  test "unsupported input type" do
+    assert SlugOrIdParser.call(0.3) == {:error, :invalid_slug}
+    assert SlugOrIdParser.call(["123"]) == {:error, :invalid_slug}
+  end
 end

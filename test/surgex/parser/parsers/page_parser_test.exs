@@ -16,4 +16,9 @@ defmodule Surgex.Parser.PageParserTest do
     assert PageParser.call("123abc") == {:error, :invalid_integer}
     assert PageParser.call("?") == {:error, :invalid_integer}
   end
+
+  test "unsupported input type" do
+    assert PageParser.call(1.5) == {:error, :invalid_page}
+    assert PageParser.call([1]) == {:error, :invalid_page}
+  end
 end

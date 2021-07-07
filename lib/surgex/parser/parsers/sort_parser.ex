@@ -8,8 +8,7 @@ defmodule Surgex.Parser.SortParser do
   """
 
   @doc false
-  @spec call(nil, any) :: {:ok, nil}
-  @spec call(String.t(), [atom]) :: {:ok, {:asc | :desc, atom}} | {:error, :invalid_sort_column}
+  @spec call(any, [atom]) :: {:ok, nil | {:asc | :desc, atom}} | {:error, :invalid_sort_column}
   def call(nil, _allowed_columns), do: {:ok, nil}
 
   def call(input, allowed_columns) when is_binary(input) do
@@ -21,6 +20,8 @@ defmodule Surgex.Parser.SortParser do
         validate_allowed_columns(column, allowed_columns, :asc)
     end
   end
+
+  def call(_input, _), do: {:error, :invalid_sort_column}
 
   defp validate_allowed_columns(column, allowed_columns, direction) do
     column_atom = atomize_maybe_dasherized(column)

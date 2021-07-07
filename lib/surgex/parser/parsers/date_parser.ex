@@ -1,8 +1,7 @@
 defmodule Surgex.Parser.DateParser do
   @moduledoc false
 
-  @spec call(nil) :: {:ok, nil}
-  @spec call(String.t()) :: {:ok, Date.t()} | {:ok, :invalid_date}
+  @spec call(any) :: {:ok, nil} | {:ok, Date.t()} | {:ok, :invalid_date}
   def call(nil), do: {:ok, nil}
 
   def call(input) when is_binary(input) do
@@ -14,4 +13,6 @@ defmodule Surgex.Parser.DateParser do
         {:error, :invalid_date}
     end
   end
+
+  def call(_input), do: {:error, :invalid_date}
 end
