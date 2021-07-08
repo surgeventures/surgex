@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.3.0
+
+- Parsers can now process any valid JSON value without throwing exception on unknown value type
+
 ## 4.2.0
 
 - Added support for translating errors in nested changeset to JSON API responses
