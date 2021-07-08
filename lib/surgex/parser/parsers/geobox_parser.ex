@@ -23,6 +23,8 @@ defmodule Surgex.Parser.GeoboxParser do
     end
   end
 
+  def call(_input), do: {:error, :invalid_geobox_tuple}
+
   defp valid_box?(north_east, south_west) do
     north_east.latitude - south_west.latitude > 0
   end

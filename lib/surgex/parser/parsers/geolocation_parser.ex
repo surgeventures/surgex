@@ -26,6 +26,8 @@ defmodule Surgex.Parser.GeolocationParser do
     parse_lat_lng_strings(lat_string, lng_string)
   end
 
+  def call(_input), do: {:error, :invalid_geolocation_tuple}
+
   defp parse_lat_lng_strings(lat_string, lng_string) do
     with {:ok, lat} <- FloatParser.call(lat_string),
          {:ok, lng} <- FloatParser.call(lng_string),
