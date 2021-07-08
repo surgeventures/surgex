@@ -2,7 +2,7 @@ defmodule Surgex.Parser.FloatParser do
   @moduledoc false
   @type errors :: :invalid_float | :out_of_range
 
-  @spec call(Surgex.Types.json_value(), list) :: {:ok, nil} | {:ok, float} | {:error, errors}
+  @spec call(Surgex.Types.json_value(), list) :: {:ok, float | nil} | {:error, errors}
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, nil}
 

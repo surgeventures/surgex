@@ -6,9 +6,10 @@ defmodule Surgex.Parser.IncludeParser do
   Produces a list of includes constrained to the provided relationship paths.
   """
 
+  @type errors :: :invalid_relationship_path | :invalid_input
+
   @doc false
-  @spec call(Surgex.Types.json_value(), []) ::
-          {:ok, [atom]} | {:error, :invalid_relationship_path} | {:error, :invalid_input}
+  @spec call(Surgex.Types.json_value(), []) :: {:ok, [atom]} | {:error, errors}
   def call(nil, _spec), do: {:ok, []}
   def call("", _spec), do: {:ok, []}
 

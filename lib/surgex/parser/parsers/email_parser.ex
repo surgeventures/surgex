@@ -3,7 +3,7 @@ defmodule Surgex.Parser.EmailParser do
 
   @email_regex ~r/^[^@\s]+@[^@\s]+\.[^@\s]+$/i
 
-  @spec call(Surgex.Types.json_value()) :: {:ok, nil} | {:ok, String.t()} | {:error, :invalid_email}
+  @spec call(Surgex.Types.json_value()) :: {:ok, String.t() | nil} | {:error, :invalid_email}
   def call(nil), do: {:ok, nil}
 
   def call(input) when is_binary(input) do
