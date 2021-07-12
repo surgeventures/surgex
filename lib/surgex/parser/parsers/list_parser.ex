@@ -1,7 +1,7 @@
 defmodule Surgex.Parser.ListParser do
   @moduledoc false
 
-  @spec call(Surgex.Types.json_value()) :: {:ok, [any]} | {:error, :invalid_list}
+  @spec call(term()) :: {:ok, [term()]} | {:error, :invalid_list}
   def call(nil), do: {:ok, []}
   def call(list) when is_list(list), do: {:ok, list}
   def call(""), do: {:ok, []}

@@ -3,7 +3,7 @@ defmodule Surgex.Parser.ResourceArrayParser do
 
   @type errors :: :too_short | :too_long | :invalid_array
 
-  @spec call(Surgex.Types.json_value(), fun, Keyword.t()) :: {:ok, list | nil} | {:error, errors}
+  @spec call(term(), fun, Keyword.t()) :: {:ok, list | nil} | {:error, errors}
   def call(list, item_parser, opts \\ [])
   def call(nil, _item_parser, _opts), do: {:ok, nil}
 

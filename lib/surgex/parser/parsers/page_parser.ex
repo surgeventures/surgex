@@ -3,8 +3,7 @@ defmodule Surgex.Parser.PageParser do
 
   alias Surgex.Parser.IntegerParser
 
-  @spec call(Surgex.Types.json_value()) ::
-          {:ok, integer | nil} | {:error, :invalid_page} | {:error, IntegerParser.errors()}
+  @spec call(term()) :: {:ok, integer | nil} | {:error, :invalid_page | IntegerParser.errors()}
   def call(nil), do: {:ok, nil}
 
   def call(input) when is_binary(input) do

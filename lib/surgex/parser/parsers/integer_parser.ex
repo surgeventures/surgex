@@ -3,7 +3,7 @@ defmodule Surgex.Parser.IntegerParser do
 
   @type errors :: :invalid_integer | :out_of_range
 
-  @spec call(Surgex.Types.json_value(), list) :: {:ok, integer | nil} | {:error, errors}
+  @spec call(term(), list) :: {:ok, integer | nil} | {:error, errors}
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, nil}
 

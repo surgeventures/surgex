@@ -8,7 +8,7 @@ defmodule Surgex.Parser.StringParser do
   @type errors :: :too_short | :too_long | :invalid_string
   @opts [:trim, :min, :max]
 
-  @spec call(Surgex.Types.json_value(), list) :: {:ok, String.t() | nil} | {:error, errors}
+  @spec call(term(), list) :: {:ok, String.t() | nil} | {:error, errors}
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, nil}
 

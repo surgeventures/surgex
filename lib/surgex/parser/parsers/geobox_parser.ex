@@ -5,8 +5,7 @@ defmodule Surgex.Parser.GeoboxParser do
 
   @type errors :: :invalid_geobox_tuple | :invalid_geobox
 
-  @spec call(nil) :: {:ok, nil}
-  @spec call(String.t()) :: {:ok, Geobox.t()} | {:error, errors}
+  @spec call(term()) :: {:ok, Geobox.t() | nil} | {:error, errors}
   def call(nil), do: {:ok, nil}
 
   # credo:disable-for-next-line Credo.Check.Refactor.ABCSize

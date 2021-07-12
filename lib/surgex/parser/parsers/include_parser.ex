@@ -9,7 +9,7 @@ defmodule Surgex.Parser.IncludeParser do
   @type errors :: :invalid_relationship_path | :invalid_input
 
   @doc false
-  @spec call(Surgex.Types.json_value(), []) :: {:ok, [atom]} | {:error, errors}
+  @spec call(term(), []) :: {:ok, [atom]} | {:error, errors}
   def call(nil, _spec), do: {:ok, []}
   def call("", _spec), do: {:ok, []}
 

@@ -1,7 +1,7 @@
 defmodule Surgex.Parser.BooleanParser do
   @moduledoc false
 
-  @spec call(Surgex.Types.json_value()) :: {:ok, true | false} | {:error, :invalid_boolean}
+  @spec call(term()) :: {:ok, boolean()} | {:error, :invalid_boolean}
   def call(nil), do: {:ok, nil}
   def call("0"), do: {:ok, false}
   def call("1"), do: {:ok, true}

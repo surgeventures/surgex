@@ -3,11 +3,7 @@ defmodule Surgex.Parser.ResourceIdParser do
 
   alias Surgex.Parser.IdParser
 
-  @spec call(Surgex.Types.json_value()) ::
-          {:ok, nil}
-          | {:ok, integer}
-          | {:error, [{IdParser.errors(), String.t()}]}
-          | {:error, [required: String.t()]}
+  @spec call(term()) :: {:ok, integer | nil} | {:error, Keyword.t()}
   def call(nil), do: {:ok, nil}
 
   def call(%{id: id_string}) when is_binary(id_string) do
