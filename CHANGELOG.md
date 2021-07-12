@@ -1,8 +1,8 @@
 # Changelog
 
-## 4.3.0
+## 4.2.1
 
-- Parsers can now process any valid JSON value without throwing exception on unknown value type
+- Parsers can now process any value without throwing exception on unknown value type
 
 ## 4.2.0
 
