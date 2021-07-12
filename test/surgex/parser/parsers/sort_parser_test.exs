@@ -16,6 +16,10 @@ defmodule Surgex.Parser.SortParserTest do
     test "invalid input" do
       assert SortParser.call("other", [:id, :name]) == {:error, :invalid_sort_column}
     end
+
+    test "unsupported input type" do
+      assert SortParser.call(1, [String.to_atom("1")]) == {:error, :invalid_sort_column}
+    end
   end
 
   describe "flatten/2" do

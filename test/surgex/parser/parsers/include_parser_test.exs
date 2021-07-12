@@ -26,6 +26,10 @@ defmodule Surgex.Parser.IncludeParserTest do
       assert IncludeParser.call("other,user.ledger-account", [:user, :"user.ledger-account"]) ==
                {:error, :invalid_relationship_path}
     end
+
+    test "unsupported input type" do
+      assert IncludeParser.call(0.3, [:user]) == {:error, :invalid_input}
+    end
   end
 
   describe "flatten/2" do

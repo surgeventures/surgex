@@ -5,6 +5,8 @@ defmodule Surgex.Parser.RequiredParserTest do
   test "valid input" do
     assert RequiredParser.call(123) == {:ok, 123}
     assert RequiredParser.call("abc") == {:ok, "abc"}
+    assert RequiredParser.call(1.23) == {:ok, 1.23}
+    assert RequiredParser.call(%{}) == {:ok, %{}}
   end
 
   test "invalid input" do

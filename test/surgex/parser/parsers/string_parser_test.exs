@@ -45,4 +45,8 @@ defmodule Surgex.Parser.StringParserTest do
     assert StringParser.call("  abc  ", opt) == {:ok, "abc"}
     assert StringParser.call("  abcde  ", opt) == {:error, :too_long}
   end
+
+  test "unsupported input type" do
+    assert StringParser.call(1.4) == {:error, :invalid_string}
+  end
 end

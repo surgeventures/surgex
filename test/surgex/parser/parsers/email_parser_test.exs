@@ -29,4 +29,10 @@ defmodule Surgex.Parser.EmailParserTest do
     assert EmailParser.call("he llo@example.com") == {:error, :invalid_email}
     assert EmailParser.call("me@example@gmail.com") == {:error, :invalid_email}
   end
+
+  test "unsupported input" do
+    assert EmailParser.call(15) == {:error, :invalid_email}
+    assert EmailParser.call(0.5) == {:error, :invalid_email}
+    assert EmailParser.call(["me@example@gmail.com"]) == {:error, :invalid_email}
+  end
 end
