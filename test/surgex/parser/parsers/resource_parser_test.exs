@@ -23,6 +23,6 @@ defmodule Surgex.Parser.ResourceParserTest do
   end
 
   test "non-map input" do
-    assert ResourceParser.call(5, & to_string(&1)) == {:error, :invalid_resource}
+    assert ResourceParser.call(5, &to_string(&1)) == {:error, :invalid_resource}
   end
 end
