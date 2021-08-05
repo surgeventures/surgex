@@ -2,8 +2,9 @@ defmodule Surgex.Parser.IntegerParser do
   @moduledoc false
 
   @type errors :: :invalid_integer | :out_of_range
+  @type option :: {:min, integer()} | {:max, integer()}
 
-  @spec call(term(), list) :: {:ok, integer | nil} | {:error, errors}
+  @spec call(term(), [option()]) :: {:ok, integer() | nil} | {:error, errors()}
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, nil}
 

@@ -1,8 +1,9 @@
 defmodule Surgex.Parser.FloatParser do
   @moduledoc false
   @type errors :: :invalid_float | :out_of_range
+  @type option :: {:min, number()} | {:max, number()}
 
-  @spec call(term(), list) :: {:ok, float | nil} | {:error, errors}
+  @spec call(term(), [option()]) :: {:ok, float() | nil} | {:error, errors()}
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, nil}
 

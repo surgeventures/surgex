@@ -6,9 +6,10 @@ defmodule Surgex.Parser.StringParser do
   - **max** is a maximal length of the string, returns :too_long error symbol
   """
   @type errors :: :too_short | :too_long | :invalid_string
+  @type option :: {:trim, boolean()} | {:min, integer()} | {:max, integer()}
   @opts [:trim, :min, :max]
 
-  @spec call(term(), list) :: {:ok, String.t() | nil} | {:error, errors}
+  @spec call(term(), [option()]) :: {:ok, String.t() | nil} | {:error, errors()}
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, nil}
 

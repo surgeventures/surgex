@@ -7,9 +7,10 @@ defmodule Surgex.Parser.IncludeParser do
   """
 
   @type errors :: :invalid_relationship_path | :invalid_input
+  @type path :: atom() | String.t()
 
   @doc false
-  @spec call(term(), []) :: {:ok, [atom]} | {:error, errors}
+  @spec call(term(), [path()]) :: {:ok, [atom()]} | {:error, errors()}
   def call(nil, _spec), do: {:ok, []}
   def call("", _spec), do: {:ok, []}
 

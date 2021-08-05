@@ -2,8 +2,9 @@ defmodule Surgex.Parser.ResourceArrayParser do
   @moduledoc false
 
   @type errors :: :too_short | :too_long | :invalid_array
+  @type option :: {:min, integer()} | {:max, integer()}
 
-  @spec call(term(), fun, Keyword.t()) :: {:ok, list | nil} | {:error, errors}
+  @spec call(term(), (term() -> term()), [option()]) :: {:ok, list() | nil} | {:error, errors()}
   def call(list, item_parser, opts \\ [])
   def call(nil, _item_parser, _opts), do: {:ok, nil}
 
