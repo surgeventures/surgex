@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.2.1
+
+- Extended parsing of boolean ("true" -> true, "false" -> false) and integers ("" -> nil) values
+
 ## 4.2.0
 
 - Added support for translating errors in nested changeset to JSON API responses
