@@ -3,6 +3,7 @@ defmodule Surgex.Parser.ResourceParser do
 
   @spec call(term(), fun) :: {:ok, term() | nil} | {:error, Keyword.t() | atom()}
   def call(nil, _item_parser), do: {:ok, nil}
+  def call("", _item_parser), do: {:ok, nil}
 
   def call(resource, item_parser) when is_map(resource) do
     resource

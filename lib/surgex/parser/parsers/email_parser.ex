@@ -5,6 +5,7 @@ defmodule Surgex.Parser.EmailParser do
 
   @spec call(term()) :: {:ok, String.t() | nil} | {:error, :invalid_email}
   def call(nil), do: {:ok, nil}
+  def call(""), do: {:ok, nil}
 
   def call(input) when is_binary(input) do
     if Regex.match?(@email_regex, input) do

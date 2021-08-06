@@ -13,6 +13,7 @@ defmodule Surgex.Parser.ResourceIdParserTest do
   test "invalid input" do
     assert ResourceIdParser.call(%{id: "0"}) == {:error, [invalid_identifier: "id"]}
     assert ResourceIdParser.call(%{id: nil}) == {:error, [required: "id"]}
+    assert ResourceIdParser.call(%{id: ""}) == {:error, [required: "id"]}
     assert ResourceIdParser.call(%{}) == {:error, [required: "id"]}
   end
 end

@@ -6,6 +6,7 @@ defmodule Surgex.Parser.ContainParser do
   @doc false
   @spec call(term(), nonempty_list()) :: {:ok, term() | nil} | {:error, :invalid_value}
   def call(nil, _allowed_values), do: {:ok, nil}
+  def call("", _allowed_values), do: {:ok, nil}
 
   def call(input, allowed_values) when is_list(allowed_values) do
     case Enum.member?(allowed_values, input) do

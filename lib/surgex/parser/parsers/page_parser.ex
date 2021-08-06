@@ -5,6 +5,7 @@ defmodule Surgex.Parser.PageParser do
 
   @spec call(term()) :: {:ok, integer | nil} | {:error, :invalid_page | IntegerParser.errors()}
   def call(nil), do: {:ok, nil}
+  def call(""), do: {:ok, nil}
 
   def call(input) when is_binary(input) do
     case IntegerParser.call(input) do

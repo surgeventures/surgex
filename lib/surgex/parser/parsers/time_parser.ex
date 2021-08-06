@@ -9,6 +9,7 @@ defmodule Surgex.Parser.TimeParser do
 
   @spec call(term()) :: {:ok, integer | nil} | {:error, errors}
   def call(nil), do: {:ok, nil}
+  def call(""), do: {:ok, nil}
 
   def call(input) when is_binary(input) do
     with {:ok, integer} <- IntegerParser.call(input) do

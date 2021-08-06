@@ -1,8 +1,24 @@
 # Changelog
 
-## 4.2.1
+## 4.5.1
 
 - Parsers can now process any value without throwing exception on unknown value type
+
+## 4.5.0
+
+- Extended parsers to match empty string values as nil
+
+## 4.4.0
+
+- Extended parsing of ResourceID ("" -> required)
+
+## 4.3.0
+
+- Bump minor version
+
+## 4.2.1
+
+- Extended parsing of boolean ("true" -> true, "false" -> false) and integers ("" -> nil) values
 
 ## 4.2.0
 

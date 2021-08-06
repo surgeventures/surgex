@@ -3,6 +3,7 @@ defmodule Surgex.Parser.DateParser do
 
   @spec call(term()) :: {:ok, Date.t() | nil} | {:error, :invalid_date}
   def call(nil), do: {:ok, nil}
+  def call(""), do: {:ok, nil}
 
   def call(input) when is_binary(input) do
     case Date.from_iso8601(input) do

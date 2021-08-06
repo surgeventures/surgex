@@ -7,6 +7,7 @@ defmodule Surgex.Parser.GeolocationParser do
 
   @spec call(term()) :: {:ok, Geolocation.t() | nil} | {:error, errors()}
   def call(nil), do: {:ok, nil}
+  def call(""), do: {:ok, nil}
 
   def call(input) when is_binary(input) do
     case String.split(input, ",") do

@@ -11,6 +11,7 @@ defmodule Surgex.Parser.RequiredParserTest do
 
   test "invalid input" do
     assert RequiredParser.call(nil) == {:error, :required}
+    assert RequiredParser.call("") == {:error, :required}
     assert RequiredParser.call([]) == {:error, :required}
   end
 end

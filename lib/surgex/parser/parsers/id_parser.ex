@@ -7,6 +7,7 @@ defmodule Surgex.Parser.IdParser do
 
   @spec call(term()) :: {:ok, integer | nil} | {:error, errors}
   def call(nil), do: {:ok, nil}
+  def call(""), do: {:ok, nil}
 
   def call(input) when is_binary(input) do
     case IntegerParser.call(input) do

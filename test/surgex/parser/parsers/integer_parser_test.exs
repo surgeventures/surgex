@@ -6,6 +6,10 @@ defmodule Surgex.Parser.IntegerParserTest do
     assert IntegerParser.call(nil) == {:ok, nil}
   end
 
+  test "empty string" do
+    assert IntegerParser.call("") == {:ok, nil}
+  end
+
   test "valid input" do
     assert IntegerParser.call(123) == {:ok, 123}
     assert IntegerParser.call("123") == {:ok, 123}

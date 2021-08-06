@@ -5,6 +5,7 @@ defmodule Surgex.Parser.SlugOrIdParser do
 
   @spec call(term()) :: {:ok, String.t() | nil} | {:error, :invalid_slug}
   def call(nil), do: {:ok, nil}
+  def call(""), do: {:ok, nil}
 
   def call(input) when is_binary(input) do
     cond do

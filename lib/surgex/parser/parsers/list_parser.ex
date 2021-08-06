@@ -3,6 +3,7 @@ defmodule Surgex.Parser.ListParser do
 
   @spec call(term()) :: {:ok, [term()]} | {:error, :invalid_list}
   def call(nil), do: {:ok, []}
+  def call(""), do: {:ok, []}
   def call(list) when is_list(list), do: {:ok, list}
   def call(""), do: {:ok, []}
   def call(string) when is_binary(string), do: {:ok, String.split(string, ",")}
