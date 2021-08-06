@@ -7,6 +7,7 @@ defmodule Surgex.Parser.ResourceArrayParser do
   @spec call(list, fun, Keyword.t()) :: {:ok, list} | {:error, errors}
   def call(list, item_parser, opts \\ [])
   def call(nil, _item_parser, _opts), do: {:ok, nil}
+  def call("", _item_parser, _opts), do: {:ok, nil}
 
   def call(list, item_parser, opts) when is_list(list) do
     min = Keyword.get(opts, :min)

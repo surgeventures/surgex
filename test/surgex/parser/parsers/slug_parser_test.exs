@@ -6,6 +6,10 @@ defmodule Surgex.Parser.SlugParserTest do
     assert SlugParser.call(nil) == {:ok, nil}
   end
 
+  test "empty string" do
+    assert SlugParser.call("") == {:ok, nil}
+  end
+
   test "valid input" do
     assert SlugParser.call("abc-123") == {:ok, "abc-123"}
   end

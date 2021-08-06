@@ -7,6 +7,10 @@ defmodule Surgex.Parser.SortParserTest do
       assert SortParser.call(nil, [:id, :name]) == {:ok, nil}
     end
 
+    test "empty string" do
+      assert SortParser.call("", [:id, :name]) == {:ok, nil}
+    end
+
     test "valid input" do
       assert SortParser.call("id", [:id, :name]) == {:ok, {:asc, :id}}
       assert SortParser.call("first-name", [:id, :first_name]) == {:ok, {:asc, :first_name}}
