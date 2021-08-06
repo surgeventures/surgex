@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.4.0
+
+- Extended parsing of ResourceID ("" -> required)
+
 ## 4.3.0
 
 - Bump minor version

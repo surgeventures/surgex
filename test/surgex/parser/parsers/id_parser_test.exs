@@ -6,6 +6,10 @@ defmodule Surgex.Parser.IdParserTest do
     assert IdParser.call(nil) == {:ok, nil}
   end
 
+  test "empty string" do
+    assert IdParser.call("") == {:ok, nil}
+  end
+
   test "valid input" do
     assert IdParser.call("123") == {:ok, 123}
   end
