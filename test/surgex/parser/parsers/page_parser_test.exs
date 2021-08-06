@@ -6,6 +6,10 @@ defmodule Surgex.Parser.PageParserTest do
     assert PageParser.call(nil) == {:ok, nil}
   end
 
+  test "empty string" do
+    assert PageParser.call("") == {:ok, nil}
+  end
+
   test "valid input" do
     assert PageParser.call("123") == {:ok, 123}
   end

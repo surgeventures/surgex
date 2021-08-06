@@ -6,6 +6,7 @@ defmodule Surgex.Parser.FloatParser do
   @spec call(number | String.t(), list) :: {:ok, float} | {:error, errors}
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, nil}
+  def call("", _opts), do: {:ok, nil}
 
   def call(input, opts) when is_integer(input) do
     call(input / 1, opts)

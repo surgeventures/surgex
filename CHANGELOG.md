@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.5.0
+
+- Extended parsers to match empty string values as nil
+
 ## 4.4.0
 
 - Extended parsing of ResourceID ("" -> required)
