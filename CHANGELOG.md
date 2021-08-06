@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.3.0
+
+- Bump minor version
+
 ## 4.2.1
 
 - Extended parsing of boolean ("true" -> true, "false" -> false) and integers ("" -> nil) values
