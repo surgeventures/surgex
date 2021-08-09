@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.6.0
+
+- Updated `Surgex.Parser.ResourceArrayParser` to support invalid parameters
+
 ## 4.5.0
 
 - Extended parsers to match empty string values as nil
