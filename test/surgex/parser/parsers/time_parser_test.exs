@@ -20,4 +20,9 @@ defmodule Surgex.Parser.TimeParserTest do
     assert TimeParser.call("abc") == {:error, :invalid_integer}
     assert TimeParser.call(Integer.to_string(24 * 60 * 60 + 1)) == {:error, :invalid_time}
   end
+
+  test "unsupported input type" do
+    assert TimeParser.call(0.1) == {:error, :invalid_time}
+    assert TimeParser.call(["0"]) == {:error, :invalid_time}
+  end
 end

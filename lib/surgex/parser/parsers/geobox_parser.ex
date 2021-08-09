@@ -5,8 +5,7 @@ defmodule Surgex.Parser.GeoboxParser do
 
   @type errors :: :invalid_geobox_tuple | :invalid_geobox
 
-  @spec call(nil) :: {:ok, nil}
-  @spec call(String.t()) :: {:ok, Geobox.t()} | {:error, errors}
+  @spec call(term()) :: {:ok, Geobox.t() | nil} | {:error, errors}
   def call(nil), do: {:ok, nil}
   def call(""), do: {:ok, nil}
 
@@ -23,6 +22,8 @@ defmodule Surgex.Parser.GeoboxParser do
       {:error, reason} -> {:error, reason}
     end
   end
+
+  def call(_input), do: {:error, :invalid_geobox_tuple}
 
   defp valid_box?(north_east, south_west) do
     north_east.latitude - south_west.latitude > 0

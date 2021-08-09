@@ -1,10 +1,10 @@
 defmodule Surgex.Parser.ResourceArrayParser do
   @moduledoc false
 
-  @type errors :: :too_short | :too_long
+  @type errors :: :too_short | :too_long | :invalid_array
+  @type option :: {:min, integer()} | {:max, integer()}
 
-  @spec call(nil, any, any) :: {:ok, nil}
-  @spec call(list, fun, Keyword.t()) :: {:ok, list} | {:error, errors}
+  @spec call(term(), (term() -> term()), [option()]) :: {:ok, list() | nil} | {:error, errors()}
   def call(list, item_parser, opts \\ [])
   def call(nil, _item_parser, _opts), do: {:ok, nil}
   def call("", _item_parser, _opts), do: {:ok, nil}
@@ -19,6 +19,8 @@ defmodule Surgex.Parser.ResourceArrayParser do
       {:error, :too_long} -> {:error, :too_long}
     end
   end
+
+  def call(_input, _, _), do: {:error, :invalid_array}
 
   defp validate_length(list, min, max) do
     cond do

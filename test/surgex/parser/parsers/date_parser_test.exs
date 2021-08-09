@@ -18,5 +18,7 @@ defmodule Surgex.Parser.DateParserTest do
     assert DateParser.call("2015-1-1") == {:error, :invalid_date}
     assert DateParser.call("2015-02-30") == {:error, :invalid_date}
     assert DateParser.call("abc") == {:error, :invalid_date}
+    assert DateParser.call(17) == {:error, :invalid_date}
+    assert DateParser.call(["2015-02-01"]) == {:error, :invalid_date}
   end
 end

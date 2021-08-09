@@ -44,4 +44,11 @@ defmodule Surgex.Parser.GeoboxParserTest do
     assert GeoboxParser.call("-22.302,-17.891,-22.203") == {:error, :invalid_geobox_tuple}
     assert GeoboxParser.call("?") == {:error, :invalid_geobox_tuple}
   end
+
+  test "unsupported input type" do
+    assert GeoboxParser.call(1) == {:error, :invalid_geobox_tuple}
+    assert GeoboxParser.call(1.5) == {:error, :invalid_geobox_tuple}
+    assert GeoboxParser.call(["30.1,-179.85,29.9,179.95"]) == {:error, :invalid_geobox_tuple}
+    assert GeoboxParser.call(%{box: true}) == {:error, :invalid_geobox_tuple}
+  end
 end

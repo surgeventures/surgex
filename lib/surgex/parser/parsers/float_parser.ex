@@ -1,9 +1,9 @@
 defmodule Surgex.Parser.FloatParser do
   @moduledoc false
   @type errors :: :invalid_float | :out_of_range
+  @type option :: {:min, number()} | {:max, number()}
 
-  @spec call(nil, any) :: {:ok, nil}
-  @spec call(number | String.t(), list) :: {:ok, float} | {:error, errors}
+  @spec call(term(), [option()]) :: {:ok, float() | nil} | {:error, errors()}
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, nil}
   def call("", _opts), do: {:ok, nil}
@@ -31,6 +31,8 @@ defmodule Surgex.Parser.FloatParser do
         {:error, :invalid_float}
     end
   end
+
+  def call(_input, _opts), do: {:error, :invalid_float}
 
   defp validate_range(input, min, max) do
     case input do

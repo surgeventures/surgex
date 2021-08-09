@@ -1,10 +1,7 @@
 defmodule Surgex.Parser.BooleanParser do
   @moduledoc false
 
-  @spec call(nil) :: {:ok, nil}
-  @spec call(true) :: {:ok, true}
-  @spec call(false) :: {:ok, false}
-  @spec call(String.t()) :: {:ok, true | false} | {:error, :invalid_boolean}
+  @spec call(term()) :: {:ok, boolean() | nil} | {:error, :invalid_boolean}
   def call(nil), do: {:ok, nil}
   def call(""), do: {:ok, nil}
   def call("0"), do: {:ok, false}

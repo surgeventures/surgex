@@ -4,8 +4,9 @@ defmodule Surgex.Parser.IdListParser do
   alias Surgex.Parser.IdParser
 
   @type errors :: :invalid_identifier | :invalid_id_list_length | IdParser.errors()
+  @type option :: {:max, integer()}
 
-  @spec call(String.t() | List.t() | nil, Keyword.t()) :: {:ok, [integer]} | {:error, errors}
+  @spec call(term(), [option()]) :: {:ok, [integer()]} | {:error, errors()}
   def call(input, opts \\ [])
   def call(nil, _opts), do: {:ok, []}
   def call("", _opts), do: {:ok, []}
@@ -24,6 +25,8 @@ defmodule Surgex.Parser.IdListParser do
     |> reverse()
     |> check_max(Keyword.get(opts, :max))
   end
+
+  def call(_input, _opts), do: {:error, :invalid_id_list}
 
   defp reduce_ids(_, {:error, reason}) do
     {:error, reason}

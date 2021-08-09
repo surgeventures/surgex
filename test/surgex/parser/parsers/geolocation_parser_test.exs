@@ -20,4 +20,10 @@ defmodule Surgex.Parser.GeolocationParserTest do
     assert GeolocationParser.call("?") == {:error, :invalid_geolocation_tuple}
     assert GeolocationParser.call("-22.203,?") == {:error, :invalid_float}
   end
+
+  test "unsupported input type" do
+    assert GeolocationParser.call(1) == {:error, :invalid_geolocation_tuple}
+    assert GeolocationParser.call(6.7) == {:error, :invalid_geolocation_tuple}
+    assert GeolocationParser.call(["12.345,67.891"]) == {:error, :invalid_geolocation_tuple}
+  end
 end

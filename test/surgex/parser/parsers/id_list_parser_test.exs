@@ -26,4 +26,9 @@ defmodule Surgex.Parser.IdListParserTest do
     assert IdListParser.call([1, -2, 3]) == {:error, :invalid_identifier}
     assert IdListParser.call(["1", "-2", "3"]) == {:error, :invalid_identifier}
   end
+
+  test "unsupported input type" do
+    assert IdListParser.call(1.5) == {:error, :invalid_id_list}
+    assert IdListParser.call(%{id: 1.5}) == {:error, :invalid_id_list}
+  end
 end

@@ -3,9 +3,7 @@ defmodule Surgex.Parser.PageParser do
 
   alias Surgex.Parser.IntegerParser
 
-  @spec call(nil) :: {:ok, nil}
-  @spec call(String.t()) ::
-          {:ok, integer} | {:error, :invalid_page} | {:error, IntegerParser.errors()}
+  @spec call(term()) :: {:ok, integer | nil} | {:error, :invalid_page | IntegerParser.errors()}
   def call(nil), do: {:ok, nil}
   def call(""), do: {:ok, nil}
 
@@ -16,4 +14,6 @@ defmodule Surgex.Parser.PageParser do
       {:error, reason} -> {:error, reason}
     end
   end
+
+  def call(_input), do: {:error, :invalid_page}
 end

@@ -19,4 +19,9 @@ defmodule Surgex.Parser.IdParserTest do
     assert IdParser.call("123abc") == {:error, :invalid_integer}
     assert IdParser.call("?") == {:error, :invalid_integer}
   end
+
+  test "unsupported input type" do
+    assert IdParser.call(1.5) == {:error, :invalid_identifier}
+    assert IdParser.call(["1"]) == {:error, :invalid_identifier}
+  end
 end

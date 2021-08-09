@@ -3,8 +3,7 @@ defmodule Surgex.Parser.EmailParser do
 
   @email_regex ~r/^[^@\s]+@[^@\s]+\.[^@\s]+$/i
 
-  @spec call(nil) :: {:ok, nil}
-  @spec call(String.t()) :: {:ok, String.t()} | {:error, :invalid_email}
+  @spec call(term()) :: {:ok, String.t() | nil} | {:error, :invalid_email}
   def call(nil), do: {:ok, nil}
   def call(""), do: {:ok, nil}
 
@@ -15,4 +14,6 @@ defmodule Surgex.Parser.EmailParser do
       {:error, :invalid_email}
     end
   end
+
+  def call(_input), do: {:error, :invalid_email}
 end

@@ -4,7 +4,7 @@ defmodule Surgex.Parser.ContainParser do
   """
 
   @doc false
-  @spec call(nil, any) :: {:ok, nil} | {:ok, any} | {:error, :invalid_value}
+  @spec call(term(), nonempty_list()) :: {:ok, term() | nil} | {:error, :invalid_value}
   def call(nil, _allowed_values), do: {:ok, nil}
   def call("", _allowed_values), do: {:ok, nil}
 

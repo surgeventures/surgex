@@ -3,13 +3,9 @@ defmodule Surgex.Parser.GeolocationParser do
 
   alias Surgex.Parser.{FloatParser, Geolocation}
 
-  @type errors :: :invalid_geolocation_tuple | :invalid_geolocation
+  @type errors :: :invalid_geolocation_tuple | :invalid_geolocation | FloatParser.errors()
 
-  @spec call(nil) :: {:ok, nil}
-  @spec call(String.t()) ::
-          {:ok, Geolocation.t()} | {:error, errors} | {:error, FloatParser.errors()}
-  @spec call({String.t(), String.t()}) ::
-          {:ok, Geolocation.t()} | {:error, errors} | {:error, FloatParser.errors()}
+  @spec call(term()) :: {:ok, Geolocation.t() | nil} | {:error, errors()}
   def call(nil), do: {:ok, nil}
   def call(""), do: {:ok, nil}
 
@@ -26,6 +22,8 @@ defmodule Surgex.Parser.GeolocationParser do
   def call({lat_string, lng_string}) when is_binary(lat_string) and is_binary(lng_string) do
     parse_lat_lng_strings(lat_string, lng_string)
   end
+
+  def call(_input), do: {:error, :invalid_geolocation_tuple}
 
   defp parse_lat_lng_strings(lat_string, lng_string) do
     with {:ok, lat} <- FloatParser.call(lat_string),
