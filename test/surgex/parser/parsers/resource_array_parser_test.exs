@@ -23,12 +23,20 @@ defmodule Surgex.Parser.ResourceArrayParserTest do
            ) == {:ok, [[id: "123"], [id: "456"]]}
   end
 
-  test "invalid input" do
+  test "invalid pointer input" do
     assert ResourceArrayParser.call([%{id: "123"}, %{id: "456"}], fn resource ->
              assert %{id: _} = resource
 
              {:error, :invalid_pointers, [id: "id"]}
            end) == {:error, [id: "0/id", id: "1/id"]}
+  end
+
+  test "invalid parameter input" do
+    assert ResourceArrayParser.call([%{value: "123"}, %{value: "456"}], fn resource ->
+             assert %{value: _} = resource
+
+             {:error, :invalid_parameters, [required: "value"]}
+           end) == {:error, [required: "0/value", required: "1/value"]}
   end
 
   test "min out of range" do

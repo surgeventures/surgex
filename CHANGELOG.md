@@ -1,8 +1,12 @@
 # Changelog
 
-## 4.5.1
+## 4.6.1
 
 - Parsers can now process any value without throwing exception on unknown value type
+
+## 4.6.0
+
+- Updated `Surgex.Parser.ResourceArrayParser` to support invalid parameters
 
 ## 4.5.0
 

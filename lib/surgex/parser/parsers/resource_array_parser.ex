@@ -47,7 +47,8 @@ defmodule Surgex.Parser.ResourceArrayParser do
     {[result | output], errors}
   end
 
-  defp reduce({{:error, :invalid_pointers, pointers}, index}, {output, errors}) do
+  defp reduce({{:error, error_type, pointers}, index}, {output, errors})
+       when error_type in [:invalid_parameters, :invalid_pointers] do
     new_errors =
       Enum.map(pointers, fn {reason, pointer} ->
         {reason, "#{index}/#{pointer}"}
