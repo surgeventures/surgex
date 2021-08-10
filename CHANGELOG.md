@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.7.0
+
+- The `Surgex.Parser.RequiredParser` accepts an empty string as valid input
+
 ## 4.6.1
 
 - Parsers can now process any value without throwing exception on unknown value type
