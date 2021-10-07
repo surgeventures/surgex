@@ -33,6 +33,26 @@ defmodule Surgex.DateTimeTest do
     end
   end
 
+  describe "date_and_offset_to_datetime/3 raises" do
+    test "on invalid date" do
+      assert_raise ArgumentError, ~r/reason: :invalid_date/, fn ->
+        Surgex.DateTime.date_and_offset_to_datetime(Date.new!(2000, 13, 1), 0)
+      end
+    end
+
+    test "on invalid offset" do
+      assert_raise ArgumentError, fn ->
+        Surgex.DateTime.date_and_offset_to_datetime(~D{2017-07-31}, "invalid offset")
+      end
+    end
+
+    test "on invalid time zone" do
+      assert_raise ArgumentError, fn ->
+        Surgex.DateTime.date_and_offset_to_datetime(~D{2017-07-31}, 1 * @hour, "Moon/Crater")
+      end
+    end
+  end
+
   describe "date_and_offset_to_datetime/3 on DST dates" do
     setup do
       %{
