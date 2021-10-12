@@ -14,37 +14,34 @@ if Code.ensure_loaded?(Timex) do
       iex> Surgex.DateTime.date_and_offset_to_datetime(~D{2021-10-07}, 3600, "Europe/Warsaw")
       #DateTime<2021-10-07 01:00:00+02:00 CEST Europe/Warsaw>
     """
-    @spec date_and_offset_to_datetime(Date.t(), integer, String.t()) :: DateTime.t()
+    @spec date_and_offset_to_datetime(Date.t(), integer(), String.t()) ::
+            DateTime.t() | {:error, term()}
     def date_and_offset_to_datetime(date, seconds_since_midnight, timezone \\ "Etc/UTC") do
       date
       |> NaiveDateTime.new!(~T[00:00:00])
       |> shift_datetime(seconds_since_midnight)
-      |> apply_timezone(seconds_since_midnight, timezone)
+      |> apply_timezone(timezone)
     end
 
     defp shift_datetime(datetime, offset) do
       case Timex.shift(datetime, seconds: offset) do
         %NaiveDateTime{} = datetime -> datetime
-        {:error, _reason} -> raise ArgumentError
+        {:error, reason} -> {:error, reason}
       end
     end
 
-    defp apply_timezone(datetime, seconds_since_midnight, timezone) do
+    defp apply_timezone({:error, reason}, _timezone), do: {:error, reason}
+
+    defp apply_timezone(datetime, timezone) do
       case Timex.to_datetime(datetime, timezone) do
-        %DateTime{} = datetime ->
-          datetime
+        %DateTime{} = datetime_in_timezone ->
+          datetime_in_timezone
 
         %Timex.AmbiguousDateTime{} = datetime ->
           datetime.after
 
-        {:error, {:could_not_resolve_timezone, _timezone, _, :wall}} ->
-          datetime
-          |> NaiveDateTime.to_date()
-          |> Timex.to_datetime(timezone)
-          |> Timex.shift(seconds: seconds_since_midnight)
-
-        {:error, _reason} ->
-          raise ArgumentError
+        {:error, reason} ->
+          {:error, reason}
       end
     end
   end

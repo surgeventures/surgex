@@ -31,24 +31,20 @@ defmodule Surgex.DateTimeTest do
                  "Asia/Dubai"
                )
     end
-  end
 
-  describe "date_and_offset_to_datetime/3 raises" do
-    test "on invalid date" do
+    test "returns error on invalid time zone" do
+      assert {:error, :time_zone_not_found} ==
+               Surgex.DateTime.date_and_offset_to_datetime(~D{2017-07-31}, 1 * @hour, "Moon/Crater")
+    end
+
+    test "return error on invalid offset" do
+      assert {:error, {:unknown_shift_unit, :seconds}} ==
+               Surgex.DateTime.date_and_offset_to_datetime(~D{2017-07-31}, "invalid offset")
+    end
+
+    test "raises exception on invalid date" do
       assert_raise ArgumentError, ~r/reason: :invalid_date/, fn ->
         Surgex.DateTime.date_and_offset_to_datetime(Date.new!(2000, 13, 1), 0)
-      end
-    end
-
-    test "on invalid offset" do
-      assert_raise ArgumentError, fn ->
-        Surgex.DateTime.date_and_offset_to_datetime(~D{2017-07-31}, "invalid offset")
-      end
-    end
-
-    test "on invalid time zone" do
-      assert_raise ArgumentError, fn ->
-        Surgex.DateTime.date_and_offset_to_datetime(~D{2017-07-31}, 1 * @hour, "Moon/Crater")
       end
     end
   end
@@ -77,22 +73,34 @@ defmodule Surgex.DateTimeTest do
     end
 
     test "start of the day", %{dst_dates: dates} do
-      for %{autumn_date: autumn, spring_date: spring} <- dates do
+      for %{autumn_date: autumn, spring_date: spring, time_zone: time_zone} <- dates do
         assert DateTime.new!(autumn, ~T[00:00:00], "Etc/UTC") ==
                  Surgex.DateTime.date_and_offset_to_datetime(autumn, 0)
 
+        assert DateTime.new!(autumn, ~T[00:00:00], time_zone) ==
+                 Surgex.DateTime.date_and_offset_to_datetime(autumn, 0, time_zone)
+
         assert DateTime.new!(spring, ~T[00:00:00], "Etc/UTC") ==
                  Surgex.DateTime.date_and_offset_to_datetime(spring, 0)
+
+        assert DateTime.new!(spring, ~T[00:00:00], time_zone) ==
+                 Surgex.DateTime.date_and_offset_to_datetime(spring, 0, time_zone)
       end
     end
 
     test "end of the day", %{dst_dates: dates} do
-      for %{autumn_date: autumn, spring_date: spring} <- dates do
+      for %{autumn_date: autumn, spring_date: spring, time_zone: time_zone} <- dates do
         assert DateTime.new!(autumn, ~T[23:59:59], "Etc/UTC") ==
                  Surgex.DateTime.date_and_offset_to_datetime(autumn, 24 * @hour - 1)
 
+        assert DateTime.new!(autumn, ~T[23:59:59], time_zone) ==
+                 Surgex.DateTime.date_and_offset_to_datetime(autumn, 24 * @hour - 1, time_zone)
+
         assert DateTime.new!(spring, ~T[23:59:59], "Etc/UTC") ==
                  Surgex.DateTime.date_and_offset_to_datetime(spring, 24 * @hour - 1)
+
+        assert DateTime.new!(spring, ~T[23:59:59], time_zone) ==
+                 Surgex.DateTime.date_and_offset_to_datetime(spring, 24 * @hour - 1, time_zone)
       end
     end
 
@@ -110,9 +118,6 @@ defmodule Surgex.DateTimeTest do
       for %{autumn_date: date, time_zone: time_zone} <- dates do
         assert DateTime.new!(date, ~T[08:00:00], time_zone) ==
                  Surgex.DateTime.date_and_offset_to_datetime(date, 8 * @hour, time_zone)
-
-        assert DateTime.new!(date, ~T[16:00:00], time_zone) ==
-                 Surgex.DateTime.date_and_offset_to_datetime(date, 16 * @hour, time_zone)
       end
     end
 
@@ -120,9 +125,6 @@ defmodule Surgex.DateTimeTest do
       for %{spring_date: date, time_zone: time_zone} <- dates do
         assert DateTime.new!(date, ~T[08:00:00], time_zone) ==
                  Surgex.DateTime.date_and_offset_to_datetime(date, 8 * @hour, time_zone)
-
-        assert DateTime.new!(date, ~T[16:00:00], time_zone) ==
-                 Surgex.DateTime.date_and_offset_to_datetime(date, 16 * @hour, time_zone)
       end
     end
 
@@ -156,34 +158,12 @@ defmodule Surgex.DateTimeTest do
              } = Surgex.DateTime.date_and_offset_to_datetime(date, 1 * @hour, time_zone)
     end
 
-    test "ambiguous spring hour in London time zone", %{dst_dates: dates} do
+    test "error on non-existent ambiguous spring hour", %{dst_dates: dates} do
       find_date_fn = fn date -> date.time_zone == "Europe/London" end
       %{spring_date: date, time_zone: time_zone} = Enum.find(dates, &find_date_fn.(&1))
 
-      assert %DateTime{
-               day: 27,
-               hour: 2,
-               minute: 0,
-               month: 3,
-               second: 0,
-               time_zone: ^time_zone,
-               year: 2022
-             } = Surgex.DateTime.date_and_offset_to_datetime(date, 1 * @hour, time_zone)
-    end
-
-    test "ambiguous spring hour in Australia time zone", %{dst_dates: dates} do
-      find_date_fn = fn date -> date.time_zone == "Australia/Sydney" end
-      %{spring_date: date, time_zone: time_zone} = Enum.find(dates, &find_date_fn.(&1))
-
-      assert %DateTime{
-               day: 3,
-               hour: 1,
-               minute: 0,
-               month: 10,
-               second: 0,
-               time_zone: ^time_zone,
-               year: 2021
-             } = Surgex.DateTime.date_and_offset_to_datetime(date, 1 * @hour, time_zone)
+      assert {:error, {:could_not_resolve_timezone, ^time_zone, _seconds_from_zeroyear, :wall}} =
+               Surgex.DateTime.date_and_offset_to_datetime(date, 1 * @hour, time_zone)
     end
   end
 end
