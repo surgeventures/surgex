@@ -1,4 +1,7 @@
 # Changelog
+## 4.8.0
+
+- New `Surgex.DateTime` module with `date_and_offset_to_datetime/3` helper for creating UTC or time-zone date time
 
 ## 4.7.0
 
