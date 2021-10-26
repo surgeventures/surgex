@@ -1,4 +1,8 @@
 # Changelog
+## 4.8.1
+
+- Added an option to resolve ambiguous datetime in `Surgex.DateTime.date_and_offset_to_datetime/3` helper
+
 ## 4.8.0
 
 - New `Surgex.DateTime` module with `date_and_offset_to_datetime/3` helper for creating UTC or time-zone date time

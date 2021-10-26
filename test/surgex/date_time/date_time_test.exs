@@ -43,7 +43,7 @@ defmodule Surgex.DateTimeTest do
     end
   end
 
-  describe "date_and_offset_to_datetime/3 on DST dates" do
+  describe "date_and_offset_to_datetime/4 on DST dates" do
     setup do
       %{
         dst_dates: [
@@ -133,9 +133,30 @@ defmodule Surgex.DateTimeTest do
                 minute: 0,
                 month: 10,
                 second: 0,
+                std_offset: 0,
                 time_zone: ^time_zone,
                 year: 2021
               }} = Surgex.DateTime.date_and_offset_to_datetime(date, 1 * @hour, time_zone)
+
+      ambiguous_hour_pref = :before
+
+      assert {:ok,
+              %DateTime{
+                day: 31,
+                hour: 1,
+                minute: 0,
+                month: 10,
+                second: 0,
+                std_offset: 3600,
+                time_zone: ^time_zone,
+                year: 2021
+              }} =
+               Surgex.DateTime.date_and_offset_to_datetime(
+                 date,
+                 1 * @hour,
+                 time_zone,
+                 ambiguous_hour_pref
+               )
     end
 
     test "ambiguous autumn hour in Australia time zone", %{dst_dates: dates} do
@@ -145,13 +166,34 @@ defmodule Surgex.DateTimeTest do
       assert {:ok,
               %DateTime{
                 day: 3,
-                hour: 1,
+                hour: 2,
                 minute: 0,
                 month: 4,
                 second: 0,
+                std_offset: 0,
                 time_zone: ^time_zone,
                 year: 2022
-              }} = Surgex.DateTime.date_and_offset_to_datetime(date, 1 * @hour, time_zone)
+              }} = Surgex.DateTime.date_and_offset_to_datetime(date, 2 * @hour, time_zone)
+
+      ambiguous_hour_pref = :before
+
+      assert {:ok,
+              %DateTime{
+                day: 3,
+                hour: 2,
+                minute: 0,
+                month: 4,
+                second: 0,
+                std_offset: 3600,
+                time_zone: ^time_zone,
+                year: 2022
+              }} =
+               Surgex.DateTime.date_and_offset_to_datetime(
+                 date,
+                 2 * @hour,
+                 time_zone,
+                 ambiguous_hour_pref
+               )
     end
 
     test "error on non-existent ambiguous spring hour", %{dst_dates: dates} do
