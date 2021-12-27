@@ -97,10 +97,10 @@ defmodule Surgex.Parser.StringParser do
   end
 
   @spec check_regex(%{opts: list, value: String.t(), error: nil}) :: %{
-    opts: list,
-    value: String.t(),
-    error: nil | :bad_format
-  }
+          opts: list,
+          value: String.t(),
+          error: nil | :bad_format
+        }
   def check_regex(input = %{opts: opts, value: value}) do
     regex = Keyword.get(opts, :regex)
 
