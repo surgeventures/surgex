@@ -6,7 +6,7 @@ defmodule Surgex.Parser.StringParser do
   - **max** is a maximal length of the string, returns :too_long error symbol
   - **regex** - input string must match passed regular expression, this is done after trimming
   """
-  @type errors :: :too_short | :too_long | :invalid_string
+  @type errors :: :too_short | :too_long | :invalid_string | :bad_format
   @type option :: {:trim, boolean()} | {:min, integer()} | {:max, integer()} | {:regex, Regex.t()}
   @opts [:trim, :min, :max, :regex]
 
