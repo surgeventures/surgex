@@ -1,5 +1,5 @@
 # Changelog
-## Unreleased
+## 4.9.0
 
 - New `:regex` option for string parser, allowing checking input agains given pattern
 - New UUID parser
