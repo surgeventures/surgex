@@ -48,6 +48,7 @@ defmodule Surgex.Parser.StringParserTest do
 
   test "regex" do
     opt = [regex: ~r/^[a-h]{1,4}$/]
+    assert StringParser.call("", opt) == {:error, :bad_format}
     assert StringParser.call("abc", opt) == {:ok, "abc"}
     assert StringParser.call("axn", opt) == {:error, :bad_format}
     assert StringParser.call("abcde", opt) == {:error, :bad_format}
