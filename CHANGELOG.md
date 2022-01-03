@@ -1,8 +1,9 @@
 # Changelog
 ## 4.9.0
 
-- New `:regex` option for string parser, allowing checking input agains given pattern
-- New UUID parser
+- New `:regex` option for `Surgex.Parser.StringParser`, allowing checking input agains given pattern
+- New UUID parser (`Surgex.Parser.UuidParser`)
+- Add support for :min, :max and :trim option for `Surgex.Parser.EmailParser`
 
 ## 4.8.0
 

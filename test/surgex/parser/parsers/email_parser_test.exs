@@ -39,4 +39,16 @@ defmodule Surgex.Parser.EmailParserTest do
     assert EmailParser.call(0.5) == {:error, :invalid_email}
     assert EmailParser.call(["me@example@gmail.com"]) == {:error, :invalid_email}
   end
+
+  test "support min" do
+    assert EmailParser.call("short@co.uk", min: 15) == {:error, :too_short}
+  end
+
+  test "support max" do
+    assert EmailParser.call("very_long_email_this_is@fresha.com", max: 15) == {:error, :too_long}
+  end
+
+  test "support trim" do
+    assert EmailParser.call("    an_email@fresha.com  ", trim: true) == {:ok, "an_email@fresha.com"}
+  end
 end
