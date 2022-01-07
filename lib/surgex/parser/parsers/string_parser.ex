@@ -4,10 +4,11 @@ defmodule Surgex.Parser.StringParser do
   - **trim** is trimming whitespaces from the string, takes priority over min and max options
   - **min** is a minimal length of the string, returns :too_short error symbol
   - **max** is a maximal length of the string, returns :too_long error symbol
+  - **regex** - input string must match passed regular expression, this is done after trimming
   """
-  @type errors :: :too_short | :too_long | :invalid_string
-  @type option :: {:trim, boolean()} | {:min, integer()} | {:max, integer()}
-  @opts [:trim, :min, :max]
+  @type errors :: :too_short | :too_long | :invalid_string | :bad_format
+  @type option :: {:trim, boolean()} | {:min, integer()} | {:max, integer()} | {:regex, Regex.t()}
+  @opts [:trim, :min, :max, :regex]
 
   @spec call(term(), [option()]) :: {:ok, String.t() | nil} | {:error, errors()}
   def call(input, opts \\ [])
@@ -47,6 +48,7 @@ defmodule Surgex.Parser.StringParser do
     |> trim()
     |> validate_min()
     |> validate_max()
+    |> check_regex()
   end
 
   @spec trim(%{opts: list, value: String.t(), error: nil}) :: %{
@@ -91,6 +93,21 @@ defmodule Surgex.Parser.StringParser do
       is_nil(max_value) -> input
       String.length(value) <= max_value -> input
       true -> %{input | error: :too_long}
+    end
+  end
+
+  @spec check_regex(%{opts: list, value: String.t(), error: nil}) :: %{
+          opts: list,
+          value: String.t(),
+          error: nil | :bad_format
+        }
+  def check_regex(input = %{opts: opts, value: value}) do
+    regex = Keyword.get(opts, :regex)
+
+    cond do
+      is_nil(regex) -> input
+      Regex.match?(regex, value) -> input
+      true -> %{input | error: :bad_format}
     end
   end
 

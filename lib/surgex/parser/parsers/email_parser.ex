@@ -1,19 +1,25 @@
 defmodule Surgex.Parser.EmailParser do
   @moduledoc false
 
+  alias Surgex.Parser.StringParser
+
   @email_regex ~r/^[^@\s]+@[^@\s]+\.[^@\s]+$/i
 
-  @spec call(term()) :: {:ok, String.t() | nil} | {:error, :invalid_email}
-  def call(nil), do: {:ok, nil}
-  def call(""), do: {:ok, nil}
+  @type errors :: :invalid_email | StringParser.errors()
 
-  def call(input) when is_binary(input) do
-    if Regex.match?(@email_regex, input) do
-      {:ok, input}
-    else
-      {:error, :invalid_email}
+  @spec call(term(), Keyword.t()) :: {:ok, String.t() | nil} | {:error, errors()}
+  @spec call(any) :: {:ok, String.t() | nil} | {:error, errors()}
+  def call(input), do: call(input, [])
+  def call(nil, _), do: {:ok, nil}
+  def call("", _), do: {:ok, nil}
+
+  def call(input, opts) when is_binary(input) do
+    case StringParser.call(input, Keyword.put(opts, :regex, @email_regex)) do
+      {:ok, input} -> {:ok, input}
+      {:error, :bad_format} -> {:error, :invalid_email}
+      error -> error
     end
   end
 
-  def call(_input), do: {:error, :invalid_email}
+  def call(_input, _), do: {:error, :invalid_email}
 end

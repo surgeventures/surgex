@@ -6,7 +6,8 @@ defmodule Surgex.ParserTest do
 
   @param_parsers [
     id: [:integer, :required],
-    uuid: [:string, :required],
+    uuid: [:uuid, :required],
+    uuid2: :uuid,
     price: [:float, :required],
     first_name: [:string, &RequiredParser.call/1],
     last_name: :string,
@@ -16,7 +17,7 @@ defmodule Surgex.ParserTest do
 
   @valid_params %{
     "id" => "123",
-    "uuid" => "asdf",
+    "uuid" => "123e4567-e89b-12d3-a456-426614174000",
     "price" => "10.5",
     "first-name" => "Jack",
     "last-name" => "",
@@ -25,6 +26,7 @@ defmodule Surgex.ParserTest do
 
   @invalid_params %{
     "id" => "abc",
+    "uuid2" => "asdf",
     "price" => "qwerty",
     "first-name" => "",
     "other-param" => "x",
@@ -88,7 +90,7 @@ defmodule Surgex.ParserTest do
                   last_name: nil,
                   first_name: "Jack",
                   price: 10.5,
-                  uuid: "asdf",
+                  uuid: "123e4567-e89b-12d3-a456-426614174000",
                   id: 123
                 ]}
     end
@@ -102,6 +104,7 @@ defmodule Surgex.ParserTest do
                   invalid_relationship_path: "include",
                   required: "first-name",
                   invalid_float: "price",
+                  invalid_uuid: "uuid2",
                   required: "uuid",
                   invalid_integer: "id",
                   unknown: "other-param"
@@ -277,7 +280,9 @@ defmodule Surgex.ParserTest do
     test "valid params" do
       parser_output = Parser.flat_parse(@valid_params, @param_parsers)
 
-      assert parser_output == {:ok, 123, "asdf", 10.5, "Jack", nil, nil, [:comments]}
+      assert parser_output ==
+               {:ok, 123, "123e4567-e89b-12d3-a456-426614174000", nil, 10.5, "Jack", nil, nil,
+                [:comments]}
     end
 
     test "invalid params" do
@@ -289,6 +294,7 @@ defmodule Surgex.ParserTest do
                   invalid_relationship_path: "include",
                   required: "first-name",
                   invalid_float: "price",
+                  invalid_uuid: "uuid2",
                   required: "uuid",
                   invalid_integer: "id",
                   unknown: "other-param"

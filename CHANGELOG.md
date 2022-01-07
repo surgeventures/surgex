@@ -1,4 +1,10 @@
 # Changelog
+## 4.9.0
+
+- New `:regex` option for `Surgex.Parser.StringParser`, allowing checking input agains given pattern
+- New UUID parser (`Surgex.Parser.UuidParser`)
+- Add support for :min, :max and :trim option for `Surgex.Parser.EmailParser`
+
 ## 4.8.0
 
 - New `Surgex.DateTime` module with `date_and_offset_to_datetime/3` helper for creating UTC or time-zone date time
