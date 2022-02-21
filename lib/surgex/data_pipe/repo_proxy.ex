@@ -141,7 +141,9 @@ defmodule Surgex.DataPipe.RepoProxy do
           Logger.debug(fn ->
             source = if process_repo, do: "registry", else: "#{pool} pool"
 
-            "Proxy #{func}/#{arity} through #{inspect(__MODULE__)} to #{inspect(repo)} (from #{source})"
+            "Proxy #{func}/#{arity} through #{inspect(__MODULE__)} to #{inspect(repo)} (from #{
+              source
+            })"
           end)
 
           apply(repo, func, args)
