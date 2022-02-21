@@ -1,4 +1,9 @@
 # Changelog
+
+## 4.10.0
+
+- Extended compatibility with Jabbax to 1.0
+
 ## 4.9.0
 
 - New `:regex` option for `Surgex.Parser.StringParser`, allowing checking input agains given pattern
