@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  elixir-orb: fresha/elixir-orb@0.0
+  elixir-orb: fresha/elixir-orb@0.2
 
 workflows:
   version: 2
@@ -9,6 +9,7 @@ workflows:
     jobs:
       - elixir-orb/test:
           executor: elixir-orb/elixir-postgres
+          context: Hex
       - elixir-orb/static-check:
           dialyzer: false
           context: Hex
