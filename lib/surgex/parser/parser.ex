@@ -64,11 +64,11 @@ defmodule Surgex.Parser do
           {:ok, any} | {:error, :invalid_parameters, list} | {:error, :invalid_pointers, list}
   def parse(input, parsers)
 
-  def parse(resource = %{__struct__: Jabbax.Document.Resource}, parsers) do
+  def parse(resource = %Jabbax.Document.Resource{}, parsers) do
     parse_resource(resource, parsers)
   end
 
-  def parse(doc = %{__struct__: Jabbax.Document}, parsers) do
+  def parse(doc = %Jabbax.Document{}, parsers) do
     parse_doc(doc, parsers)
   end
 
@@ -90,7 +90,7 @@ defmodule Surgex.Parser do
           tuple() | {:error, :invalid_parameters, list} | {:error, :invalid_pointers, list}
   def flat_parse(input, parsers)
 
-  def flat_parse(doc = %{__struct__: Jabbax.Document}, parsers) do
+  def flat_parse(doc = %Jabbax.Document{}, parsers) do
     with {:ok, list} <- parse_doc(doc, parsers, include_missing: true) do
       output =
         list
