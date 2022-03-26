@@ -57,7 +57,7 @@ defmodule Surgex.Mixfile do
       {:dialyxir, "~> 1.0.0-rc.6", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
       {:ex_machina, "~> 2.3", only: :test},
-      {:inch_ex, "~> 0.5", only: [:dev, :test]},
+      {:inch_ex, "~> 2.0", only: [:dev, :test]},
       {:mock, "~> 0.2.1", only: :test},
       {:postgrex, ">= 0.0.0", only: :test}
     ] ++ optional_deps()
