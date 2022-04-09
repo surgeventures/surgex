@@ -79,6 +79,23 @@ defmodule Surgex.Parser do
   def parse(nil, _parsers), do: {:error, :empty_input}
 
   @doc """
+  Parses controller action input (parameters, documents) with a given set of parsers.
+
+  Returns a map with parsed options.
+  """
+  @spec parse_map(nil, any) :: {:error, :empty_input}
+  @spec parse_map(map, list) ::
+          {:ok, map} | {:error, :invalid_parameters, list} | {:error, :invalid_pointers, list}
+  def parse_map(input, parsers) do
+    input
+    |> parse(parsers)
+    |> case do
+      {:ok, list} -> {:ok, Map.new(list)}
+      error -> error
+    end
+  end
+
+  @doc """
   Parses controller action input into a flat structure.
 
   This function takes the same input as `parse/2` but it returns a `{:ok, value1, value2, ...}`
