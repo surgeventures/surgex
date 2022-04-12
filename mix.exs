@@ -4,7 +4,7 @@ defmodule Surgex.Mixfile do
   def project do
     [
       app: :surgex,
-      version: "4.10.0",
+      version: "4.11.0",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
@@ -46,7 +46,6 @@ defmodule Surgex.Mixfile do
 
   defp aliases do
     [
-      check: check_alias(),
       test: ["ecto.drop --quiet", "ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]
   end
@@ -57,7 +56,7 @@ defmodule Surgex.Mixfile do
       {:dialyxir, "~> 1.0.0-rc.6", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
       {:ex_machina, "~> 2.3", only: :test},
-      {:inch_ex, "~> 0.5", only: [:dev, :test]},
+      {:inch_ex, "~> 2.0", only: [:dev, :test]},
       {:mock, "~> 0.2.1", only: :test},
       {:postgrex, ">= 0.0.0", only: :test}
     ] ++ optional_deps()
@@ -72,14 +71,6 @@ defmodule Surgex.Mixfile do
       {:timex, "~> 3.7.5"}
     ]
     |> Enum.map(&merge_dep_flags(&1, optional: true))
-  end
-
-  defp check_alias do
-    [
-      "test",
-      "credo --strict",
-      "dialyzer --halt-exit-status"
-    ]
   end
 
   defp merge_dep_flags({pkg, flg}, flags) when is_list(flg), do: {pkg, Keyword.merge(flg, flags)}

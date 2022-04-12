@@ -1,12 +1,12 @@
 defmodule Surgex.SentryTest do
   use ExUnit.Case
   import ExUnit.CaptureLog
-  alias Mix.{Config, Project}
+  alias Mix.Project
   alias Surgex.Sentry
 
   describe "init/0" do
     test "patch enabled" do
-      Config.persist(
+      Application.put_all_env(
         surgex: [
           sentry_patch_enabled: true
         ]
@@ -22,7 +22,7 @@ defmodule Surgex.SentryTest do
       assert log_for_default_config =~
                ~s{Patching Sentry config (environment: :test, release: "#{version}")}
 
-      Config.persist(
+      Application.put_all_env(
         surgex: [
           sentry_patch_enabled: true,
           sentry_environment: "abc",

@@ -64,11 +64,11 @@ defmodule Surgex.Parser do
           {:ok, any} | {:error, :invalid_parameters, list} | {:error, :invalid_pointers, list}
   def parse(input, parsers)
 
-  def parse(resource = %{__struct__: Jabbax.Document.Resource}, parsers) do
+  def parse(resource = %Jabbax.Document.Resource{}, parsers) do
     parse_resource(resource, parsers)
   end
 
-  def parse(doc = %{__struct__: Jabbax.Document}, parsers) do
+  def parse(doc = %Jabbax.Document{}, parsers) do
     parse_doc(doc, parsers)
   end
 
@@ -77,6 +77,23 @@ defmodule Surgex.Parser do
   end
 
   def parse(nil, _parsers), do: {:error, :empty_input}
+
+  @doc """
+  Parses controller action input (parameters, documents) with a given set of parsers.
+
+  Returns a map with parsed options.
+  """
+  @spec parse_map(nil, any) :: {:error, :empty_input}
+  @spec parse_map(map, list) ::
+          {:ok, map} | {:error, :invalid_parameters, list} | {:error, :invalid_pointers, list}
+  def parse_map(input, parsers) do
+    input
+    |> parse(parsers)
+    |> case do
+      {:ok, list} -> {:ok, Map.new(list)}
+      error -> error
+    end
+  end
 
   @doc """
   Parses controller action input into a flat structure.
@@ -90,7 +107,7 @@ defmodule Surgex.Parser do
           tuple() | {:error, :invalid_parameters, list} | {:error, :invalid_pointers, list}
   def flat_parse(input, parsers)
 
-  def flat_parse(doc = %{__struct__: Jabbax.Document}, parsers) do
+  def flat_parse(doc = %Jabbax.Document{}, parsers) do
     with {:ok, list} <- parse_doc(doc, parsers, include_missing: true) do
       output =
         list

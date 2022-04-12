@@ -276,6 +276,203 @@ defmodule Surgex.ParserTest do
     end
   end
 
+  describe "parse_map/2" do
+    test "valid params" do
+      parser_output = Parser.parse_map(@valid_params, @param_parsers)
+
+      assert parser_output ==
+               {:ok,
+                %{
+                  include: [:comments],
+                  last_name: nil,
+                  first_name: "Jack",
+                  price: 10.5,
+                  uuid: "123e4567-e89b-12d3-a456-426614174000",
+                  id: 123
+                }}
+    end
+
+    test "invalid params" do
+      parser_output = Parser.parse_map(@invalid_params, @param_parsers)
+
+      assert parser_output ==
+               {:error, :invalid_parameters,
+                [
+                  invalid_relationship_path: "include",
+                  required: "first-name",
+                  invalid_float: "price",
+                  invalid_uuid: "uuid2",
+                  required: "uuid",
+                  invalid_integer: "id",
+                  unknown: "other-param"
+                ]}
+    end
+
+    test "valid doc" do
+      parser_output = Parser.parse_map(@valid_doc, @doc_parsers)
+
+      assert parser_output ==
+               {:ok,
+                %{
+                  avatar: 456,
+                  last_name: nil,
+                  first_name: "Jack",
+                  id: 123
+                }}
+    end
+
+    test "invalid doc" do
+      parser_output = Parser.parse_map(@invalid_doc, @doc_parsers)
+
+      assert parser_output ==
+               {:error, :invalid_pointers,
+                [
+                  invalid_integer: "/data/id",
+                  required: "/data/attributes/first-name",
+                  unknown: "/data/attributes/other-param",
+                  invalid_integer: "/data/relationships/avatar/id",
+                  unknown: "/data/relationships/other-rel"
+                ]}
+    end
+
+    test "malformed doc" do
+      parser_output = Parser.parse_map(@malformed_doc, @doc_parsers)
+
+      assert parser_output == {:error, :invalid_pointers, [required: "/data"]}
+    end
+
+    test "valid doc with nested resource array" do
+      doc =
+        put_in(@valid_doc.data.relationships["image-array"], [
+          %Resource{id: "1"},
+          %Resource{id: "2"}
+        ])
+
+      nested_parser = fn resource ->
+        Parser.parse_map(resource, id: [:id, :required])
+      end
+
+      parsers =
+        put_in(
+          @doc_parsers[:relationships][:image_array],
+          [{:resource_array, nested_parser}, :required]
+        )
+
+      parser_output = Parser.parse_map(doc, parsers)
+
+      assert parser_output ==
+               {:ok,
+                %{
+                  image_array: [%{id: 1}, %{id: 2}],
+                  avatar: 456,
+                  last_name: nil,
+                  first_name: "Jack",
+                  id: 123
+                }}
+    end
+
+    test "invalid doc with nested resource array" do
+      doc =
+        put_in(@valid_doc.data.relationships["image-array"], [
+          %Resource{id: "abc"},
+          %Resource{id: "2"}
+        ])
+
+      nested_parser = fn resource ->
+        Parser.parse_map(resource, id: [:id, :required])
+      end
+
+      parsers =
+        put_in(
+          @doc_parsers[:relationships][:image_array],
+          [{:resource_array, nested_parser}, :required]
+        )
+
+      parser_output = Parser.parse_map(doc, parsers)
+
+      assert parser_output ==
+               {:error, :invalid_pointers,
+                [
+                  invalid_integer: "/data/relationships/image-array/0/id"
+                ]}
+    end
+
+    test "valid doc with nested resource" do
+      doc =
+        put_in(
+          @valid_doc.data.relationships["image"],
+          %Resource{id: "1", attributes: %{"name" => "image-name"}}
+        )
+
+      nested_parser = fn resource ->
+        Parser.parse_map(
+          resource,
+          id: [:id, :required],
+          attributes: %{
+            name: [:string, :required]
+          }
+        )
+      end
+
+      parsers =
+        put_in(
+          @doc_parsers[:relationships][:image],
+          [{:resource, nested_parser}, :required]
+        )
+
+      parser_output = Parser.parse_map(doc, parsers)
+
+      assert parser_output ==
+               {:ok,
+                %{
+                  image: %{name: "image-name", id: 1},
+                  avatar: 456,
+                  last_name: nil,
+                  first_name: "Jack",
+                  id: 123
+                }}
+    end
+
+    test "invalid doc with nested resource" do
+      doc =
+        put_in(
+          @valid_doc.data.relationships["image"],
+          %Resource{id: "abc", attributes: %{"name" => ""}}
+        )
+
+      nested_parser = fn resource ->
+        Parser.parse_map(
+          resource,
+          id: [:id, :required],
+          attributes: %{
+            name: [:string, :required]
+          }
+        )
+      end
+
+      parsers =
+        put_in(
+          @doc_parsers[:relationships][:image],
+          [{:resource, nested_parser}, :required]
+        )
+
+      parser_output = Parser.parse_map(doc, parsers)
+
+      assert parser_output ==
+               {:error, :invalid_pointers,
+                [
+                  invalid_integer: "/data/relationships/image/id",
+                  required: "/data/relationships/image/attributes/name"
+                ]}
+    end
+
+    test "nil input" do
+      parser_output = Parser.parse_map(nil, [])
+
+      assert parser_output == {:error, :empty_input}
+    end
+  end
+
   describe "flat_parse/2" do
     test "valid params" do
       parser_output = Parser.flat_parse(@valid_params, @param_parsers)

@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.11.0
+
+- Added ability to return map with `Surgex.Parser.parse_map/2` function
+
 ## 4.10.0
 
 - Extended compatibility with Jabbax to 1.0

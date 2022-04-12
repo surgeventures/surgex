@@ -39,7 +39,6 @@ end
 defmodule Surgex.DataPipe.FollowerSyncTest do
   use ExUnit.Case
   import ExUnit.CaptureLog
-  alias Mix.Config
   alias Surgex.DataPipe.FollowerSync
 
   alias Surgex.DataPipe.FollowerSyncTest.{
@@ -90,7 +89,7 @@ defmodule Surgex.DataPipe.FollowerSyncTest do
   end
 
   test "disabled" do
-    Config.persist(
+    Application.put_all_env(
       surgex: [
         follower_sync_enabled: false
       ]
@@ -98,7 +97,7 @@ defmodule Surgex.DataPipe.FollowerSyncTest do
 
     assert FollowerSync.call(RepoWithoutLogMock, "0/00000001") == :ok
 
-    Config.persist(
+    Application.put_all_env(
       surgex: [
         follower_sync_enabled: true
       ]
