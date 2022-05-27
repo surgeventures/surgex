@@ -1,60 +1,62 @@
 # Changelog
 
-## 4.11.0
+## [Unreleased]
+
+## [4.11.0]
 
 - Added ability to return map with `Surgex.Parser.parse_map/2` function
 
-## 4.10.0
+## [4.10.0]
 
 - Extended compatibility with Jabbax to 1.0
 
-## 4.9.0
+## [4.9.0]
 
 - New `:regex` option for `Surgex.Parser.StringParser`, allowing checking input agains given pattern
 - New UUID parser (`Surgex.Parser.UuidParser`)
 - Add support for :min, :max and :trim option for `Surgex.Parser.EmailParser`
 
-## 4.8.0
+## [4.8.0]
 
 - New `Surgex.DateTime` module with `date_and_offset_to_datetime/3` helper for creating UTC or time-zone date time
 
-## 4.7.0
+## [4.7.0]
 
 - The `Surgex.Parser.RequiredParser` accepts an empty string as valid input
 
-## 4.6.1
+## [4.6.1]
 
 - Parsers can now process any value without throwing exception on unknown value type
 
-## 4.6.0
+## [4.6.0]
 
 - Updated `Surgex.Parser.ResourceArrayParser` to support invalid parameters
 
-## 4.5.0
+## [4.5.0]
 
 - Extended parsers to match empty string values as nil
 
-## 4.4.0
+## [4.4.0]
 
 - Extended parsing of ResourceID ("" -> required)
 
-## 4.3.0
+## [4.3.0]
 
 - Bump minor version
 
-## 4.2.1
+## [4.2.1]
 
 - Extended parsing of boolean ("true" -> true, "false" -> false) and integers ("" -> nil) values
 
-## 4.2.0
+## [4.2.0]
 
 - Added support for translating errors in nested changeset to JSON API responses
 
-## 4.0.0
+## [4.0.0]
 
 - Removed support for AppSignal
 
-## 3.2.8
+## [3.2.8]
 
 - `Surgex.RepoHelpers` sets ecto application_name based on APP_NAME env var
 
@@ -279,3 +281,18 @@
 - Changed `Surgex.Sentry` to run as an OTP app
 - Extended `Surgex.Sentry` to take release and environment from Mix
 - Completed `Surgex.Guide`
+
+[Unreleased]: https://github.com/surgeventures/surgex/compare/v4.11.0...HEAD
+
+[4.11.0]: https://github.com/surgeventures/surgex/compare/v4.10.0...v4.11.0
+[4.10.0]: https://github.com/surgeventures/surgex/compare/v4.9.0...v4.10.0
+[4.9.0]: https://github.com/surgeventures/surgex/compare/v4.8.0...v4.9.0
+[4.8.0]: https://github.com/surgeventures/surgex/compare/v4.7.0...v4.8.0
+[4.7.0]: https://github.com/surgeventures/surgex/compare/v4.6.1...v4.7.0
+[4.6.1]: https://github.com/surgeventures/surgex/compare/v4.6.0...v4.6.1
+[4.6.0]: https://github.com/surgeventures/surgex/compare/v4.5.0...v4.6.0
+[4.5.0]: https://github.com/surgeventures/surgex/compare/v4.4.0...v4.5.0
+[4.4.0]: https://github.com/surgeventures/surgex/compare/v4.3.0...v4.4.0
+[4.3.0]: https://github.com/surgeventures/surgex/compare/v4.2.1...v4.3.0
+[4.2.1]: https://github.com/surgeventures/surgex/compare/v4.2.0...v4.2.1
+[4.2.0]: https://github.com/surgeventures/surgex/compare/v4.0.0...v4.2.0
