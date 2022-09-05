@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+
+## [4.12.0] - 2022-09-05
+
+- New parser (`Surgex.Parser.DefaultParser`) returning default values
+
 ## [4.11.0]
 
 - Added ability to return map with `Surgex.Parser.parse_map/2` function
@@ -282,8 +287,9 @@
 - Extended `Surgex.Sentry` to take release and environment from Mix
 - Completed `Surgex.Guide`
 
-[Unreleased]: https://github.com/surgeventures/surgex/compare/v4.11.0...HEAD
+[Unreleased]: https://github.com/surgeventures/surgex/compare/v4.12.0...HEAD
 
+[4.12.0]: https://github.com/surgeventures/surgex/compare/v4.11.0...v4.12.0
 [4.11.0]: https://github.com/surgeventures/surgex/compare/v4.10.0...v4.11.0
 [4.10.0]: https://github.com/surgeventures/surgex/compare/v4.9.0...v4.10.0
 [4.9.0]: https://github.com/surgeventures/surgex/compare/v4.8.0...v4.9.0
