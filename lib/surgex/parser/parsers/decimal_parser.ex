@@ -26,7 +26,7 @@ defmodule Surgex.Parser.DecimalParser do
     case Decimal.parse(input) do
       :error -> {:error, :invalid_decimal}
       {decimal, ""} -> validate_range(decimal, min, max)
-      {decimal, _} -> {:error, :invalid_decimal}
+      {_decimal, _} -> {:error, :invalid_decimal}
     end
   end
 
