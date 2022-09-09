@@ -19,7 +19,7 @@ defmodule Surgex.Parser.DecimalParser do
     end
   end
 
-  def call(input, opts) when is_binary(input) or is_binary(input) do
+  def call(input, opts) when is_binary(input) do
     min = Keyword.get(opts, :min)
     max = Keyword.get(opts, :max)
 
