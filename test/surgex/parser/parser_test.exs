@@ -8,7 +8,9 @@ defmodule Surgex.ParserTest do
     id: [:integer, :required],
     uuid: [:uuid, :required],
     uuid2: :uuid,
-    price: [:float, :required],
+    price: [:decimal, :required],
+    weight: [:float, :required],
+    count: [:integer, :required],
     first_name: [:string, &RequiredParser.call/1],
     last_name: :string,
     phone: :string,
@@ -19,6 +21,8 @@ defmodule Surgex.ParserTest do
     "id" => "123",
     "uuid" => "123e4567-e89b-12d3-a456-426614174000",
     "price" => "10.5",
+    "weight" => "10.5",
+    "count" => "10",
     "first-name" => "Jack",
     "last-name" => "",
     "include" => "comments"
@@ -27,7 +31,9 @@ defmodule Surgex.ParserTest do
   @invalid_params %{
     "id" => "abc",
     "uuid2" => "asdf",
-    "price" => "qwerty",
+    "weight" => "qwerty",
+    "price" => "aaaa",
+    "count" => "bbb",
     "first-name" => "",
     "other-param" => "x",
     "include" => "invalid"
@@ -89,7 +95,9 @@ defmodule Surgex.ParserTest do
                   include: [:comments],
                   last_name: nil,
                   first_name: "Jack",
-                  price: 10.5,
+                  count: 10,
+                  weight: 10.5,
+                  price: Decimal.new("10.5"),
                   uuid: "123e4567-e89b-12d3-a456-426614174000",
                   id: 123
                 ]}
@@ -103,7 +111,9 @@ defmodule Surgex.ParserTest do
                 [
                   invalid_relationship_path: "include",
                   required: "first-name",
-                  invalid_float: "price",
+                  invalid_integer: "count",
+                  invalid_float: "weight",
+                  invalid_decimal: "price",
                   invalid_uuid: "uuid2",
                   required: "uuid",
                   invalid_integer: "id",
@@ -286,7 +296,9 @@ defmodule Surgex.ParserTest do
                   include: [:comments],
                   last_name: nil,
                   first_name: "Jack",
-                  price: 10.5,
+                  price: Decimal.new("10.5"),
+                  weight: 10.5,
+                  count: 10,
                   uuid: "123e4567-e89b-12d3-a456-426614174000",
                   id: 123
                 }}
@@ -300,7 +312,9 @@ defmodule Surgex.ParserTest do
                 [
                   invalid_relationship_path: "include",
                   required: "first-name",
-                  invalid_float: "price",
+                  invalid_integer: "count",
+                  invalid_float: "weight",
+                  invalid_decimal: "price",
                   invalid_uuid: "uuid2",
                   required: "uuid",
                   invalid_integer: "id",
@@ -478,8 +492,8 @@ defmodule Surgex.ParserTest do
       parser_output = Parser.flat_parse(@valid_params, @param_parsers)
 
       assert parser_output ==
-               {:ok, 123, "123e4567-e89b-12d3-a456-426614174000", nil, 10.5, "Jack", nil, nil,
-                [:comments]}
+               {:ok, 123, "123e4567-e89b-12d3-a456-426614174000", nil, Decimal.new("10.5"), 10.5,
+                10, "Jack", nil, nil, [:comments]}
     end
 
     test "invalid params" do
@@ -490,7 +504,9 @@ defmodule Surgex.ParserTest do
                 [
                   invalid_relationship_path: "include",
                   required: "first-name",
-                  invalid_float: "price",
+                  invalid_integer: "count",
+                  invalid_float: "weight",
+                  invalid_decimal: "price",
                   invalid_uuid: "uuid2",
                   required: "uuid",
                   invalid_integer: "id",
