@@ -32,9 +32,9 @@ defmodule Surgex.Parser.IdParser do
     max = Keyword.get(opts, :max)
 
     with {:ok, max} <- parse_max(max) do
-      case IntegerParser.call(input, max: max) do
-        {:ok, integer} when integer > 0 -> {:ok, integer}
-        {:ok, _invalid_integer} -> {:error, :invalid_identifier}
+      case IntegerParser.call(input, max: max, min: 1) do
+        {:ok, integer} -> {:ok, integer}
+        {:error, :out_of_range} -> {:error, :invalid_identifier}
         {:error, reason} -> {:error, reason}
       end
     end

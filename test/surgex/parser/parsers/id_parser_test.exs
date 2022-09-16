@@ -39,8 +39,8 @@ defmodule Surgex.Parser.IdParserTest do
     assert IdParser.call(to_string(@int8_max), max: :bigint) == {:ok, @int8_max}
     assert IdParser.call(to_string(@int8_max), max: :bigserial) == {:ok, @int8_max}
 
-    assert IdParser.call(to_string(@int4_max + 1), max: @int4_max) == {:error, :out_of_range}
-    assert IdParser.call(to_string(@int4_max + 1), max: :integer) == {:error, :out_of_range}
+    assert IdParser.call(to_string(@int4_max + 1), max: @int4_max) == {:error, :invalid_identifier}
+    assert IdParser.call(to_string(@int4_max + 1), max: :integer) == {:error, :invalid_identifier}
   end
 
   test "handles invalid max" do
