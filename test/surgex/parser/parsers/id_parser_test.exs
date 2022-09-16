@@ -25,17 +25,25 @@ defmodule Surgex.Parser.IdParserTest do
     assert IdParser.call(["1"]) == {:error, :invalid_identifier}
   end
 
-  @postgres_max_integer 2_147_483_647
+  @int8_max 9_223_372_036_854_775_807
+  @int4_max 2_147_483_647
 
-  test "by default enforces max based on 4 byte signed integers" do
-    assert IdParser.call(to_string(@postgres_max_integer)) == {:ok, @postgres_max_integer}
-    assert IdParser.call(to_string(@postgres_max_integer + 1)) == {:error, :out_of_range}
+  test "parses max and validates if valid numeric id type or integer" do
+    assert IdParser.call(to_string(@int4_max), max: @int4_max) == {:ok, @int4_max}
+
+    assert IdParser.call(to_string(@int4_max), max: :integer) == {:ok, @int4_max}
+    assert IdParser.call(to_string(@int4_max), max: :int) == {:ok, @int4_max}
+    assert IdParser.call(to_string(@int4_max), max: :serial) == {:ok, @int4_max}
+
+    assert IdParser.call(to_string(@int8_max), max: :biginteger) == {:ok, @int8_max}
+    assert IdParser.call(to_string(@int8_max), max: :bigint) == {:ok, @int8_max}
+    assert IdParser.call(to_string(@int8_max), max: :bigserial) == {:ok, @int8_max}
+
+    assert IdParser.call(to_string(@int4_max + 1), max: @int4_max) == {:error, :out_of_range}
+    assert IdParser.call(to_string(@int4_max + 1), max: :integer) == {:error, :out_of_range}
   end
 
-  test "max is overridable" do
-    new_max = @postgres_max_integer + 1
-
-    assert IdParser.call(to_string(new_max), max: new_max) == {:ok, new_max}
-    assert IdParser.call(to_string(new_max + 1), max: new_max) == {:error, :out_of_range}
+  test "handles invalid max" do
+    assert IdParser.call("1", max: "invalid") == {:error, :invalid_max}
   end
 end
