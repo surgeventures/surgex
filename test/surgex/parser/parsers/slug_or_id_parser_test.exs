@@ -26,4 +26,9 @@ defmodule Surgex.Parser.SlugOrIdParserTest do
     assert SlugOrIdParser.call(0.3) == {:error, :invalid_slug}
     assert SlugOrIdParser.call(["123"]) == {:error, :invalid_slug}
   end
+
+  test "forwards options to id parser" do
+    assert SlugOrIdParser.call("123", max: 123) == {:ok, 123}
+    assert SlugOrIdParser.call("123", max: 122) == {:error, :invalid_identifier}
+  end
 end

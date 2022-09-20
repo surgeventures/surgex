@@ -3,14 +3,16 @@ defmodule Surgex.Parser.SlugOrIdParser do
 
   alias Surgex.Parser.IdParser
 
-  @spec call(term()) :: {:ok, String.t() | nil} | {:error, :invalid_slug}
-  def call(nil), do: {:ok, nil}
-  def call(""), do: {:ok, nil}
+  @spec call(term(), [IdParser.option()]) ::
+          {:ok, String.t() | nil} | {:error, :invalid_slug | IdParser.errors()}
+  def call(input, opts \\ [])
+  def call(nil, _opts), do: {:ok, nil}
+  def call("", _opts), do: {:ok, nil}
 
-  def call(input) when is_binary(input) do
+  def call(input, opts) when is_binary(input) do
     cond do
       String.match?(input, ~r/^\d+$/) ->
-        IdParser.call(input)
+        IdParser.call(input, opts)
 
       String.match?(input, ~r/^[a-zA-Z0-9\-]+$/) ->
         {:ok, input}
@@ -20,5 +22,5 @@ defmodule Surgex.Parser.SlugOrIdParser do
     end
   end
 
-  def call(_input), do: {:error, :invalid_slug}
+  def call(_input, _opts), do: {:error, :invalid_slug}
 end
