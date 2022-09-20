@@ -29,4 +29,16 @@ defmodule Surgex.Parser.DecimalParserTest do
     assert DecimalParser.call([1]) == {:error, :invalid_decimal}
     assert DecimalParser.call(%{test: 1}) == {:error, :invalid_decimal}
   end
+
+  test "valid range input" do
+    assert DecimalParser.call(1, min: 0, max: 10) == {:ok, Decimal.new("1")}
+    assert DecimalParser.call(1, min: 0) == {:ok, Decimal.new("1")}
+    assert DecimalParser.call(1, max: 10) == {:ok, Decimal.new("1")}
+  end
+
+  test "invalid range input" do
+    assert DecimalParser.call(1, min: 10, max: 100) == {:error, :out_of_range}
+    assert DecimalParser.call(1, min: 10) == {:error, :out_of_range}
+    assert DecimalParser.call(10, max: 1) == {:error, :out_of_range}
+  end
 end
