@@ -46,7 +46,7 @@ defmodule Surgex.Parser.IdListParser do
     {:ok, [id | previous_ids]}
   end
 
-  defp reduce_ids(id, {:ok, _previous_ids}) when is_integer(id) do
+  defp reduce_ids(_id, {:ok, _previous_ids}) do
     {:error, :invalid_identifier}
   end
 
