@@ -39,6 +39,27 @@ defmodule Surgex.ParserTest do
     "include" => "invalid"
   }
 
+  @out_of_range_parsers [
+    id: [{:integer, min: 0}, :required],
+    price: [{:decimal, min: 10, max: 100}, :required],
+    weight: [{:float, max: 10}, :required],
+    count: [{:integer, max: 10}, :required]
+  ]
+
+  @in_range_params %{
+    "id" => "123",
+    "price" => "15.0",
+    "weight" => "10",
+    "count" => "10"
+  }
+
+  @out_of_range_params %{
+    "id" => "-123",
+    "price" => "5.0",
+    "weight" => "10.5",
+    "count" => "100"
+  }
+
   @doc_parsers [
     id: [:integer, :required],
     attributes: %{
@@ -530,6 +551,27 @@ defmodule Surgex.ParserTest do
       parser_output = Parser.flat_parse(nil, [])
 
       assert parser_output == {:error, :empty_input}
+    end
+  end
+
+  describe "range min max for numbers" do
+    test "valid out-of-range params" do
+      parser_output = Parser.flat_parse(@out_of_range_params, @out_of_range_parsers)
+
+      assert parser_output ==
+               {:error, :invalid_parameters,
+                [
+                  out_of_range: "count",
+                  out_of_range: "weight",
+                  out_of_range: "price",
+                  out_of_range: "id"
+                ]}
+    end
+
+    test "invalid out-of-range params" do
+      parser_output = Parser.flat_parse(@in_range_params, @out_of_range_parsers)
+
+      assert parser_output == {:ok, 123, Decimal.new("15.0"), 10.0, 10}
     end
   end
 
