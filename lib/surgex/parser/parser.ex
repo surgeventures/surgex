@@ -169,7 +169,6 @@ defmodule Surgex.Parser do
   defp parse_params(params, parsers, opts \\ []) do
     {params, [], []}
     |> pop_and_parse_keys(parsers, opts)
-    |> pop_unknown()
     |> close_params()
   end
 
@@ -204,19 +203,14 @@ defmodule Surgex.Parser do
     parsers = Keyword.drop(all_parsers, [:attributes, :relationships])
     input = Map.from_struct(resource)
 
-    {_, output, errors} = pop_and_parse_keys({input, [], []}, parsers, [stringify: false] ++ opts)
-
-    {output, errors}
+    pop_and_parse_keys({input, [], []}, parsers, [stringify: false] ++ opts)
   end
 
   defp parse_resource_nested(resource, all_parsers, key, opts) do
     parsers = Keyword.get(all_parsers, key, [])
     attributes = Map.get(resource, key, %{})
 
-    {output, errors} =
-      {attributes, [], []}
-      |> pop_and_parse_keys(parsers, opts)
-      |> pop_unknown()
+    {output, errors} = pop_and_parse_keys({attributes, [], []}, parsers, opts)
 
     prefixed_errors = prefix_error_pointers(errors, "#{key}/")
 
@@ -236,7 +230,8 @@ defmodule Surgex.Parser do
   defp prefix_error_pointer({reason, key}, prefix), do: {reason, "#{prefix}#{key}"}
 
   defp pop_and_parse_keys(payload, key_parsers, opts) do
-    Enum.reduce(key_parsers, payload, &pop_and_parse_keys_each(&1, &2, opts))
+    {_, output, errors} = Enum.reduce(key_parsers, payload, &pop_and_parse_keys_each(&1, &2, opts))
+    {output, errors}
   end
 
   defp pop_and_parse_keys_each({key, parser}, current_payload, opts) do
@@ -322,15 +317,6 @@ defmodule Surgex.Parser do
       dasherized_key = String.replace(key_string, "_", "-")
       {Map.pop(map, dasherized_key), dasherized_key}
     end
-  end
-
-  defp pop_unknown({map, output, errors}) do
-    new_errors =
-      map
-      |> Enum.filter(fn {key, _value} -> key != "data" end)
-      |> Enum.map(fn {key, _value} -> {:unknown, key} end)
-
-    {output, errors ++ new_errors}
   end
 
   defp close_params({output, []}), do: {:ok, output}
