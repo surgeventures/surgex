@@ -106,6 +106,20 @@ defmodule Surgex.ParserTest do
 
   @malformed_doc %Document{}
 
+  describe "edge cases" do
+    test "unknown field" do
+      parser_output = Parser.parse(%{
+        "id" => "123",
+        "price" => "10.5",
+      }, [
+        id: [:integer, :required],
+      ]
+    )
+
+      assert parser_output == {:error, :invalid_parameters, [unknown: "price"]}
+    end
+  end
+
   describe "parse/2" do
     test "valid params" do
       parser_output = Parser.parse(@valid_params, @param_parsers)
