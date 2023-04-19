@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## [4.15.0]
+
+- Discard unexpected parameters instead of returning 400 Bad Request
 
 ## [4.12.0] - 2022-09-05
 
