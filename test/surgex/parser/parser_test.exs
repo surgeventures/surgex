@@ -137,8 +137,7 @@ defmodule Surgex.ParserTest do
                   invalid_decimal: "price",
                   invalid_uuid: "uuid2",
                   required: "uuid",
-                  invalid_integer: "id",
-                  unknown: "other-param"
+                  invalid_integer: "id"
                 ]}
     end
 
@@ -163,9 +162,7 @@ defmodule Surgex.ParserTest do
                 [
                   invalid_integer: "/data/id",
                   required: "/data/attributes/first-name",
-                  unknown: "/data/attributes/other-param",
-                  invalid_integer: "/data/relationships/avatar/id",
-                  unknown: "/data/relationships/other-rel"
+                  invalid_integer: "/data/relationships/avatar/id"
                 ]}
     end
 
@@ -300,6 +297,25 @@ defmodule Surgex.ParserTest do
                 ]}
     end
 
+    test "unexpected param, doesn't crash" do
+      params = Map.put(@valid_params, "other-param", "value")
+
+      parser_output = Parser.parse(params, @param_parsers)
+
+      assert parser_output ==
+               {:ok,
+                [
+                  include: [:comments],
+                  last_name: nil,
+                  first_name: "Jack",
+                  count: 10,
+                  weight: 10.5,
+                  price: Decimal.new("10.5"),
+                  uuid: "123e4567-e89b-12d3-a456-426614174000",
+                  id: 123
+                ]}
+    end
+
     test "nil input" do
       parser_output = Parser.parse(nil, [])
 
@@ -338,8 +354,7 @@ defmodule Surgex.ParserTest do
                   invalid_decimal: "price",
                   invalid_uuid: "uuid2",
                   required: "uuid",
-                  invalid_integer: "id",
-                  unknown: "other-param"
+                  invalid_integer: "id"
                 ]}
     end
 
@@ -364,9 +379,7 @@ defmodule Surgex.ParserTest do
                 [
                   invalid_integer: "/data/id",
                   required: "/data/attributes/first-name",
-                  unknown: "/data/attributes/other-param",
-                  invalid_integer: "/data/relationships/avatar/id",
-                  unknown: "/data/relationships/other-rel"
+                  invalid_integer: "/data/relationships/avatar/id"
                 ]}
     end
 
@@ -530,8 +543,7 @@ defmodule Surgex.ParserTest do
                   invalid_decimal: "price",
                   invalid_uuid: "uuid2",
                   required: "uuid",
-                  invalid_integer: "id",
-                  unknown: "other-param"
+                  invalid_integer: "id"
                 ]}
     end
 
@@ -580,21 +592,6 @@ defmodule Surgex.ParserTest do
       parser_output = Parser.assert_blank_params(%{})
 
       assert parser_output == :ok
-    end
-
-    test "invalid params" do
-      parser_output =
-        Parser.assert_blank_params(%{
-          "some-param" => nil,
-          "other-param" => "x"
-        })
-
-      assert parser_output ==
-               {:error, :invalid_parameters,
-                [
-                  unknown: "other-param",
-                  unknown: "some-param"
-                ]}
     end
   end
 
