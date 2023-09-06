@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [4.15.1]
+
+-  Fix optional dependency on `Jabbax` and `Plug` by:
+
+    1. defining `Surgex.Parser` only if `Jabbax` is available
+    2. defining `Surgex.Sentry` only if `Plug` is available
+
 ## [4.15.0]
 
 - Discard unexpected parameters instead of returning 400 Bad Request
