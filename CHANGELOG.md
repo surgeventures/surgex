@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [4.15.1]
+
+-  Make sure
+
+    1. Jabbax is loaded before we define `Surgex.Parser`
+    2. Plug is loaded before we define `Surgex.Sentry`
+
+to avoid compilation issues in apps that depend on Surgex.
+
 ## [4.15.0]
 
 - Discard unexpected parameters instead of returning 400 Bad Request
