@@ -4,12 +4,10 @@
 
 ## [4.15.1]
 
--  Make sure
+-  Fix optional dependency on `Jabbax` and `Plug` by:
 
-    1. Jabbax is loaded before we define `Surgex.Parser`
-    2. Plug is loaded before we define `Surgex.Sentry`
-
-to avoid compilation issues in apps that depend on Surgex.
+    1. defining `Surgex.Parser` only if `Jabbax` is available
+    2. defining `Surgex.Sentry` only if `Plug` is available
 
 ## [4.15.0]
 
