@@ -1,8 +1,12 @@
 name: Show me the env
+
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on: [push]
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
-      - run: env
+      - name: Run env
+        run: env
+        env:
+          SENTRY_TERRAFORM_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
