@@ -52,7 +52,7 @@ defmodule Surgex.DataPipe.FollowerSync do
         :ok
 
       !PostgresSystemUtils.lsn_valid?(lsn) ->
-        Logger.warn("Invalid LSN: #{inspect(lsn)}")
+        Logger.warning("Invalid LSN: #{inspect(lsn)}")
         {:error, :invalid_lsn}
 
       true ->
@@ -66,7 +66,7 @@ defmodule Surgex.DataPipe.FollowerSync do
         handle_lsn_update(repo, lsn, last_lsn, start_time)
 
       :error ->
-        Logger.warn(fn -> "No replay LSN (consider setting follower_sync_enabled: false)" end)
+        Logger.warning(fn -> "No replay LSN (consider setting follower_sync_enabled: false)" end)
         {:error, :no_replay_lsn}
     end
   end
@@ -83,7 +83,7 @@ defmodule Surgex.DataPipe.FollowerSync do
         :ok
 
       elapsed_time >= timeout ->
-        Logger.warn(fn -> "Follower sync timeout after #{timeout}ms: #{last_lsn} < #{lsn}" end)
+        Logger.warning(fn -> "Follower sync timeout after #{timeout}ms: #{last_lsn} < #{lsn}" end)
         {:error, :timeout}
 
       true ->

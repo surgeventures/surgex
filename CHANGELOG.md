@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [4.15.2]
+
+-  Using `Logger.warning` instead of deprecated `Logger.warn`
+
 ## [4.15.1]
 
 -  Fix optional dependency on `Jabbax` and `Plug` by:
