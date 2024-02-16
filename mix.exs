@@ -68,7 +68,7 @@ defmodule Surgex.Mixfile do
       {:ecto_sql, "~> 3.0"},
       {:jabbax, "~> 0.2 or ~> 1.0"},
       {:plug, "~> 1.7"},
-      {:timex, "~> 3.7.5"}
+      {:timex, github: "surgeventures/timex", ref: "e884213d7b8a0c7ce2d5c836d243483adbdbbbef"}
     ]
     |> Enum.map(&merge_dep_flags(&1, optional: true))
   end

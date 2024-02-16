@@ -547,6 +547,21 @@ defmodule Surgex.ParserTest do
                 ]}
     end
 
+    test "keep the order of the attributes" do
+      doc = %Document{
+        data: %Resource{
+          attributes: %{"email" => "email@email.com", "password" => "12345"}
+        }
+      }
+
+      attributes = %{
+        email: [:string, :required],
+        password: [:string, :required]
+      }
+
+      assert {:ok, "email@email.com", "12345"} = Parser.flat_parse(doc, attributes: attributes)
+    end
+
     test "valid doc" do
       parser_output = Parser.flat_parse(@valid_doc, @doc_parsers)
 
