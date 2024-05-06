@@ -231,6 +231,10 @@ if Code.ensure_loaded?(Jabbax) do
     defp prefix_error_pointer({reason, key}, prefix), do: {reason, "#{prefix}#{key}"}
 
     defp pop_and_parse_keys(payload, key_parsers, opts) do
+      unless Keyword.keyword?(key_parsers) do
+        raise ArgumentError, "key_parsers must be a keyword list, got: #{inspect(key_parsers)}"
+      end
+
       {_, output, errors} =
         Enum.reduce(key_parsers, payload, &pop_and_parse_keys_each(&1, &2, opts))
 

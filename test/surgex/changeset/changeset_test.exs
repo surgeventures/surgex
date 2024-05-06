@@ -57,18 +57,18 @@ defmodule Surgex.ChangesetTest do
                  source: %Jabbax.Document.ErrorSource{pointer: "/data/attributes/invalid_field"}
                },
                %Jabbax.Document.Error{
-                 code: "invalid_type",
-                 source: %Jabbax.Document.ErrorSource{
-                   pointer: "/data/attributes/invalid_type_field"
-                 }
+                 code: "taken",
+                 source: %Jabbax.Document.ErrorSource{pointer: "/data/attributes/taken_field"}
                },
                %Jabbax.Document.Error{
                  code: "required",
                  source: %Jabbax.Document.ErrorSource{pointer: "/data/attributes/required_field"}
                },
                %Jabbax.Document.Error{
-                 code: "taken",
-                 source: %Jabbax.Document.ErrorSource{pointer: "/data/attributes/taken_field"}
+                 code: "invalid_type",
+                 source: %Jabbax.Document.ErrorSource{
+                   pointer: "/data/attributes/invalid_type_field"
+                 }
                }
              ]
            }
