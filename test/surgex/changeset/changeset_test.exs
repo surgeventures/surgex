@@ -57,18 +57,18 @@ defmodule Surgex.ChangesetTest do
                  source: %Jabbax.Document.ErrorSource{pointer: "/data/attributes/invalid_field"}
                },
                %Jabbax.Document.Error{
-                 code: "taken",
-                 source: %Jabbax.Document.ErrorSource{pointer: "/data/attributes/taken_field"}
+                 code: "invalid_type",
+                 source: %Jabbax.Document.ErrorSource{
+                   pointer: "/data/attributes/invalid_type_field"
+                 }
                },
                %Jabbax.Document.Error{
                  code: "required",
                  source: %Jabbax.Document.ErrorSource{pointer: "/data/attributes/required_field"}
                },
                %Jabbax.Document.Error{
-                 code: "invalid_type",
-                 source: %Jabbax.Document.ErrorSource{
-                   pointer: "/data/attributes/invalid_type_field"
-                 }
+                 code: "taken",
+                 source: %Jabbax.Document.ErrorSource{pointer: "/data/attributes/taken_field"}
                }
              ]
            }
@@ -84,15 +84,15 @@ defmodule Surgex.ChangesetTest do
     assert Changeset.build_errors_document(changeset) == %Jabbax.Document{
              errors: [
                %Jabbax.Document.Error{
-                 code: "required",
-                 source: %Jabbax.Document.ErrorSource{
-                   pointer: "/data/attributes/address/city"
-                 }
-               },
-               %Jabbax.Document.Error{
                  code: "invalid_inclusion",
                  source: %Jabbax.Document.ErrorSource{
                    pointer: "/data/attributes/address/country/code"
+                 }
+               },
+               %Jabbax.Document.Error{
+                 code: "required",
+                 source: %Jabbax.Document.ErrorSource{
+                   pointer: "/data/attributes/address/city"
                  }
                }
              ]
