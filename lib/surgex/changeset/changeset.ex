@@ -22,6 +22,7 @@ case Code.ensure_loaded(Jabbax) do
         map
         |> Enum.map(&build_error(&1, prefixes))
         |> List.flatten()
+        |> Enum.sort()
       end
 
       defp build_error({field, map}, prefixes) when is_map(map) do

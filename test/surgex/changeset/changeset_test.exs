@@ -84,15 +84,15 @@ defmodule Surgex.ChangesetTest do
     assert Changeset.build_errors_document(changeset) == %Jabbax.Document{
              errors: [
                %Jabbax.Document.Error{
-                 code: "required",
-                 source: %Jabbax.Document.ErrorSource{
-                   pointer: "/data/attributes/address/city"
-                 }
-               },
-               %Jabbax.Document.Error{
                  code: "invalid_inclusion",
                  source: %Jabbax.Document.ErrorSource{
                    pointer: "/data/attributes/address/country/code"
+                 }
+               },
+               %Jabbax.Document.Error{
+                 code: "required",
+                 source: %Jabbax.Document.ErrorSource{
+                   pointer: "/data/attributes/address/city"
                  }
                }
              ]

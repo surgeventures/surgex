@@ -2,13 +2,19 @@
 
 ## [Unreleased]
 
+## [5.0.0]
+
+- Fixed an issue with `Surgex.Parser.flat_parse/2` returning values in an unpredictable order when
+  parsers were passed as a map. Now, only keyword lists are accepted as parsers to maintain key
+  order.
+
 ## [4.15.2]
 
--  Using `Logger.warning` instead of deprecated `Logger.warn`
+- Using `Logger.warning` instead of deprecated `Logger.warn`
 
 ## [4.15.1]
 
--  Fix optional dependency on `Jabbax` and `Plug` by:
+- Fix optional dependency on `Jabbax` and `Plug` by:
 
     1. defining `Surgex.Parser` only if `Jabbax` is available
     2. defining `Surgex.Sentry` only if `Plug` is available

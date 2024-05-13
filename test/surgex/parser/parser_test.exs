@@ -62,13 +62,13 @@ defmodule Surgex.ParserTest do
 
   @doc_parsers [
     id: [:integer, :required],
-    attributes: %{
+    attributes: [
       first_name: [:string, &RequiredParser.call/1],
       last_name: :string
-    },
-    relationships: %{
+    ],
+    relationships: [
       avatar: :resource_id
-    }
+    ]
   ]
 
   @valid_doc %Document{
@@ -194,8 +194,8 @@ defmodule Surgex.ParserTest do
       assert parser_output ==
                {:ok,
                 [
-                  image_array: [[id: 1], [id: 2]],
                   avatar: 456,
+                  image_array: [[id: 1], [id: 2]],
                   last_name: nil,
                   first_name: "Jack",
                   id: 123
@@ -239,9 +239,9 @@ defmodule Surgex.ParserTest do
         Parser.parse(
           resource,
           id: [:id, :required],
-          attributes: %{
+          attributes: [
             name: [:string, :required]
-          }
+          ]
         )
       end
 
@@ -256,8 +256,8 @@ defmodule Surgex.ParserTest do
       assert parser_output ==
                {:ok,
                 [
-                  image: [name: "image-name", id: 1],
                   avatar: 456,
+                  image: [name: "image-name", id: 1],
                   last_name: nil,
                   first_name: "Jack",
                   id: 123
@@ -275,9 +275,9 @@ defmodule Surgex.ParserTest do
         Parser.parse(
           resource,
           id: [:id, :required],
-          attributes: %{
+          attributes: [
             name: [:string, :required]
-          }
+          ]
         )
       end
 
@@ -456,9 +456,9 @@ defmodule Surgex.ParserTest do
         Parser.parse_map(
           resource,
           id: [:id, :required],
-          attributes: %{
+          attributes: [
             name: [:string, :required]
-          }
+          ]
         )
       end
 
@@ -492,9 +492,9 @@ defmodule Surgex.ParserTest do
         Parser.parse_map(
           resource,
           id: [:id, :required],
-          attributes: %{
+          attributes: [
             name: [:string, :required]
-          }
+          ]
         )
       end
 
