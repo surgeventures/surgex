@@ -8,7 +8,7 @@ env:
   ELIXIR_VERSION: 1.11.4
   OTP_VERSION: 23.3.4.7
   RUNNER_OS: ubuntu20
-  RELEVANT_FILES: "mix.lock mix.exs lib config test"
+  RELEVANT_FILES: "mix.lock mix.exs lib priv config test"
   DEPENDENCY_FILE: mix.lock
 
 concurrency:

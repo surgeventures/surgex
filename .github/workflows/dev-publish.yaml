@@ -6,7 +6,7 @@ env:
   ELIXIR_VERSION: 1.11.4
   JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
   OTP_VERSION: 23.3.4.7
-  RELEVANT_FILES: 'mix.lock mix.exs lib config test'
+  RELEVANT_FILES: 'mix.lock mix.exs lib priv config test'
   REPOSITORY: surgex
   RUNNER_OS: ubuntu20
   SHA: ${{ github.sha }}
