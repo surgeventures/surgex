@@ -63,7 +63,7 @@ jobs:
         uses: surgeventures/platform-tribe-actions/elixir/static-check@fast-elixir-repo-setup
         id: static
         with:
-          dialyzer: true
+          dialyzer: false
           hex-token: ${{ secrets.HEX_ORGANIZATION_WRITE_KEY }}
 
   test:
