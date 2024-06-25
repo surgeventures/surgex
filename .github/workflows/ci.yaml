@@ -1,0 +1,134 @@
+name: Elixir CI Checks
+
+env:
+  SHA: ${{ github.sha }}
+  JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+  DEBIAN_FRONTEND: noninteractive
+  REPOSITORY: surgex
+  ELIXIR_VERSION: 1.11.4
+  OTP_VERSION: 23.3.4.7
+  RUNNER_OS: ubuntu20
+  RELEVANT_FILES: "mix.lock mix.exs lib config test"
+  DEPENDENCY_FILE: mix.lock
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types:
+      - synchronize
+      - opened
+      - reopened
+
+jobs:
+  static:
+    name: Static Checks (Elixir ${{ matrix.versions.elixir-version }})
+    runs-on: runs-on,runner=4cpu-linux-x64
+    outputs:
+      HASH: ${{ steps.prepare.outputs.HASH }}
+    strategy:
+      fail-fast: false
+      matrix:
+        versions: 
+         - { elixir-version: 1.11.4, otp-version: 23.3.4.7, runner-os: 'ubuntu20' }
+    steps:
+      - name: Checkout and compile dependencies
+        id: prepare
+        uses: surgeventures/platform-tribe-actions/elixir/precompile@fast-elixir-repo-setup
+        with:
+          repository: ${{ env.REPOSITORY }}
+          dependency-file: ${{ env.DEPENDENCY_FILE }}
+          sha: ${{ env.SHA }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          hex-token: ${{ secrets.HEX_ORGANIZATION_KEY }}
+          mix-env: dev
+          relevant-files: ${{ env.RELEVANT_FILES }}
+          elixir-version: ${{ matrix.versions.elixir-version }}
+          otp-version: ${{ matrix.versions.otp-version }}
+          runner-os: ${{ matrix.versions.runner-os }}
+      - name: Compile the application
+        id: compile
+        uses: surgeventures/platform-tribe-actions/elixir/compile@fast-elixir-repo-setup
+        with:
+          build-hash: ${{ steps.prepare.outputs.HASH }}
+          warnings-as-errors: 'true'
+          elixir-version: ${{ matrix.versions.elixir-version }}
+          otp-version: ${{ matrix.versions.otp-version }}
+      - name: Run Static Checks
+        uses: surgeventures/platform-tribe-actions/elixir/static-check@fast-elixir-repo-setup
+        id: static
+        with:
+          dialyzer: true
+          hex-token: ${{ secrets.HEX_ORGANIZATION_WRITE_KEY }}
+
+  test:
+    name: Unit Tests (Elixir ${{ matrix.versions.elixir-version }})
+    runs-on: runs-on,runner=1cpu-linux-x64
+    strategy:
+      fail-fast: false
+      matrix:
+        versions: 
+         - { elixir-version: 1.11.4, otp-version: 23.3.4.7, runner-os: 'ubuntu20' }
+    steps:
+      - name: Checkout and compile dependencies
+        id: prepare
+        uses: surgeventures/platform-tribe-actions/elixir/precompile@fast-elixir-repo-setup
+        with:
+          repository: ${{ env.REPOSITORY }}
+          dependency-file: ${{ env.DEPENDENCY_FILE }}
+          sha: ${{ env.SHA }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          hex-token: ${{ secrets.HEX_ORGANIZATION_KEY }}
+          mix-env: test
+          relevant-files: ${{ env.RELEVANT_FILES }}
+          elixir-version: ${{ matrix.versions.elixir-version }}
+          otp-version: ${{ matrix.versions.otp-version }}
+          runner-os: ${{ matrix.versions.runner-os }}
+      - name: Compile the application
+        id: compile
+        uses: surgeventures/platform-tribe-actions/elixir/compile@fast-elixir-repo-setup
+        with:
+          build-hash: ${{ steps.prepare.outputs.HASH }}
+          mix-env: test
+          elixir-version: ${{ matrix.versions.elixir-version }}
+          otp-version: ${{ matrix.versions.otp-version }}
+      - name: Run Unit Tests
+        uses: surgeventures/platform-tribe-actions/elixir/test@fast-elixir-repo-setup
+        id: test
+
+  permit:
+    name: Permit Package Publishing
+    needs: [static, test]
+    runs-on: runs-on,runner=1cpu-linux-x64
+    outputs:
+      PUBLISH: ${{ steps.permit.outputs.PUBLISH }}
+    steps:
+      - name: Verify elibility for publishing the package
+        uses: surgeventures/platform-tribe-actions/elixir/permit@fast-elixir-repo-setup
+        id: permit
+        with:
+          repository: ${{ env.REPOSITORY }}
+          sha: ${{ env.SHA }}
+          relevant-files: ${{ env.RELEVANT_FILES}}
+
+  publish:
+    name: Publish Hex Package
+    needs: [permit]
+    runs-on: runs-on,runner=2cpu-linux-x64
+    if: needs.permit.outputs.PUBLISH == 'true' && github.event_name == 'push'
+    steps:
+      - name: Publish Package
+        uses: surgeventures/platform-tribe-actions/elixir/publish@fast-elixir-repo-setup
+        with:
+          repository: ${{ env.REPOSITORY }}
+          sha: ${{ env.SHA }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          hex-token: ${{ secrets.HEX_ORGANIZATION_WRITE_KEY }}
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+          runner-os: ${{ env.RUNNER_OS }}
