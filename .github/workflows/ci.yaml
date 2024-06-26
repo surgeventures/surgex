@@ -175,7 +175,7 @@ jobs:
         with:
           path: '**/*'
           key: ${{ runner.os }}-${{ matrix.versions.elixir-version }}-${{ matrix.versions.otp-version }}-compile-test-${{ steps.hash.outputs.HASH }}
-      - name: Compile with warning as --warnings-as-errors
+      - name: Compile with MIX_ENV=test
         if: steps.build-cache.outputs.cache-hit != 'true'
         env:
           MIX_ENV: test
@@ -192,7 +192,7 @@ jobs:
     needs: [static, test]
     runs-on: runs-on,runner=1cpu-linux-x64
     outputs:
-      PUBLISH: ${{ steps.permit.outputs.PUBLISH }}
+      PUBLISH: ${{ steps.version.outputs.PUBLISH }}
     steps:
       - name: Checkout latest codebase
         uses: actions/checkout@v4
