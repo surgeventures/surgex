@@ -175,9 +175,10 @@ jobs:
         run: |
           echo "Compiling the app with MIX_ENV=test"
           mix compile --force
-      - name: Run Unit Tests
-        uses: surgeventures/platform-tribe-actions/elixir/test@fast-elixir-repo-setup
-        id: test
+      - name: Run tests
+        run: |
+          echo "Running tests"
+          mix test --cover
 
   # permit:
   #   name: Permit Package Publishing
