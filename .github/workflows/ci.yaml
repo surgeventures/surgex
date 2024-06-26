@@ -111,11 +111,12 @@ jobs:
          - { elixir-version: 1.11.4, otp-version: 23.3.4.7, runner-os: 'ubuntu20' }
     services:
       postgres:
-        image: postgres:13
+        image: cimg/postgres:12.9-postgis
         env:
-          POSTGRES_USER: root
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
+          POSTGRES_ROLE: root
+          POSTGRES_DB: root
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
@@ -124,6 +125,11 @@ jobs:
           --health-interval 10s 
           --health-timeout 5s 
           --health-retries 5
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     steps:
       - name: Checkout latest codebase
         uses: actions/checkout@v4
