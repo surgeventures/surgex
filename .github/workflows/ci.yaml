@@ -234,13 +234,6 @@ jobs:
         with:
           path: approval.txt
           key: ${{ runner.os }}-${{ env.REPOSITORY }}-approval-${{ needs.static.outputs.HASH }}
-      - name: Verify elibility for publishing the package
-        uses: surgeventures/platform-tribe-actions/elixir/permit@fast-elixir-repo-setup
-        id: permit
-        with:
-          repository: ${{ env.REPOSITORY }}
-          sha: ${{ env.SHA }}
-          relevant-files: ${{ env.RELEVANT_FILES }}
 
   publish:
     name: Publish Hex Package
