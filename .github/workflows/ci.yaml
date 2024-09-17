@@ -7,7 +7,7 @@ env:
   JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
   OTP_VERSION: 23.3.4.7 # OTP version used during package publishing
   RELEVANT_FILES: "mix.lock mix.exs lib priv config test" # Important, this controls the caching, make sure to keep this right
-  REPOSITORY: heartbeats
+  REPOSITORY: surgex
   RUNNER_OS: ubuntu20 # Must match Elixir/OTP version in described in action erlef/setup-beam@v1
   SHA: ${{ github.sha }}
 
@@ -54,7 +54,7 @@ jobs:
       - name: Get SHA sum (HASH) of relevant files
         id: hash
         run: |
-          git config --global --add safe.directory /__w/${{ env.repository }}/${{ env.repository }}
+          git config --global --add safe.directory /__w/${{ env.REPOSITORY }}/${{ env.REPOSITORY }}
           echo "Get SHA sum (HASH) of relevant files"
           HASH="$(git ls-tree ${{ env.SHA }} -- ${{ env.RELEVANT_FILES }} | sha1sum | cut -d' ' -f1)"
           echo "BUILD HASH FOR THE CODEBASE IS: $HASH"
@@ -148,7 +148,7 @@ jobs:
       - name: Get SHA sum (HASH) of relevant files
         id: hash
         run: |
-          git config --global --add safe.directory /__w/${{ env.repository }}/${{ env.repository }}
+          git config --global --add safe.directory /__w/${{ env.REPOSITORY }}/${{ env.REPOSITORY }}
           echo "Get SHA sum (HASH) of relevant files"
           HASH="$(git ls-tree ${{ env.SHA }} -- ${{ env.RELEVANT_FILES }} | sha1sum | cut -d' ' -f1)"
           echo "BUILD HASH FOR THE CODEBASE IS: $HASH"
