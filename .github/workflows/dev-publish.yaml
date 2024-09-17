@@ -7,7 +7,7 @@ env:
   JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
   OTP_VERSION: 23.3.4.7 # OTP version used during package publishing
   RELEVANT_FILES: "mix.lock mix.exs lib priv config test" # Important, this controls the caching, make sure to keep this right
-  REPOSITORY: heartbeats
+  REPOSITORY: surgex
   RUNNER_OS: ubuntu20 # Must match Elixir/OTP version in described in action erlef/setup-beam@v1
   SHA: ${{ github.sha }}
   
@@ -44,7 +44,7 @@ jobs:
       - name: Check for CI successes
         uses: runs-on/cache/restore@v4
         with:
-          key: ${{ runner.os }}-${{ env.repository }}-approval-${{ steps.hash.outputs.HASH }}
+          key: ${{ runner.os }}-${{ env.REPOSITORY }}-approval-${{ steps.hash.outputs.HASH }}
           path: approval.txt
           fail-on-cache-miss: true
       - name: Setup Elixir
