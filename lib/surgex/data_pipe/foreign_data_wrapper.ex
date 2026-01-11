@@ -45,13 +45,11 @@ case Code.ensure_loaded(Ecto) do
           end
 
         {:ok, _} =
-          apply(source_repo, :transaction, [
-            fn ->
-              Enum.each(script, fn command ->
-                SQL.query!(source_repo, command)
-              end)
-            end
-          ])
+          source_repo.transaction(fn ->
+            Enum.each(script, fn command ->
+              SQL.query!(source_repo, command)
+            end)
+          end)
       end
 
       def update_script(server, schema, config) do
@@ -123,8 +121,7 @@ case Code.ensure_loaded(Ecto) do
         opts_string =
           mapping
           |> Enum.filter(fn {_, value} -> value end)
-          |> Enum.map(fn {option, value} -> "#{command} #{option} '#{value}'" end)
-          |> Enum.join(", ")
+          |> Enum.map_join(", ", fn {option, value} -> "#{command} #{option} '#{value}'" end)
 
         case opts_string do
           "" -> ""

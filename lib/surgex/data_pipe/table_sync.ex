@@ -81,7 +81,7 @@ case Code.ensure_loaded(Ecto) do
             "DELETE FROM #{table} WHERE #{scoped_delete_query_sql} RETURNING id" <>
             ") SELECT " <> "(SELECT COUNT(id) FROM upserts), (SELECT COUNT(id) FROM deletions)"
 
-        %{rows: [[upserts, deletions]]} = apply(repo, :query!, [sql, params])
+        %{rows: [[upserts, deletions]]} = repo.query!(sql, params)
 
         {upserts, deletions}
       end
@@ -96,10 +96,7 @@ case Code.ensure_loaded(Ecto) do
       end
 
       defp apply_delete_sql_scope(delete_sql, scope) when is_list(scope) do
-        delete_sql <>
-          (scope
-           |> Enum.map(fn {col, val} -> " AND #{col} = #{val}" end)
-           |> Enum.join())
+        delete_sql <> Enum.map_join(scope, fn {col, val} -> " AND #{col} = #{val}" end)
       end
 
       defp parse_on_conflict(nil, _, _), do: nil

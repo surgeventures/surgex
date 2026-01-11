@@ -36,9 +36,11 @@ defmodule Surgex.Refactor do
   end
 
   defp call_task({task, filenames, opts}) do
-    "Elixir.Surgex.Refactor.#{Macro.camelize(task)}"
-    |> String.to_existing_atom()
-    |> apply(:call, [filenames, opts])
+    module =
+      "Elixir.Surgex.Refactor.#{Macro.camelize(task)}"
+      |> String.to_existing_atom()
+
+    module.call(filenames, opts)
   end
 
   defp filter_elixir_files(paths) do

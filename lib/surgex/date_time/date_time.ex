@@ -25,7 +25,7 @@ if Code.ensure_loaded?(Timex) do
 
     defp shift_datetime(datetime, offset) do
       case Timex.shift(datetime, seconds: offset) do
-        %NaiveDateTime{} = datetime -> {:ok, datetime}
+        %NaiveDateTime{} = shifted -> {:ok, NaiveDateTime.truncate(shifted, :second)}
         {:error, reason} -> {:error, reason}
       end
     end

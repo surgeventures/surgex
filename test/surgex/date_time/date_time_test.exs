@@ -162,4 +162,29 @@ defmodule Surgex.DateTimeTest do
                Surgex.DateTime.date_and_offset_to_datetime(date, 1 * @hour, time_zone)
     end
   end
+
+  # Regression test for Timex precision bug (https://github.com/bitwalker/timex/issues/731)
+  # In Elixir 1.14+, Timex.shift/2 upgrades datetime precision to microseconds.
+  # This caused datetimes like ~U[2023-01-01 10:00:00Z] to become ~U[2023-01-01 10:00:00.000000Z]
+  # which breaks Ecto validations and equality checks.
+  describe "date_and_offset_to_datetime/3 precision" do
+    test "returns second precision for UTC timezone" do
+      {:ok, datetime} = Surgex.DateTime.date_and_offset_to_datetime(~D{2023-06-15}, 3600)
+
+      assert {0, 0} == datetime.microsecond
+    end
+
+    test "returns second precision for non-UTC timezone" do
+      {:ok, datetime} =
+        Surgex.DateTime.date_and_offset_to_datetime(~D{2023-06-15}, 3600, "Europe/London")
+
+      assert {0, 0} == datetime.microsecond
+    end
+
+    test "returns second precision for large offsets crossing day boundary" do
+      {:ok, datetime} = Surgex.DateTime.date_and_offset_to_datetime(~D{2023-06-15}, 25 * 3600)
+
+      assert {0, 0} == datetime.microsecond
+    end
+  end
 end
