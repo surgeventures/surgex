@@ -6,6 +6,24 @@ on:
   pull_request:
     branches: [master]
 
+permissions:
+  contents: read
+  pull-requests: write
+  packages: write
+  id-token: write
+
+env:
+  SHA: ${{ github.sha }}
+  JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+  ELIXIR_VERSION: 1.18.3
+  OTP_VERSION: 27.3
+  DEBIAN_FRONTEND: noninteractive
+  REPOSITORY: surgex
+  RUNNER_OS: ubuntu22 # Must match Elixir/OTP version in described in action erlef/setup-beam@v1
+  ImageOS: ubuntu22
+  DEPENDENCY_FILE: mix.lock
+  WORKING_DIRECTORY: .
+
 jobs:
   test:
     name: Elixir ${{ matrix.elixir }} / OTP ${{ matrix.otp }}
@@ -64,3 +82,57 @@ jobs:
       - run: mix format --check-formatted
       - run: mix credo --strict
       - run: mix test
+
+  permit:
+    name: Permit Package Publishing
+    needs: [test]
+    runs-on: ubuntu-latest
+    outputs:
+      PUBLISH: ${{ steps.version.outputs.PUBLISH }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          ref: ${{ env.SHA }}
+      - name: Process Package Version
+        id: version
+        shell: bash
+        run: |
+          git show HEAD~1:mix.exs > mix.old.exs || echo 'version: "0.0.0"' > mix.old.exs
+          old_version=$(grep -oP 'version: "\K[^"]+' mix.old.exs || echo "0.0.0")
+          new_version=$(grep -oP 'version: "\K[^"]+' mix.exs)
+          echo "Old Version: $old_version | New Version: $new_version"
+          if [ "$new_version" != "$old_version" ]; then
+            if [ "$new_version" \> "$old_version" ]; then
+              echo "Version is upped - WILL publish upon merging the PR"
+              echo "PUBLISH=true" >> $GITHUB_OUTPUT
+            else
+              echo "Version is lower than the original version - blocking publication"
+              echo "PUBLISH=false" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+          else
+            echo "Version is unchanged - WONT publish upon merging the PR"
+            echo "PUBLISH=false" >> $GITHUB_OUTPUT
+          fi
+
+  publish:
+    name: Publish Hex Package
+    needs: [permit]
+    runs-on: ubuntu-latest
+    if: needs.permit.outputs.PUBLISH == 'true' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SHA }}
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+          version-type: strict
+      - name: Get dependencies
+        run: mix deps.get
+      - name: Publish package
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+        run: mix hex.publish --yes
