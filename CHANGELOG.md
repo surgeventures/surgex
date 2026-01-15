@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [5.1.0]
+
+- Fixed datetime precision in `Surgex.DateTime.date_and_offset_to_datetime/3` to preserve second
+  precision after `Timex.shift/2` calls (which upgrades to microsecond precision)
+- Updated CI workflows for Elixir 1.15-1.18 with OTP 26-27
+
 ## [5.0.0]
 
 - Fixed an issue with `Surgex.Parser.flat_parse/2` returning values in an unpredictable order when
@@ -307,8 +313,12 @@
 - Extended `Surgex.Sentry` to take release and environment from Mix
 - Completed `Surgex.Guide`
 
-[Unreleased]: https://github.com/surgeventures/surgex/compare/v4.12.0...HEAD
-
+[Unreleased]: https://github.com/surgeventures/surgex/compare/v5.1.0...HEAD
+[5.1.0]: https://github.com/surgeventures/surgex/compare/v5.0.0...v5.1.0
+[5.0.0]: https://github.com/surgeventures/surgex/compare/v4.15.2...v5.0.0
+[4.15.2]: https://github.com/surgeventures/surgex/compare/v4.15.1...v4.15.2
+[4.15.1]: https://github.com/surgeventures/surgex/compare/v4.15.0...v4.15.1
+[4.15.0]: https://github.com/surgeventures/surgex/compare/v4.12.0...v4.15.0
 [4.12.0]: https://github.com/surgeventures/surgex/compare/v4.11.0...v4.12.0
 [4.11.0]: https://github.com/surgeventures/surgex/compare/v4.10.0...v4.11.0
 [4.10.0]: https://github.com/surgeventures/surgex/compare/v4.9.0...v4.10.0
