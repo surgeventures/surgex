@@ -28,12 +28,14 @@ config :surgex, Surgex.Repo,
   database: "surgex_repo_test",
   hostname: "localhost",
   username: "postgres",
+  password: "postgres",
   pool: Ecto.Adapters.SQL.Sandbox,
-  port: System.get_env("POSTGRES_TEST_PORT")
+  port: if(port = System.get_env("POSTGRES_TEST_PORT"), do: String.to_integer(port), else: 5432)
 
 config :surgex, Surgex.ForeignRepo,
   database: "surgex_foreign_repo_test",
   hostname: "localhost",
   username: "postgres",
+  password: "postgres",
   pool: Ecto.Adapters.SQL.Sandbox,
-  port: System.get_env("POSTGRES_TEST_PORT")
+  port: if(port = System.get_env("POSTGRES_TEST_PORT"), do: String.to_integer(port), else: 5432)
