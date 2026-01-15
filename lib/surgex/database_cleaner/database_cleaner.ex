@@ -83,8 +83,8 @@ case Code.ensure_loaded(Ecto) do
 
         prefixed_query = Map.put(query, :prefix, "information_schema")
 
-        repo
-        |> apply(:all, [prefixed_query])
+        prefixed_query
+        |> repo.all()
         |> List.delete("schema_migrations")
         |> Enum.map(&get_table_name/1)
       end
@@ -102,7 +102,7 @@ case Code.ensure_loaded(Ecto) do
 
       defp clean_tables(tables, repo, :delete_all) do
         Enum.each(tables, fn table ->
-          apply(repo, :delete_all, [table])
+          repo.delete_all(table)
         end)
       end
 
@@ -110,7 +110,7 @@ case Code.ensure_loaded(Ecto) do
         Enum.each(tables, fn table ->
           sql = "TRUNCATE TABLE #{table} RESTART IDENTITY CASCADE"
 
-          apply(repo, :query!, [sql, []])
+          repo.query!(sql, [])
         end)
       end
     end

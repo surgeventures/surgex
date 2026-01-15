@@ -46,7 +46,7 @@ defmodule Surgex.RepoHelpersTest do
     assert final_opts[:pool_size] == 5
   end
 
-  test 'set_server_pool_size with endpoints disabled' do
+  test "set_server_pool_size with endpoints disabled" do
     System.put_env("TEST_DB_CONNECTION_POOL", "5")
 
     Application.put_env(:phoenix, :serve_endpoints, false)
