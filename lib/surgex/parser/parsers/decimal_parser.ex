@@ -13,17 +13,14 @@ if Code.ensure_loaded?(Decimal) do
     def call(input, opts) when is_binary(input) do
       case Decimal.parse(input) do
         :error -> {:error, :invalid_decimal}
-        {:ok, decimal} -> validate_range(decimal, opts)
         {decimal, ""} -> validate_range(decimal, opts)
         {_decimal, _} -> {:error, :invalid_decimal}
       end
     end
 
     def call(input, opts) when is_integer(input) do
-      case Decimal.new(input) do
-        :error -> {:error, :invalid_decimal}
-        decimal -> validate_range(decimal, opts)
-      end
+      decimal = Decimal.new(input)
+      validate_range(decimal, opts)
     end
 
     def call(_input, _opts) do
