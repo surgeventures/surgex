@@ -163,10 +163,8 @@ defmodule Surgex.DateTimeTest do
     end
   end
 
-  # Regression test for Timex precision bug (https://github.com/bitwalker/timex/issues/731)
-  # In Elixir 1.14+, Timex.shift/2 upgrades datetime precision to microseconds.
-  # This caused datetimes like ~U[2023-01-01 10:00:00Z] to become ~U[2023-01-01 10:00:00.000000Z]
-  # which breaks Ecto validations and equality checks.
+  # Timex.shift/2 upgrades datetime precision to microseconds, but we want to
+  # preserve second precision for consistency with Ecto and equality checks.
   describe "date_and_offset_to_datetime/3 precision" do
     test "returns second precision for UTC timezone" do
       {:ok, datetime} = Surgex.DateTime.date_and_offset_to_datetime(~D{2023-06-15}, 3600)
@@ -185,6 +183,26 @@ defmodule Surgex.DateTimeTest do
       {:ok, datetime} = Surgex.DateTime.date_and_offset_to_datetime(~D{2023-06-15}, 25 * 3600)
 
       assert {0, 0} == datetime.microsecond
+    end
+
+    test "returns second precision during DST transitions" do
+      # Spring forward (London DST starts - clocks move from 1:00 to 2:00)
+      {:ok, spring_london} =
+        Surgex.DateTime.date_and_offset_to_datetime(~D{2022-03-27}, 8 * 3600, "Europe/London")
+
+      assert {0, 0} == spring_london.microsecond
+
+      # Fall back (London DST ends - clocks move from 2:00 to 1:00)
+      {:ok, autumn_london} =
+        Surgex.DateTime.date_and_offset_to_datetime(~D{2021-10-31}, 8 * 3600, "Europe/London")
+
+      assert {0, 0} == autumn_london.microsecond
+
+      # Different timezone: New York spring forward
+      {:ok, spring_new_york} =
+        Surgex.DateTime.date_and_offset_to_datetime(~D{2022-03-13}, 12 * 3600, "America/New_York")
+
+      assert {0, 0} == spring_new_york.microsecond
     end
   end
 end
