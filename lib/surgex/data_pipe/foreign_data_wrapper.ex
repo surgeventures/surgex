@@ -28,7 +28,7 @@ case Code.ensure_loaded(Ecto) do
       def init(source_repo, foreign_repo) do
         local_name = source_repo |> Module.split() |> List.last()
         server = schema = build_foreign_alias(foreign_repo)
-        config = foreign_repo.config
+        config = foreign_repo.config()
 
         Logger.info(fn -> "Preparing foreign data wrapper at #{local_name}.#{server}..." end)
 
