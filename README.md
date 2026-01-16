@@ -6,23 +6,17 @@ This is the official entry point and hub for all company-wide Elixir efforts at 
 Here's what you can expect to find in the
 [Surgex repository](https://github.com/surgeventures/surgex).
 
-## Elixir knowledge base
-
-Official style guide for Elixir and Phoenix projects at Surge Ventures, written in ExDoc format as
-a set of functions in the `Surgex.Guide` module ([visit at HexDocs](https://hexdocs.pm/surgex/Surgex.Guide.html)).
-
 ## Surgex bundle
 
 Surgex is a package of cross-project helper modules, each too small or too young to justify
 publishing them separately. It currently consists of:
 
 - `Surgex.Changeset`: tools for working with Ecto changesets
-- `Surgex.DatabaseCleaner`: cleans tables in a database represented by an Ecto repo
 - `Surgex.DataPipe`: tools for moving data between PostgreSQL databases and tables
+- `Surgex.DateTime`: utilities for creating date times with timezone support
 - `Surgex.Parser`: parses, casts and catches errors in the web request input
-- `Surgex.Refactor`: tools for making code maintenance and refactors easier
-- `Surgex.Sentry`: extensions to the official Sentry package
-- `Surgex.RepoHelpers`: tools for dynamic setup of Ecto repo opts
+- `Surgex.Sentry`: extensions to the official Sentry package (deprecated)
+- `Surgex.RepoHelpers`: tools for dynamic setup of Ecto repo opts (deprecated)
 
 ## Separate packages
 

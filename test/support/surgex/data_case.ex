@@ -5,7 +5,6 @@ defmodule Surgex.DataCase do
   alias Ecto.Adapters.SQL.Sandbox
 
   alias Surgex.{
-    DatabaseCleaner,
     ForeignRepo,
     Repo
   }
@@ -43,11 +42,19 @@ defmodule Surgex.DataCase do
         Sandbox.mode(Repo, :auto)
         Sandbox.mode(ForeignRepo, :auto)
 
-        DatabaseCleaner.call(Repo)
-        DatabaseCleaner.call(ForeignRepo)
+        clean_database(Repo)
+        clean_database(ForeignRepo)
       end)
     end
 
     :ok
+  end
+
+  defp clean_database(repo) do
+    tables = repo.query!("SELECT tablename FROM pg_tables WHERE schemaname = 'public'").rows
+
+    Enum.each(tables, fn [table] ->
+      repo.query!("TRUNCATE TABLE #{table} CASCADE")
+    end)
   end
 end

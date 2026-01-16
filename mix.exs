@@ -4,7 +4,7 @@ defmodule Surgex.Mixfile do
   def project do
     [
       app: :surgex,
-      version: "5.1.1",
+      version: "6.0.0",
       elixir: "~> 1.15",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
@@ -12,7 +12,6 @@ defmodule Surgex.Mixfile do
       deps: deps(),
       package: package(),
       aliases: aliases(),
-      escript: [main_module: Surgex.Command],
       name: "Surgex",
       description: "All Things Elixir @ Surge Ventures Inc, the creators of Fresha",
       source_url: "https://github.com/surgeventures/surgex",
