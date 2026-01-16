@@ -12,9 +12,19 @@ if Code.ensure_loaded?(Decimal) do
 
     def call(input, opts) when is_binary(input) do
       case Decimal.parse(input) do
-        :error -> {:error, :invalid_decimal}
-        {decimal, ""} -> validate_range(decimal, opts)
-        {_decimal, _} -> {:error, :invalid_decimal}
+        :error ->
+          {:error, :invalid_decimal}
+
+        # New API (Decimal >= 1.9): returns {:ok, decimal} on success
+        {:ok, decimal} ->
+          validate_range(decimal, opts)
+
+        # Old API (Decimal < 1.9): returns {decimal, remainder} on success
+        {decimal, ""} ->
+          validate_range(decimal, opts)
+
+        {_decimal, _remainder} ->
+          {:error, :invalid_decimal}
       end
     end
 

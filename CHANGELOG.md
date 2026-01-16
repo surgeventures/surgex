@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- Fixed `Surgex.Parser.DecimalParser` to support both old and new `Decimal.parse/1` API
+  (Decimal < 1.9 returns `{decimal, remainder}`, Decimal >= 1.9 returns `{:ok, decimal}`)
+
 ## [5.1.0]
 
 - Fixed datetime precision in `Surgex.DateTime.date_and_offset_to_datetime/3` to preserve second
