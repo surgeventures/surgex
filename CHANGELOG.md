@@ -4,6 +4,15 @@
 
 ## [6.0.0]
 
+### Deprecated
+
+- Added compile-time deprecation warnings to `Surgex.Sentry` functions
+  - `init/0` - use Elixir 1.9+ runtime configuration instead
+  - `scrub_params/1` - use Sentry's built-in scrubbing or implement your own
+- Added compile-time deprecation warnings to all `Surgex.RepoHelpers` functions
+  - Use Elixir 1.9+ runtime configuration (`config/runtime.exs`) instead
+  - See module docs for migration guide
+
 ### Removed
 
 - Removed `Surgex.Guide` module and submodules (deprecated, use external style guides)
