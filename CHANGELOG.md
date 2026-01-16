@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [5.1.1]
+
+- Fixed `Surgex.Parser.DecimalParser` compatibility with Elixir 1.18's gradual type system
+- Fixed deprecation warning for map.field notation in `Surgex.DataPipe.ForeignDataWrapper`
+
 ## [5.1.0]
 
 - Fixed datetime precision in `Surgex.DateTime.date_and_offset_to_datetime/3` to preserve second

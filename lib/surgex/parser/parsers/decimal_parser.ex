@@ -5,16 +5,41 @@ if Code.ensure_loaded?(Decimal) do
     @type errors :: :invalid_decimal | :out_of_range
     @type option :: {:min, integer()} | {:max, integer()}
 
+    # Check Decimal version at compile time
+    # Decimal < 2.0: parse/1 returns {:ok, decimal} | :error
+    # Decimal >= 2.0: parse/1 returns {decimal, remainder} | :error
+    @decimal_version :decimal |> Application.spec(:vsn) |> to_string() |> Version.parse!()
+    @decimal_2_plus Version.compare(@decimal_version, Version.parse!("2.0.0")) in [:gt, :eq]
+
     @spec call(term(), [option()]) :: {:ok, Decimal.t() | nil} | {:error, errors()}
     def call(input, opts \\ [])
     def call(nil, _opts), do: {:ok, nil}
     def call("", _opts), do: {:ok, nil}
 
-    def call(input, opts) when is_binary(input) do
-      case Decimal.parse(input) do
-        :error -> {:error, :invalid_decimal}
-        {decimal, ""} -> validate_range(decimal, opts)
-        {_decimal, _} -> {:error, :invalid_decimal}
+    if @decimal_2_plus do
+      def call(input, opts) when is_binary(input) do
+        # Decimal >= 2.0: parse/1 returns {decimal, remainder} | :error
+        case Decimal.parse(input) do
+          :error ->
+            {:error, :invalid_decimal}
+
+          {decimal, ""} ->
+            validate_range(decimal, opts)
+
+          {_decimal, _remainder} ->
+            {:error, :invalid_decimal}
+        end
+      end
+    else
+      def call(input, opts) when is_binary(input) do
+        # Decimal < 2.0: parse/1 returns {:ok, decimal} | :error
+        case Decimal.parse(input) do
+          :error ->
+            {:error, :invalid_decimal}
+
+          {:ok, decimal} ->
+            validate_range(decimal, opts)
+        end
       end
     end
 
