@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [6.0.1]
+
 ### Deprecated
 
 - Added compile-time deprecation warnings to `Surgex.Sentry` functions
@@ -346,7 +348,8 @@
 - Extended `Surgex.Sentry` to take release and environment from Mix
 - Completed `Surgex.Guide`
 
-[Unreleased]: https://github.com/surgeventures/surgex/compare/v6.0.0...HEAD
+[Unreleased]: https://github.com/surgeventures/surgex/compare/v6.0.1...HEAD
+[6.0.1]: https://github.com/surgeventures/surgex/compare/v6.0.0...v6.0.1
 [6.0.0]: https://github.com/surgeventures/surgex/compare/v5.1.1...v6.0.0
 [5.1.1]: https://github.com/surgeventures/surgex/compare/v5.1.0...v5.1.1
 [5.1.0]: https://github.com/surgeventures/surgex/compare/v5.0.0...v5.1.0
