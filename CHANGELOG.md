@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [6.0.0]
+
+### Removed
+
+- Removed `Surgex.Guide` module and submodules (deprecated, use external style guides)
+- Removed `Surgex.DatabaseCleaner` module (no external usage found)
+- Removed `Surgex.Refactor` module and mix task (no external usage found)
+- Removed escript configuration (was only used for refactor command)
+
 ## [5.1.1]
 
 - Fixed `Surgex.Parser.DecimalParser` compatibility with Elixir 1.18's gradual type system
@@ -318,7 +327,9 @@
 - Extended `Surgex.Sentry` to take release and environment from Mix
 - Completed `Surgex.Guide`
 
-[Unreleased]: https://github.com/surgeventures/surgex/compare/v5.1.0...HEAD
+[Unreleased]: https://github.com/surgeventures/surgex/compare/v6.0.0...HEAD
+[6.0.0]: https://github.com/surgeventures/surgex/compare/v5.1.1...v6.0.0
+[5.1.1]: https://github.com/surgeventures/surgex/compare/v5.1.0...v5.1.1
 [5.1.0]: https://github.com/surgeventures/surgex/compare/v5.0.0...v5.1.0
 [5.0.0]: https://github.com/surgeventures/surgex/compare/v4.15.2...v5.0.0
 [4.15.2]: https://github.com/surgeventures/surgex/compare/v4.15.1...v4.15.2
