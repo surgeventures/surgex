@@ -4,6 +4,9 @@ if Code.ensure_loaded?(Plug) do
     Extensions to the official Sentry package.
 
     **NOTE: Deprecated in favor of Elixir 1.9 runtime configuration.**
+
+    This module will be removed in a future version. Use Elixir 1.9+ runtime configuration
+    with `config/runtime.exs` instead.
     """
 
     alias Mix.Project
@@ -23,6 +26,7 @@ if Code.ensure_loaded?(Plug) do
           sentry_patch_enabled: true
 
     """
+    @deprecated "Use Elixir 1.9+ runtime configuration (config/runtime.exs) instead"
     def init do
       if Application.get_env(:surgex, :sentry_patch_enabled, false), do: do_init()
     end
@@ -83,6 +87,7 @@ if Code.ensure_loaded?(Plug) do
         use Sentry.Plug, body_scrubber: &Surgex.Sentry.scrub_params/1
 
     """
+    @deprecated "Use Sentry's built-in scrubbing or implement your own scrubber"
     def scrub_params(%Plug.Conn{params: params}), do: scrub_map(params)
 
     defp scrub_map(map = %{}) do
