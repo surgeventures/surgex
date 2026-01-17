@@ -13,6 +13,10 @@
   - Use Elixir 1.9+ runtime configuration (`config/runtime.exs`) instead
   - See module docs for migration guide
 
+### Changed
+
+- Removed `--warnings-as-errors` from CI to allow deprecation warnings to surface in consumer apps
+
 ### Removed
 
 - Removed `Surgex.Guide` module and submodules (deprecated, use external style guides)
