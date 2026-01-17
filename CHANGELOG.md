@@ -2,8 +2,6 @@
 
 ## [Unreleased]
 
-## [6.0.0]
-
 ### Deprecated
 
 - Added compile-time deprecation warnings to `Surgex.Sentry` functions
@@ -19,13 +17,18 @@
 
 ### Removed
 
+- Removed `Surgex.DataPipe.RepoProxy` module (no external usage found)
+- Removed `Surgex.DataPipe.ForeignDataWrapper` module (no external usage found)
+- Removed `Surgex.DataPipe.TableSync` module (forked into app-shedul-umbrella, original unused)
+
+## [6.0.0]
+
+### Removed
+
 - Removed `Surgex.Guide` module and submodules (deprecated, use external style guides)
 - Removed `Surgex.DatabaseCleaner` module (no external usage found)
 - Removed `Surgex.Refactor` module and mix task (no external usage found)
 - Removed escript configuration (was only used for refactor command)
-- Removed `Surgex.DataPipe.RepoProxy` module (no external usage found)
-- Removed `Surgex.DataPipe.ForeignDataWrapper` module (no external usage found)
-- Removed `Surgex.DataPipe.TableSync` module (forked into app-shedul-umbrella, original unused)
 
 ## [5.1.1]
 
