@@ -1,5 +1,5 @@
 version: 1
-generated_at: 2026-06-11T15:40:51Z
+generated_at: 2026-08-04T13:15:44Z
 internal: []
 trusted:
   - action: actions/cache
@@ -8,25 +8,35 @@ trusted:
     occurrences:
       0057852bfaa89a56745cba8c7296529d2fc39830:
         .github/workflows/ci.yaml:
-          - jobs.test.steps.[2].uses
+          - jobs.test.steps.[3].uses
   - action: actions/checkout
     refs:
       - 34e114876b0b11c390a56381ad16ebd13914f8d5
     occurrences:
       34e114876b0b11c390a56381ad16ebd13914f8d5:
         .github/workflows/ci.yaml:
+          - jobs.test.steps.[1].uses
+          - jobs.permit.steps.[1].uses
+          - jobs.publish.steps.[1].uses
+external:
+  - action: step-security/harden-runner
+    refs:
+      - 9af89fc71515a100421586dfdb3dc9c984fbf411
+    occurrences:
+      9af89fc71515a100421586dfdb3dc9c984fbf411:
+        .github/workflows/ci.yaml:
           - jobs.test.steps.[0].uses
           - jobs.permit.steps.[0].uses
           - jobs.publish.steps.[0].uses
-external:
-  - action: erlef/setup-beam
+  - action: step-security/mise-action
     refs:
-      - fc68ffb90438ef2936bbb3251622353b3dcb2f93
+      - 2796166110dee826668caddd4bffedae5116e7cd
     occurrences:
-      fc68ffb90438ef2936bbb3251622353b3dcb2f93:
+      2796166110dee826668caddd4bffedae5116e7cd:
         .github/workflows/ci.yaml:
-          - jobs.test.steps.[1].uses
-          - jobs.publish.steps.[1].uses
+          - jobs.test.steps.[2].uses
+          - jobs.publish.steps.[2].uses
 local: []
 docker: []
 dynamic: []
+nested_floating_deps: []
