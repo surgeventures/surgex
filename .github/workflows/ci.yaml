@@ -74,7 +74,7 @@ jobs:
       - name: Setup mise
         uses: step-security/mise-action@2796166110dee826668caddd4bffedae5116e7cd # v4.2.0
         env:
-          MISE_ELIXIR_VERSION: ${{ matrix.elixir }}
+          MISE_ELIXIR_VERSION: ${{ matrix.elixir }}-otp-${{ matrix.otp }}
           MISE_ERLANG_VERSION: ${{ matrix.otp }}
 
       - uses: step-security/runs-on-cache@c5b0cba15d05488ebc630ad8d1e95b3d9b35ac73 # v5.0.7
