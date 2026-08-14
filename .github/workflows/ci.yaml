@@ -91,6 +91,7 @@ jobs:
 
   permit:
     name: Permit Package Publishing
+    timeout-minutes: 25
     needs: [test]
     runs-on: ubuntu-latest
     outputs:
