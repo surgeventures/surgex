@@ -20,7 +20,6 @@ env:
   DEBIAN_FRONTEND: noninteractive
   REPOSITORY: surgex
   RUNNER_OS: ubuntu22 # Must match Elixir/OTP version in described in action erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93 # v1
-  ImageOS: ubuntu22
   DEPENDENCY_FILE: mix.lock
   WORKING_DIRECTORY: .
 
