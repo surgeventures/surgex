@@ -1,0 +1,42 @@
+version: 1
+generated_at: 2026-08-20T17:23:03Z
+internal: []
+trusted:
+  - action: actions/checkout
+    refs:
+      - 34e114876b0b11c390a56381ad16ebd13914f8d5
+    occurrences:
+      34e114876b0b11c390a56381ad16ebd13914f8d5:
+        .github/workflows/ci.yaml:
+          - jobs.test.steps.[1].uses
+          - jobs.permit.steps.[1].uses
+          - jobs.publish.steps.[1].uses
+external:
+  - action: step-security/harden-runner
+    refs:
+      - 9af89fc71515a100421586dfdb3dc9c984fbf411
+    occurrences:
+      9af89fc71515a100421586dfdb3dc9c984fbf411:
+        .github/workflows/ci.yaml:
+          - jobs.test.steps.[0].uses
+          - jobs.permit.steps.[0].uses
+          - jobs.publish.steps.[0].uses
+  - action: step-security/mise-action
+    refs:
+      - 2796166110dee826668caddd4bffedae5116e7cd
+    occurrences:
+      2796166110dee826668caddd4bffedae5116e7cd:
+        .github/workflows/ci.yaml:
+          - jobs.test.steps.[2].uses
+          - jobs.publish.steps.[2].uses
+  - action: step-security/runs-on-cache
+    refs:
+      - c5b0cba15d05488ebc630ad8d1e95b3d9b35ac73
+    occurrences:
+      c5b0cba15d05488ebc630ad8d1e95b3d9b35ac73:
+        .github/workflows/ci.yaml:
+          - jobs.test.steps.[3].uses
+local: []
+docker: []
+dynamic: []
+nested_floating_deps: []
