@@ -19,27 +19,13 @@ env:
   OTP_VERSION: 27.3
   DEBIAN_FRONTEND: noninteractive
   REPOSITORY: surgex
-  RUNNER_OS: ubuntu22 # Must match Elixir/OTP version in described in action erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93 # v1
-  ImageOS: ubuntu22
   DEPENDENCY_FILE: mix.lock
   WORKING_DIRECTORY: .
 
 jobs:
   test:
-    name: Elixir ${{ matrix.elixir }} / OTP ${{ matrix.otp }}
+    name: Test
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - elixir: '1.15'
-            otp: '26'
-          - elixir: '1.16'
-            otp: '26'
-          - elixir: '1.17'
-            otp: '27'
-          - elixir: '1.18'
-            otp: '27'
 
     services:
       postgres:
@@ -61,8 +47,6 @@ jobs:
       POSTGRES_PORT: 5432
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      MISE_ELIXIR_VERSION: ${{ matrix.elixir }}-otp-${{ matrix.otp }}
-      MISE_ERLANG_VERSION: ${{ matrix.otp }}
 
     steps:
       - name: Harden the runner
@@ -74,14 +58,16 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Setup mise
-        uses: step-security/mise-action@2796166110dee826668caddd4bffedae5116e7cd # v4.2.0
+        uses: step-security/mise-action@6e96d2ffbc65c037f23c78818f2a339d6cf830f7 # v4.2.4
+        with:
+          version: '2026.8.12'
 
       - uses: step-security/runs-on-cache@c5b0cba15d05488ebc630ad8d1e95b3d9b35ac73 # v5.0.7
         with:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-mix-${{ matrix.elixir }}-${{ matrix.otp }}-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-mix-${{ hashFiles('mix.lock') }}
 
       - run: mix deps.get
       - run: mix compile
@@ -145,7 +131,9 @@ jobs:
         with:
           ref: ${{ env.SHA }}
       - name: Setup mise
-        uses: step-security/mise-action@2796166110dee826668caddd4bffedae5116e7cd # v4.2.0
+        uses: step-security/mise-action@6e96d2ffbc65c037f23c78818f2a339d6cf830f7 # v4.2.4
+        with:
+          version: '2026.8.12'
       - name: Get dependencies
         run: mix deps.get
       - name: Publish package
